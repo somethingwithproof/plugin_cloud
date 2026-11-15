@@ -213,6 +213,27 @@ jobs:
         php poller.php --poller=1 --force --debug
         grep -q "SYSTEM STATS" log/cacti.log
 
+    # poller_bottom starts the collector in the background; run it once in
+    # the foreground too, so its exit status and log lines are checked.
+    - name: Run the cloud collector
+      working-directory: cacti
+      run: php plugins/cloud/poller_cloud.php --poller=1
+
+    - name: Check page permissions and POST-only actions
+      working-directory: cacti
+      env:
+        CLOUD_TEST_DATABASE: disposable
+      run: |
+        php -S 127.0.0.1:8080 -t "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/php-server.log" 2>&1 &
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+          curl -fsS -o /dev/null http://127.0.0.1:8080/cacti/index.php && break
+          sleep 1
+        done
+        php plugins/cloud/tests/bin/page-permissions.php http://127.0.0.1:8080/cacti/
+        if grep -E "Fatal error|Warning:|Uncaught" "$RUNNER_TEMP/php-server.log"; then
+          exit 1
+        fi
+
     - name: Check Cacti log for errors
       if: always()
       run: |

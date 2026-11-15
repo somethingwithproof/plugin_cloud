@@ -131,11 +131,11 @@ msgstr ""
 msgid "Verify"
 msgstr ""
 
-#: lib/AccountsPage.php
+#: lib/AccountsPage.php lib/HealthPage.php
 msgid "No cloud accounts yet."
 msgstr ""
 
-#: lib/AccountsPage.php
+#: lib/AccountsPage.php lib/HealthPage.php
 msgid "Disabled"
 msgstr ""
 
@@ -212,6 +212,79 @@ msgstr ""
 msgid "Instance identity of the poller"
 msgstr ""
 
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Account"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Resources"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Never"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "The vault key file is present and passes its checks."
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr ""
+
+#: lib/HealthPage.php lib/Settings.php
+msgid "Credential Vault"
+msgstr ""
+
 #: lib/Pages.php
 msgid "Cloud View"
 msgstr ""
@@ -238,10 +311,6 @@ msgstr ""
 
 #: lib/Provider.php
 msgid "Microsoft Azure"
-msgstr ""
-
-#: lib/Settings.php
-msgid "Credential Vault"
 msgstr ""
 
 #: lib/Settings.php
