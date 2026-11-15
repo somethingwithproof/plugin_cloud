@@ -30,6 +30,8 @@ namespace Somethingwithproof\Cloud;
  * the work it finished, and the next run continues.
  */
 final class Collector {
+	public const DUE_SLACK = 30;
+
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly Drivers $drivers,
@@ -95,7 +97,13 @@ final class Collector {
 		$start    = microtime(true);
 		$previous = $this->health->find($account->id);
 
-		if ($previous->runStarted > 0 && $now - $previous->runStarted < $account->collectInterval) {
+		// Each run starts a few seconds after its poller cycle, so the time
+		// since the last start drifts around the interval. Without slack, an
+		// interval equal to the poller interval would often read as not yet
+		// due and collect only every other cycle.
+		$slack = min(self::DUE_SLACK, intdiv($account->collectInterval, 10));
+
+		if ($previous->runStarted > 0 && $now - $previous->runStarted < $account->collectInterval - $slack) {
 			return;
 		}
 

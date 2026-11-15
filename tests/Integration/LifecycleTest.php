@@ -195,6 +195,8 @@ it('collects only what is due, owned, enabled, mapped, and leased', function () 
 		->and($r['collected_early'])->toBe([])
 		// Only the active, plugin-mapped data source is read; discovery is not due again.
 		->and($r['collected'])->toBe(['d1/cpu'])
+		->and($r['collected_at_200'])->toBe(1)
+		->and($r['collected_at_296'])->toBe(2)
 		->and($r['discoveries_after'])->toBe(1)
 		->and((float) $r['observation']['value'])->toBe(42.5)
 		->and($r['observation']['status'])->toBe('ok')

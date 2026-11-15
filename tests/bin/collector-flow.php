@@ -161,6 +161,15 @@ $flow_clock->advance(300);
 FlowDriver::$observedAt = $flow_clock->now() - 120;
 flow_collector($flow_clock, 'h3')->run(1, 240);
 $result['collected'] = FlowDriver::$collected;
+
+// A run a few seconds early, as poller start times drift, is still due;
+// one well inside the interval is not.
+$flow_clock->advance(200);
+flow_collector($flow_clock, 'h3a')->run(1, 240);
+$result['collected_at_200'] = count(FlowDriver::$collected);
+$flow_clock->advance(96);
+flow_collector($flow_clock, 'h3b')->run(1, 240);
+$result['collected_at_296'] = count(FlowDriver::$collected);
 $result['discoveries_after'] = FlowDriver::$discoveries;
 $result['observation'] = db_fetch_row_prepared('SELECT value, observed_at, status FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?', array($d1, 'cpu'));
 $result['health'] = db_fetch_row_prepared('SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?', array($main));
