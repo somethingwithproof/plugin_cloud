@@ -10,7 +10,7 @@ The script uses the real collector, the DigitalOcean driver, the guarded transpo
 
 | Case | Setup | Measures |
 |---|---|---|
-| Collect | 4 accounts, 50 Droplets each, 5 agent-free series per Droplet: 1,000 series | One collector run on poller 1 (REQ-PERF-001) |
+| Collect | 4 accounts, 50 Droplets each, 5 series per Droplet (CPU and four bandwidth): 1,000 series | One collector run on poller 1 (REQ-PERF-001) |
 | Budget | 1 account, 200 Droplets, 5 series each: 1,000 series | The same run, where the request budget stops the account |
 | Page | 10 accounts, 200 Droplets each, 5 cached series per Droplet: 10,000 series | `cloud_health.php` over HTTP as a logged-in administrator, the median of five loads after a warm-up (REQ-PERF-002) |
 
@@ -45,7 +45,7 @@ The page result was checked by its content, not only its speed. Each of the 10 a
 
 ## Reading the results
 
-- **Run time scales with provider latency.** The collector reads one series per request, one request at a time. A run takes about requests × (latency + 3 ms). With the default 240-second time budget, 1,000 series fit while the average round trip stays under about 237 ms. Above that, the collector stops starting new accounts at the budget, and the unread accounts are collected in the next run. DigitalOcean's real latency from a given poller is a [live check](research/provider-facts.md#live-checks) (#16).
+- **Run time scales with provider latency.** The collector reads one series per request, one request at a time. A run takes about requests × (latency + 3 ms). With the default 240-second time budget, 1,000 series fit while the average round trip stays under about 237 ms. Above that, the collector stops starting new accounts at the budget, and the unread accounts are collected in the next run. The first [live check](research/provider-facts.md#live-checks) (#16) measured a median round trip of 384 ms (301 to 799 ms) from a home connection. At that latency, 1,000 series take about 390 seconds, so the default budget reads about 620 a run and the rest carry over. A poller in a data center near DigitalOcean should see less, so measure from your own poller before planning for more than about 600 series on one poller.
 - **DigitalOcean's limit is per token, not per plugin.** At the default 50 percent share, one account reads 125 series a run. Larger estates need more accounts, each with its own token, and the health page estimate shows how close each account is to its share.
 - **The page stays cheap at 10,000 series.** It reads cached rows only and never calls a provider, so its cost grows with the plugin's tables, not with provider latency.
 - **Not measured here:** RRD updates by Cacti's poller, boost, Spine, remote data collectors, and a database on a separate host. Each adds cost outside the plugin.

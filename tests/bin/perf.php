@@ -162,8 +162,8 @@ function perf_insert($sql, $rows) {
 }
 
 /**
- * $accounts accounts of $droplets Droplets with five agent-free series
- * each, discovered just now so no run rediscovers them.
+ * $accounts accounts of $droplets Droplets with five series each (CPU and
+ * the four bandwidth series), discovered just now so no run rediscovers them.
  */
 function perf_world($accounts, $droplets, $observed) {
 	global $tmp;
