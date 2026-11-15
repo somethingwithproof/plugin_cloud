@@ -182,7 +182,7 @@ switch ($action) {
 				$database_username,
 				$database_password
 			);
-			$other->query("SELECT GET_LOCK('plugin_cloud_device_" . $account . "', 0)");
+			$other->prepare('SELECT GET_LOCK(?, 0)')->execute(array('plugin_cloud_device_' . $account));
 		}
 
 		$result = cloud_scope_devices(1)->create(cloud_accounts()->find($account));
