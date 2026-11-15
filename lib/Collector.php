@@ -52,6 +52,7 @@ final class Collector {
 		private readonly Redactor $redactor,
 		private readonly Clock $clock,
 		private readonly string $holder,
+		private readonly ?ScopeDevices $scopeDevices = null,
 	) {
 	}
 
@@ -175,10 +176,17 @@ final class Collector {
 			try {
 				$inventory    = $driver->discover($account, $credential);
 				$requests    += $inventory->requests;
-				$discovery    = $this->resources->sync($account->id, $inventory, $this->leases, $this->holder)
-					? CollectionState::Ok
-					: CollectionState::Partial;
+				$synced       = $this->resources->sync($account->id, $inventory, $this->leases, $this->holder);
+				$discovery    = $synced ? CollectionState::Ok : CollectionState::Partial;
 				$discoveredAt = $now;
+
+				// Cacti's own reindex checks miss a replaced or renamed
+				// resource and a data query that had none.
+				$served = $synced && $this->scopeDevices !== null ? $this->resources->servedIndex($account->id) : null;
+
+				if ($served !== null) {
+					$this->scopeDevices?->refresh($account->id, $served);
+				}
 			} catch (DriverError|TransportError $e) {
 				$discovery = CollectionState::Failed;
 				Log::warning(sprintf('Account %d: discovery failed: %s', $account->id, $this->redactor->clean($e->getMessage())));

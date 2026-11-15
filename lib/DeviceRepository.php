@@ -101,6 +101,32 @@ final class DeviceRepository {
 	}
 
 	/**
+	 * What Cacti last indexed on a device: each index and its resource name.
+	 *
+	 * @return array<string, string>|null index => name; null when unreadable
+	 */
+	public function cachedIndex(int $hostId): ?array {
+		$rows = db_fetch_assoc_prepared(
+			"SELECT snmp_index, field_value FROM host_snmp_cache WHERE host_id = ? AND field_name = 'resourceName'",
+			[$hostId],
+			true,
+			$this->connection
+		);
+
+		if (!is_array($rows)) {
+			return null;
+		}
+
+		$index = [];
+
+		foreach (Row::rows($rows) as $row) {
+			$index[Row::string($row, 'snmp_index')] = Row::string($row, 'field_value');
+		}
+
+		return $index;
+	}
+
+	/**
 	 * The reindex method of each data query on a live scope device; empty
 	 * for any other device.
 	 *

@@ -25,7 +25,9 @@ namespace Somethingwithproof\Cloud;
  * with the provider's device template, whose data queries list the
  * account's resources through ss_cloud().
  *
- * The accounts page calls this only when an administrator asks for it.
+ * The accounts page creates a device only when an administrator asks for
+ * it. The collector indexes it again after a discovery when the resources
+ * it serves differ from what Cacti last indexed.
  */
 final class ScopeDevices {
 	/** api_device_save()'s availability method None (AVAIL_NONE). */
@@ -35,7 +37,11 @@ final class ScopeDevices {
 	 * Reindex on an index count change (DATA_QUERY_AUTOINDEX_INDEX_NUM_CHANGE):
 	 * the poller compares ss_cloud()'s num_indexes with the cached count. The
 	 * site default, uptime going backwards, needs SNMP, which a scope device
-	 * does not have, so it would never reindex.
+	 * does not have, so it would never reindex. Verify all fields builds no
+	 * checks for script server queries in 1.2.31 or 1.2.x. An index count
+	 * misses a replaced or renamed resource and a query that had none, so
+	 * this is only a backstop for refresh(), which the collector calls after
+	 * each discovery.
 	 */
 	public const REINDEX_METHOD = 2;
 
@@ -47,6 +53,7 @@ final class ScopeDevices {
 	 *        and device template, returning the new device id or 0
 	 * @param \Closure(int, int, int): void $reindex api_device_dq_change() for a device,
 	 *        data query and reindex method, which also runs the data query
+	 * @param \Closure(int, int): void     $index   run_data_query() for a device and data query
 	 * @param \Closure(int): void          $remove  api_device_remove() for a device
 	 * @param int                          $lockTimeout seconds to wait for another
 	 *        request creating the same account's device
@@ -56,6 +63,7 @@ final class ScopeDevices {
 		private readonly TemplateRepository $templates,
 		private readonly \Closure $save,
 		private readonly \Closure $reindex,
+		private readonly \Closure $index,
 		private readonly \Closure $remove,
 		private readonly int $lockTimeout = 10,
 	) {
@@ -133,6 +141,67 @@ final class ScopeDevices {
 		Log::info(sprintf('Account %d: created scope device %d', $account->id, $host));
 
 		return $host;
+	}
+
+	/**
+	 * Index the account's scope device again, as Cacti's reindex does, when
+	 * what Cacti last indexed differs from what it should list. Comparing
+	 * with Cacti's cache rather than with the previous discovery means a
+	 * refresh that could not run is retried after the next discovery. Runs
+	 * under the account's creation lock so a device being created is not
+	 * indexed half linked.
+	 *
+	 * @param array<string, string> $served provider id => name, as
+	 *        ResourceRepository::servedIndex() returns
+	 *
+	 * @return bool whether the device, if there is one, is up to date
+	 */
+	public function refresh(int $accountId, array $served): bool {
+		$host = $this->devices->hostFor($accountId);
+
+		if ($host === null || $this->indexed($host, $served)) {
+			return true;
+		}
+
+		if (!$this->devices->lock($accountId, $this->lockTimeout)) {
+			Log::warning(sprintf('Account %d: scope device busy; reindexed after the next discovery', $accountId));
+
+			return false;
+		}
+
+		try {
+			$queries = $this->devices->reindexMethods($host);
+
+			if ($queries === null) {
+				Log::warning(sprintf('Account %d: scope device data queries unreadable; not reindexed', $accountId));
+
+				return false;
+			}
+
+			foreach (array_keys($queries) as $query) {
+				($this->index)($host, $query);
+			}
+
+			return true;
+		} finally {
+			$this->devices->unlock($accountId);
+		}
+	}
+
+	/**
+	 * @param array<string, string> $served
+	 */
+	private function indexed(int $host, array $served): bool {
+		$cached = $this->devices->cachedIndex($host);
+
+		if ($cached === null) {
+			return false;
+		}
+
+		ksort($cached);
+		ksort($served);
+
+		return $cached === $served;
 	}
 
 	/**

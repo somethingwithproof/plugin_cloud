@@ -534,6 +534,9 @@ function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\S
 		function (int $host, int $query, int $method): void {
 			api_device_dq_change($host, $query, $method);
 		},
+		function (int $host, int $query): void {
+			run_data_query($host, $query);
+		},
 		function (int $host): void {
 			api_device_remove($host);
 		},
@@ -568,6 +571,8 @@ function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
 		new \Somethingwithproof\Cloud\HealthRepository(false),
 		new \Somethingwithproof\Cloud\Redactor(),
 		$clock,
-		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4))
+		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4)),
+		// Wait briefly for a device being created; the next discovery retries.
+		cloud_scope_devices(1)
 	);
 }

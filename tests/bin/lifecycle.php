@@ -429,6 +429,10 @@ switch ($action) {
 		);
 
 		break;
+	case 'discover':
+		include($config['base_path'] . '/plugins/cloud/tests/bin/discover.php');
+
+		break;
 	case 'collector_flow':
 		include($config['base_path'] . '/plugins/cloud/tests/bin/collector-flow.php');
 

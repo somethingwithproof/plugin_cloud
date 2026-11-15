@@ -39,7 +39,7 @@ function cloud_scope_world(): void {
 		'FROM `snmp_query`'        => [['id' => 9]],
 		'GET_LOCK'                 => [['locked' => 1]],
 	];
-	$GLOBALS['__cloud_scope'] = ['saved' => [], 'reindexed' => [], 'removed' => []];
+	$GLOBALS['__cloud_scope'] = ['saved' => [], 'reindexed' => [], 'indexed' => [], 'removed' => []];
 }
 
 function cloud_scope_devices_under_test(): ScopeDevices {
@@ -53,6 +53,9 @@ function cloud_scope_devices_under_test(): ScopeDevices {
 		},
 		static function (int $host, int $query, int $method): void {
 			$GLOBALS['__cloud_scope']['reindexed'][] = [$host, $query, $method];
+		},
+		static function (int $host, int $query): void {
+			$GLOBALS['__cloud_scope']['indexed'][] = [$host, $query];
 		},
 		static function (int $host): void {
 			$GLOBALS['__cloud_scope']['removed'][] = $host;
@@ -115,4 +118,38 @@ it('returns the device another request created while it waited for the lock', fu
 	expect(cloud_scope_devices_under_test()->create(cloud_scope_account()))->toBe(77)
 		->and($GLOBALS['__cloud_scope']['saved'])->toBe([])
 		->and(array_column($GLOBALS['__cloud_db_exec'], 'sql'))->toContain('DO RELEASE_LOCK(?)');
+});
+
+it('indexes each data query of the account\'s device again when Cacti\'s index is stale, under the account\'s lock', function () {
+	cloud_scope_world();
+	$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = [
+		['snmp_index' => '101', 'field_value' => 'web-1'],
+		['snmp_index' => '102', 'field_value' => 'web-2'],
+	];
+	$GLOBALS['__cloud_db_rows']['FROM host_snmp_query'] = [
+		['snmp_query_id' => 9, 'reindex_method' => 2],
+		['snmp_query_id' => 10, 'reindex_method' => 2],
+	];
+	$GLOBALS['__cloud_db_rows']['FROM plugin_cloud_device'] = [['host_id' => 42]];
+
+	expect(cloud_scope_devices_under_test()->refresh(4, ['102' => 'web-2', '101' => 'web-1']))->toBeTrue()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([]);
+
+	expect(cloud_scope_devices_under_test()->refresh(4, ['101' => 'web-1', '103' => 'web-3']))->toBeTrue()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([[42, 9], [42, 10]])
+		->and(array_column($GLOBALS['__cloud_db_exec'], 'sql'))->toContain('DO RELEASE_LOCK(?)');
+});
+
+it('indexes nothing while the account\'s device is being created, or when it has none', function () {
+	cloud_scope_world();
+	$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = [];
+
+	expect(cloud_scope_devices_under_test()->refresh(4, ['101' => 'web-1']))->toBeTrue()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([]);
+
+	$GLOBALS['__cloud_db_rows']['FROM plugin_cloud_device'] = [['host_id' => 42]];
+	$GLOBALS['__cloud_db_rows']['GET_LOCK']                 = [['locked' => 0]];
+
+	expect(cloud_scope_devices_under_test()->refresh(4, ['101' => 'web-1']))->toBeFalse()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([]);
 });

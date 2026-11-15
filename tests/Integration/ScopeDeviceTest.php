@@ -71,6 +71,34 @@ it('removes the device it saved when the account link cannot be written', functi
 		->and($failed['hosts'])->toBe($hosts);
 });
 
+it('indexes its scope device after a discovery that replaces a resource, until the old one is retired', function () {
+	lifecycle('scope_device');
+
+	// The count stays two while 103 replaces 102, which Cacti's index
+	// count check cannot see; 102 is served while missing.
+	expect(lifecycle('discover', 'droplet:101=web-1,droplet:103=web-3')['device_index'])
+		->toBe(['101' => 'web-1', '102' => 'web-2', '103' => 'web-3']);
+
+	lifecycle('discover', 'droplet:101=web-1,droplet:103=web-3');
+
+	expect(lifecycle('discover', 'droplet:101=web-1,droplet:103=web-3')['device_index'])
+		->toBe(['101' => 'web-1', '103' => 'web-3']);
+});
+
+it('indexes its scope device after a discovery that only renames a resource', function () {
+	lifecycle('scope_device');
+
+	expect(lifecycle('discover', 'droplet:101=web-1-renamed,droplet:102=web-2')['device_index'])
+		->toBe(['101' => 'web-1-renamed', '102' => 'web-2']);
+});
+
+it('indexes a data query that had no resources when discovery finds its first', function () {
+	lifecycle('scope_device');
+
+	expect(lifecycle('discover', 'droplet:101=web-1,droplet:102=web-2,load_balancer:lb-1=front')['device_index'])
+		->toBe(['101' => 'web-1', '102' => 'web-2', 'lb-1' => 'front']);
+});
+
 it('reindexes resources added, renamed, and retired upstream', function () {
 	lifecycle('scope_device');
 	lifecycle('resource', '103=web-3');

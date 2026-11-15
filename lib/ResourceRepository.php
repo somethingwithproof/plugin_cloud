@@ -111,6 +111,34 @@ final class ResourceRepository {
 	}
 
 	/**
+	 * What the account's scope device should list: each served resource's
+	 * id and name as ss_cloud() reports them.
+	 *
+	 * @return array<string, string>|null provider id => name; null when the
+	 *                                     resources could not be read
+	 */
+	public function servedIndex(int $accountId): ?array {
+		$rows = db_fetch_assoc_prepared(
+			'SELECT provider_id, name FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?',
+			[$accountId, Lifecycle::Deleted->value],
+			true,
+			$this->connection
+		);
+
+		if (!is_array($rows)) {
+			return null;
+		}
+
+		$index = [];
+
+		foreach (Row::rows($rows) as $row) {
+			$index[Row::string($row, 'provider_id')] = ScriptServer::label(Row::string($row, 'name'));
+		}
+
+		return $index;
+	}
+
+	/**
 	 * @return array<string, int> lifecycle => count
 	 */
 	public function counts(int $accountId): array {
