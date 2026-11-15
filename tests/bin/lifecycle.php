@@ -111,6 +111,56 @@ switch ($action) {
 		db_execute('ALTER TABLE `' . $table . '` DROP COLUMN `' . $column . '`');
 
 		break;
+	case 'templates':
+		// Run the template install on its own, as a second upgrade would.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$result = cloud_setup_templates(1);
+
+		break;
+	case 'delete_graph_template':
+		// What an administrator deleting one shipped graph template leaves.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$id = (int) db_fetch_cell_prepared(
+			'SELECT id FROM graph_templates WHERE hash = ?',
+			array(\Somethingwithproof\Cloud\TemplateRepository::hash('graph_template/' . $argument))
+		);
+		// The same rows graph_templates.php deletes for a template.
+		$graphs = array_column(
+			db_fetch_assoc_prepared('SELECT id FROM snmp_query_graph WHERE graph_template_id = ?', array($id)),
+			'id'
+		);
+
+		foreach ($graphs as $graph) {
+			foreach (array('snmp_query_graph_rrd', 'snmp_query_graph_rrd_sv', 'snmp_query_graph_sv') as $table) {
+				db_execute_prepared('DELETE FROM ' . $table . ' WHERE snmp_query_graph_id = ?', array($graph));
+			}
+		}
+
+		db_execute_prepared(
+			'DELETE FROM graph_template_input_defs WHERE graph_template_input_id IN ' .
+				'(SELECT id FROM graph_template_input WHERE graph_template_id = ?)',
+			array($id)
+		);
+
+		foreach (array('graph_templates', 'snmp_query_graph', 'graph_template_input', 'host_template_graph') as $table) {
+			db_execute_prepared(
+				'DELETE FROM ' . $table . ' WHERE ' . ($table === 'graph_templates' ? 'id' : 'graph_template_id') . ' = ?',
+				array($id)
+			);
+		}
+
+		db_execute_prepared(
+			'DELETE FROM graph_templates_graph WHERE graph_template_id = ? AND local_graph_id = 0',
+			array($id)
+		);
+		db_execute_prepared(
+			'DELETE FROM graph_templates_item WHERE graph_template_id = ? AND local_graph_id = 0',
+			array($id)
+		);
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
@@ -295,4 +345,26 @@ print json_encode(array(
 		'c'
 	),
 	'tables'  => $tables,
+	// Rows of the tables a template import writes, to show a re-import adds none.
+	'template_rows' => array(
+		'host_template'         => (int) db_fetch_cell('SELECT COUNT(*) FROM host_template'),
+		'host_template_snmp'    => (int) db_fetch_cell('SELECT COUNT(*) FROM host_template_snmp_query'),
+		'snmp_query'            => (int) db_fetch_cell('SELECT COUNT(*) FROM snmp_query'),
+		'snmp_query_graph'      => (int) db_fetch_cell('SELECT COUNT(*) FROM snmp_query_graph'),
+		'snmp_query_graph_rrd'  => (int) db_fetch_cell('SELECT COUNT(*) FROM snmp_query_graph_rrd'),
+		'data_template'         => (int) db_fetch_cell('SELECT COUNT(*) FROM data_template'),
+		'data_template_rrd'     => (int) db_fetch_cell('SELECT COUNT(*) FROM data_template_rrd WHERE local_data_id = 0'),
+		'graph_templates'       => (int) db_fetch_cell('SELECT COUNT(*) FROM graph_templates'),
+		'graph_templates_item'  => (int) db_fetch_cell('SELECT COUNT(*) FROM graph_templates_item WHERE local_graph_id = 0'),
+		'graph_template_input'  => (int) db_fetch_cell('SELECT COUNT(*) FROM graph_template_input'),
+	),
+	'template_names' => array_column(
+		db_fetch_assoc("SELECT name FROM graph_templates WHERE name LIKE 'Cloud: %' ORDER BY name"),
+		'name'
+	),
+	'templates_sha' => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_templates_sha256'"),
+	'resource_files' => array_map(
+		'basename',
+		glob($config['base_path'] . '/resource/script_server/cloud_*.xml') ?: array()
+	),
 ), JSON_PRETTY_PRINT) . PHP_EOL;

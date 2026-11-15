@@ -1,0 +1,92 @@
+<interface>
+	<name>Get Cloud: DigitalOcean Droplets</name>
+	<script_path>|path_cacti|/plugins/cloud/ss_cloud.php</script_path>
+	<script_function>ss_cloud</script_function>
+	<script_server>php</script_server>
+	<arg_prepend>|host_id| droplet</arg_prepend>
+	<arg_index>index</arg_index>
+	<arg_query>query</arg_query>
+	<arg_get>get</arg_get>
+	<arg_num_indexes>num_indexes</arg_num_indexes>
+	<output_delimiter>!</output_delimiter>
+	<index_order>resourceId</index_order>
+	<index_order_type>alphabetic</index_order_type>
+	<index_title_format>|chosen_order_field|</index_title_format>
+	<fields>
+		<resourceId>
+			<name>Resource ID</name>
+			<direction>input</direction>
+			<query_name>resourceId</query_name>
+		</resourceId>
+		<resourceName>
+			<name>Resource Name</name>
+			<direction>input</direction>
+			<query_name>resourceName</query_name>
+		</resourceName>
+		<do_cpu_pct>
+			<name>CPU: do_cpu_pct</name>
+			<direction>output</direction>
+			<query_name>do_cpu_pct</query_name>
+		</do_cpu_pct>
+		<do_bw_pub_in>
+			<name>Bandwidth: do_bw_pub_in</name>
+			<direction>output</direction>
+			<query_name>do_bw_pub_in</query_name>
+		</do_bw_pub_in>
+		<do_bw_pub_out>
+			<name>Bandwidth: do_bw_pub_out</name>
+			<direction>output</direction>
+			<query_name>do_bw_pub_out</query_name>
+		</do_bw_pub_out>
+		<do_bw_prv_in>
+			<name>Bandwidth: do_bw_prv_in</name>
+			<direction>output</direction>
+			<query_name>do_bw_prv_in</query_name>
+		</do_bw_prv_in>
+		<do_bw_prv_out>
+			<name>Bandwidth: do_bw_prv_out</name>
+			<direction>output</direction>
+			<query_name>do_bw_prv_out</query_name>
+		</do_bw_prv_out>
+		<do_load_1>
+			<name>Load Average: do_load_1</name>
+			<direction>output</direction>
+			<query_name>do_load_1</query_name>
+		</do_load_1>
+		<do_load_5>
+			<name>Load Average: do_load_5</name>
+			<direction>output</direction>
+			<query_name>do_load_5</query_name>
+		</do_load_5>
+		<do_load_15>
+			<name>Load Average: do_load_15</name>
+			<direction>output</direction>
+			<query_name>do_load_15</query_name>
+		</do_load_15>
+		<do_mem_total>
+			<name>Memory: do_mem_total</name>
+			<direction>output</direction>
+			<query_name>do_mem_total</query_name>
+		</do_mem_total>
+		<do_mem_avail>
+			<name>Memory: do_mem_avail</name>
+			<direction>output</direction>
+			<query_name>do_mem_avail</query_name>
+		</do_mem_avail>
+		<do_mem_free>
+			<name>Memory: do_mem_free</name>
+			<direction>output</direction>
+			<query_name>do_mem_free</query_name>
+		</do_mem_free>
+		<do_mem_cached>
+			<name>Memory: do_mem_cached</name>
+			<direction>output</direction>
+			<query_name>do_mem_cached</query_name>
+		</do_mem_cached>
+		<do_age>
+			<name>Collection Age: do_age</name>
+			<direction>output</direction>
+			<query_name>do_age</query_name>
+		</do_age>
+	</fields>
+</interface>

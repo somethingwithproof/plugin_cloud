@@ -84,6 +84,46 @@ final class DigitalOceanCatalog {
 		'dolb_queue'      => [self::LOAD_BALANCER, 'droplets_queue_size', [], 'single', false],
 	];
 
+	/**
+	 * The data source name of each resource type's collection age, which the
+	 * script server computes from the cache (ADR 0006); no API request reads it.
+	 */
+	public const AGE = [self::DROPLET => 'do_age', self::LOAD_BALANCER => 'dolb_age'];
+
+	/**
+	 * Graph templates: key => [type, title, vertical label, upper limit or
+	 * null, data source names]. Each graph gets its own data template, so a
+	 * graph collects only its own metrics (ADR 0005). Every metric and age
+	 * name appears in exactly one graph; a template test checks it.
+	 *
+	 * @var array<string, array{0: string, 1: string, 2: string, 3: int|null, 4: list<string>}>
+	 */
+	public const GRAPHS = [
+		'do_cpu'           => [self::DROPLET, 'CPU', 'percent', 100, ['do_cpu_pct']],
+		'do_bandwidth'     => [self::DROPLET, 'Bandwidth', 'bits per second', null, [
+			'do_bw_pub_in', 'do_bw_pub_out', 'do_bw_prv_in', 'do_bw_prv_out',
+		]],
+		'do_load'          => [self::DROPLET, 'Load Average', 'load', null, ['do_load_1', 'do_load_5', 'do_load_15']],
+		'do_memory'        => [self::DROPLET, 'Memory', 'bytes', null, [
+			'do_mem_total', 'do_mem_avail', 'do_mem_free', 'do_mem_cached',
+		]],
+		'do_age'           => [self::DROPLET, 'Collection Age', 'seconds', null, ['do_age']],
+		'dolb_connections' => [self::LOAD_BALANCER, 'Connections', 'connections', null, ['dolb_conn_cur', 'dolb_conn_lim']],
+		'dolb_cpu'         => [self::LOAD_BALANCER, 'CPU', 'percent', 100, ['dolb_cpu_pct']],
+		'dolb_http_rps'    => [self::LOAD_BALANCER, 'HTTP Requests', 'requests per second', null, ['dolb_http_rps']],
+		'dolb_http_resp'   => [self::LOAD_BALANCER, 'HTTP Responses', 'responses', null, ['dolb_http_resp']],
+		'dolb_throughput'  => [self::LOAD_BALANCER, 'Throughput', 'bytes per second', null, [
+			'dolb_http_Bps', 'dolb_tcp_Bps', 'dolb_udp_Bps', 'dolb_nlbtcp_Bps', 'dolb_nlbudp_Bps',
+		]],
+		'dolb_health'      => [self::LOAD_BALANCER, 'Health Checks', 'status', null, ['dolb_hc_status']],
+		'dolb_downtime'    => [self::LOAD_BALANCER, 'Downtime', 'status', null, ['dolb_downtime']],
+		'dolb_response'    => [self::LOAD_BALANCER, 'Response Time', 'seconds', null, ['dolb_resp_avg_s', 'dolb_resp_p95_s']],
+		'dolb_backend'     => [self::LOAD_BALANCER, 'Droplet Connections', 'connections', null, [
+			'dolb_back_conn', 'dolb_queue',
+		]],
+		'dolb_age'         => [self::LOAD_BALANCER, 'Collection Age', 'seconds', null, ['dolb_age']],
+	];
+
 	private const FIELDS = ['type', 'path', 'query', 'convert', 'agent'];
 
 	/**
@@ -91,6 +131,13 @@ final class DigitalOceanCatalog {
 	 */
 	public static function metric(string $name): ?array {
 		return isset(self::METRICS[$name]) ? self::named(self::METRICS[$name]) : null;
+	}
+
+	/**
+	 * @return list<string> every metric name of the catalog, in catalog order
+	 */
+	public static function names(): array {
+		return array_keys(self::METRICS);
 	}
 
 	/**
