@@ -92,6 +92,16 @@ it('indexes its scope device after a discovery that only renames a resource', fu
 		->toBe(['101' => 'web-1-renamed', '102' => 'web-2']);
 });
 
+it('empties a data query\'s index once its last resource is retired', function () {
+	lifecycle('scope_device');
+	lifecycle('discover', 'droplet:101=web-1,droplet:102=web-2,load_balancer:lb-1=front');
+	lifecycle('discover', 'droplet:101=web-1,droplet:102=web-2');
+	lifecycle('discover', 'droplet:101=web-1,droplet:102=web-2');
+
+	expect(lifecycle('discover', 'droplet:101=web-1,droplet:102=web-2')['device_index'])
+		->toBe(['101' => 'web-1', '102' => 'web-2']);
+});
+
 it('indexes a data query that had no resources when discovery finds its first', function () {
 	lifecycle('scope_device');
 

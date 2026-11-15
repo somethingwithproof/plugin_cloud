@@ -534,8 +534,14 @@ function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\S
 		function (int $host, int $query, int $method): void {
 			api_device_dq_change($host, $query, $method);
 		},
+		function (int $host, int $query): bool {
+			return (bool) run_data_query($host, $query);
+		},
 		function (int $host, int $query): void {
-			run_data_query($host, $query);
+			// Cacti's own cache update, with nothing present: it marks the
+			// query's rows stale and deletes them.
+			$none = array();
+			data_query_update_host_cache_from_buffer($host, $query, $none, $none);
 		},
 		function (int $host): void {
 			api_device_remove($host);

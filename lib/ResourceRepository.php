@@ -112,14 +112,15 @@ final class ResourceRepository {
 
 	/**
 	 * What the account's scope device should list: each served resource's
-	 * id and name as ss_cloud() reports them.
+	 * id and name as ss_cloud() reports them, by type. Every catalog type is
+	 * present, so an empty list means confirmed empty, not unread.
 	 *
-	 * @return array<string, string>|null provider id => name; null when the
-	 *                                     resources could not be read
+	 * @return array<string, array<string, string>>|null type => provider id
+	 *         => name; null when the resources could not be read
 	 */
 	public function servedIndex(int $accountId): ?array {
 		$rows = db_fetch_assoc_prepared(
-			'SELECT provider_id, name FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?',
+			'SELECT type, provider_id, name FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?',
 			[$accountId, Lifecycle::Deleted->value],
 			true,
 			$this->connection
@@ -129,10 +130,10 @@ final class ResourceRepository {
 			return null;
 		}
 
-		$index = [];
+		$index = [DigitalOceanCatalog::DROPLET => [], DigitalOceanCatalog::LOAD_BALANCER => []];
 
 		foreach (Row::rows($rows) as $row) {
-			$index[Row::string($row, 'provider_id')] = ScriptServer::label(Row::string($row, 'name'));
+			$index[Row::string($row, 'type')][Row::string($row, 'provider_id')] = ScriptServer::label(Row::string($row, 'name'));
 		}
 
 		return $index;

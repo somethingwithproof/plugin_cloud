@@ -53,7 +53,9 @@ final class ScopeDevices {
 	 *        and device template, returning the new device id or 0
 	 * @param \Closure(int, int, int): void $reindex api_device_dq_change() for a device,
 	 *        data query and reindex method, which also runs the data query
-	 * @param \Closure(int, int): void     $index   run_data_query() for a device and data query
+	 * @param \Closure(int, int): bool     $index   run_data_query() for a device and data query
+	 * @param \Closure(int, int): void     $clear   empties Cacti's index cache of a device's
+	 *        data query, for one whose resources are all gone
 	 * @param \Closure(int): void          $remove  api_device_remove() for a device
 	 * @param int                          $lockTimeout seconds to wait for another
 	 *        request creating the same account's device
@@ -64,6 +66,7 @@ final class ScopeDevices {
 		private readonly \Closure $save,
 		private readonly \Closure $reindex,
 		private readonly \Closure $index,
+		private readonly \Closure $clear,
 		private readonly \Closure $remove,
 		private readonly int $lockTimeout = 10,
 	) {
@@ -151,15 +154,20 @@ final class ScopeDevices {
 	 * under the account's creation lock so a device being created is not
 	 * indexed half linked.
 	 *
-	 * @param array<string, string> $served provider id => name, as
-	 *        ResourceRepository::servedIndex() returns
+	 * A data query whose resources are all gone cannot be run: Cacti's
+	 * script query gives up on an empty index list before it updates the
+	 * cache, in 1.2.31 and 1.2.x, so the last resource would stay listed.
+	 * Its cache is emptied instead.
+	 *
+	 * @param array<string, array<string, string>> $served type => provider
+	 *        id => name, as ResourceRepository::servedIndex() returns
 	 *
 	 * @return bool whether the device, if there is one, is up to date
 	 */
 	public function refresh(int $accountId, array $served): bool {
 		$host = $this->devices->hostFor($accountId);
 
-		if ($host === null || $this->indexed($host, $served)) {
+		if ($host === null || $this->indexed($host, array_replace([], ...array_values($served)))) {
 			return true;
 		}
 
@@ -178,11 +186,24 @@ final class ScopeDevices {
 				return false;
 			}
 
-			foreach (array_keys($queries) as $query) {
-				($this->index)($host, $query);
+			$indexed = true;
+
+			foreach ($served as $type => $resources) {
+				$query = $this->templates->id('snmp_query', 'data_query/' . $type);
+
+				if ($query === null || !isset($queries[$query])) {
+					continue;
+				}
+
+				if ($resources === []) {
+					($this->clear)($host, $query);
+				} elseif (!($this->index)($host, $query)) {
+					Log::warning(sprintf('Account %d: scope device data query %d failed; reindexed after the next discovery', $accountId, $query));
+					$indexed = false;
+				}
 			}
 
-			return true;
+			return $indexed;
 		} finally {
 			$this->devices->unlock($accountId);
 		}
