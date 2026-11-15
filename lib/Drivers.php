@@ -21,9 +21,8 @@ namespace Somethingwithproof\Cloud;
 
 /**
  * Builds the driver for an account, wired to a transport that enforces the
- * account's outbound policy and the driver's operation list. No provider has
- * a driver yet: DigitalOcean's arrives with milestone 3, and until then an
- * account reports a configuration status instead of collecting.
+ * account's outbound policy and the driver's operation list. A provider
+ * without a driver reports a configuration status instead of collecting.
  */
 final class Drivers {
 	/**
@@ -38,7 +37,14 @@ final class Drivers {
 	}
 
 	public static function production(): self {
-		return new self(static fn (OutboundPolicy $policy): HttpTransport => new SocketTransport($policy));
+		// CLOUD_OFFLINE=1 refuses every provider request, so CI can drive the
+		// real pages and collector without reaching a provider. It can only
+		// take traffic away, never send it anywhere else.
+		$offline = getenv('CLOUD_OFFLINE') === '1';
+		$drivers = new self(static fn (OutboundPolicy $policy): HttpTransport => $offline ? new RefusingTransport() : new SocketTransport($policy));
+		$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => new DigitalOceanDriver($http, new SystemClock()));
+
+		return $drivers;
 	}
 
 	/**
