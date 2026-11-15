@@ -6,10 +6,10 @@ Status: Accepted (2026-11-14)
 
 Every provider call goes through one transport, which must verify certificates and host names, refuse redirects, bound connect and total time, cap the response size, and expose status, headers, and error bodies ([plan: HTTP transport](../PLAN.md#http-transport)). Cacti 1.2.31 requires `ext-openssl` but not `ext-curl` ([Cacti core](../research/cacti-core.md)), and ADR 0003 rules out requiring extensions Cacti does not.
 
-The [transport spike](../research/transport.md) ([#24](https://github.com/somethingwithproof/plugin_cloud/issues/24)) built all three options and ran 23 cases against each on PHP 8.2, 8.4, and 8.5:
+The [transport spike](../research/transport.md) ([#24](https://github.com/somethingwithproof/plugin_cloud/issues/24)) built all three options and ran 27 cases against each on PHP 8.2 and 8.4, and 23 of them on PHP 8.5:
 
-- PHP's HTTPS stream wrapper failed three requirements on every version: a server sending headers slowly held a request for 30 s against a 4 s budget, 64 MiB of headers were buffered, and a malformed chunked body was returned as data. These happen inside `fopen()`, before plugin code can intervene. It also stops working when `allow_url_fopen` is off.
-- `stream_socket_client()` with a small HTTP/1.1 reader met every requirement.
+- PHP's HTTPS stream wrapper failed five requirements on every version: a server sending headers slowly held a request for 30 s against a 4 s budget, a total budget shorter than the connect timeout was ignored, 64 MiB of headers were buffered, and malformed or truncated chunked bodies were returned as data. These happen inside `fopen()`, before plugin code can intervene. It also stops working when `allow_url_fopen` is off.
+- `stream_socket_client()` with a small HTTP/1.1 reader passed every case. The cases do not prove every parser rule; milestone 2 adds the rules and tests listed in the [spike notes](../research/transport.md).
 - `ext-curl` met the requirements, except that libcurl 8.14.1 accepted conflicting `Content-Length` values. Stock Debian 13 and Ubuntu 22.04 and 24.04 `php-cli` installs do not include it.
 
 ## Decision

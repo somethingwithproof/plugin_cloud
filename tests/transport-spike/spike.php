@@ -67,6 +67,7 @@ $fresh = fn () => 'https://127.0.0.1:' . start(array('tls', $GLOBALS['certs'] . 
 $wrong = start(array('tls', "$certs/wrongname.pem"));
 $self = start(array('tls', "$certs/selfsigned.pem"));
 $silent = start(array('silent'));
+$noread = start(array('noread', "$certs/good.pem"));
 
 $t = new $class("$certs/ca.pem", 1048576);
 $base = "https://127.0.0.1:$good";
@@ -159,7 +160,9 @@ check('chunked response', 'decoded body returned', function () use ($t, $base, $
 	return array('body ' . json_encode($r['body']), $r['body'] === 'hello world');
 });
 
-check('oversized, Content-Length declared', 'refused from the header without reading the body', fn () => expectError($get("$base/big?n=20000000"), 'too_large', 1.0));
+// The server declares the size and withholds the body, so only a refusal
+// from the header can finish inside the limit.
+check('oversized, Content-Length declared', 'refused from the header without reading the body', fn () => expectError($get($fresh() . "/big-withheld?n=20000000"), 'too_large', 1.0));
 
 check('oversized, no Content-Length', 'cut off at the cap', fn () => expectError($get("$base/big?n=20000000&len=0"), 'too_large', 2.0));
 
@@ -189,6 +192,32 @@ check('TLS handshake never answered', 'aborted within the connect timeout', func
 	return array($observed, $elapsed <= $connectTimeout + 0.5);
 });
 
+check('total timeout shorter than connect timeout', 'aborted at the total timeout', function () use ($t, $silent, $connectTimeout) {
+	$start = microtime(true);
+	try {
+		$t->send('GET', "https://127.0.0.1:$silent/ok", array(), null, $connectTimeout, 0.25);
+		$observed = 'no error';
+	} catch (TransportError $e) {
+		$observed = $e->getMessage();
+	}
+	$elapsed = microtime(true) - $start;
+
+	return array(sprintf('%s after %.2f s', $observed, $elapsed), $observed !== 'no error' && $elapsed <= 0.75);
+});
+
+check('peer stops reading the request', 'aborted at the total timeout', function () use ($t, $noread, $connectTimeout, $totalTimeout) {
+	$start = microtime(true);
+	try {
+		$t->send('POST', "https://127.0.0.1:$noread/echo", array('Content-Type' => 'application/octet-stream'), str_repeat('u', 32 * 1048576), $connectTimeout, $totalTimeout);
+		$observed = 'no error';
+	} catch (TransportError $e) {
+		$observed = $e->getMessage();
+	}
+	$elapsed = microtime(true) - $start;
+
+	return array(sprintf('%s after %.1f s', $observed, $elapsed), $observed !== 'no error' && $elapsed <= $totalTimeout + 0.5);
+});
+
 check('connect to an address that drops packets', 'aborted within the connect timeout', function () use ($get, $connectTimeout) {
 	$start = microtime(true);
 	[$observed] = expectError($get('https://192.0.2.1/ok'), 'connect_timeout');
@@ -198,7 +227,9 @@ check('connect to an address that drops packets', 'aborted within the connect ti
 });
 
 check('1 MiB response header', 'refused or bounded; no unbounded memory', function () use ($t, $fresh, $connectTimeout, $totalTimeout) {
-	$before = memory_get_peak_usage();
+	// The peak is reset so an earlier case cannot hide this one's growth.
+	memory_reset_peak_usage();
+	$before = memory_get_usage();
 	try {
 		$r = $t->send('GET', $fresh() . "/huge-header?n=1048576", array(), null, $connectTimeout, $totalTimeout);
 		$observed = sprintf('status %d, x-huge %d bytes', $r['status'], strlen($r['headers']['x-huge'] ?? ''));
@@ -211,7 +242,9 @@ check('1 MiB response header', 'refused or bounded; no unbounded memory', functi
 });
 
 check('20,000 response headers', 'refused or bounded', function () use ($t, $fresh, $connectTimeout, $totalTimeout) {
-	$before = memory_get_peak_usage();
+	// The peak is reset so an earlier case cannot hide this one's growth.
+	memory_reset_peak_usage();
+	$before = memory_get_usage();
 	try {
 		$r = $t->send('GET', $fresh() . "/many-headers?n=20000", array(), null, $connectTimeout, $totalTimeout);
 		$observed = sprintf('status %d, %d headers parsed', $r['status'], count($r['headers']));
@@ -248,6 +281,22 @@ check('allow_url_fopen=0', 'stream: detected and reported; socket: request still
 	return array($out, $out === $expect);
 });
 
+check('103 Early Hints before the final response', 'final status and body returned', function () use ($t, $base, $connectTimeout, $totalTimeout) {
+	$r = $t->send('GET', "$base/early-hints", array(), null, $connectTimeout, $totalTimeout);
+
+	return array('status ' . $r['status'] . ', body ' . json_encode($r['body']), $r['status'] === 200 && $r['body'] === 'final');
+});
+
+check('chunked body without its final empty line', 'reported as an error, not returned as data', function () use ($t, $fresh, $connectTimeout, $totalTimeout) {
+	try {
+		$r = $t->send('GET', $fresh() . '/bad-terminator', array(), null, $connectTimeout, $totalTimeout);
+
+		return array('status ' . $r['status'] . ', body ' . json_encode($r['body']), false);
+	} catch (TransportError $e) {
+		return array($e->getMessage(), true);
+	}
+});
+
 check('malformed chunk size', 'reported as an error, not returned as data', function () use ($t, $fresh, $connectTimeout, $totalTimeout) {
 	try {
 		$r = $t->send('GET', $fresh() . '/bad-chunk', array(), null, $connectTimeout, $totalTimeout);
@@ -269,7 +318,9 @@ check('conflicting Content-Length', 'refused', function () use ($t, $fresh, $con
 });
 
 check('64 MiB of response headers', 'bounded; refused without buffering it all', function () use ($t, $fresh, $connectTimeout, $totalTimeout) {
-	$before = memory_get_peak_usage();
+	// The peak is reset so an earlier case cannot hide this one's growth.
+	memory_reset_peak_usage();
+	$before = memory_get_usage();
 	try {
 		$r = $t->send('GET', $fresh() . '/header-flood', array(), null, $connectTimeout, $totalTimeout);
 		$observed = 'status ' . $r['status'] . ', ' . count($r['headers']) . ' headers';

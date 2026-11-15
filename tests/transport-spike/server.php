@@ -21,6 +21,7 @@
  * Test server for the transport spike:
  *   php server.php tls <port> <pem>   HTTPS, one connection at a time
  *   php server.php silent <port>      accepts TCP and never answers
+ *   php server.php noread <port> <pem> completes TLS, never reads
  * Sequential on purpose: the client runs one case at a time, and a slow
  * case ends when the client hangs up and a write fails. The 300 second
  * cap only stops an orphan left by a crashed run.
@@ -29,6 +30,20 @@
 $mode = $argv[1] ?? '';
 $port = (int) ($argv[2] ?? 0);
 $deadline = time() + 300;
+
+if ($mode === 'noread') {
+	// Completes the TLS handshake, then never reads the request.
+	$ctx = stream_context_create(array('ssl' => array('local_cert' => $argv[3] ?? '')));
+	$server = stream_socket_server('ssl://127.0.0.1:' . $port, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $ctx);
+	$held = array();
+	while (time() < $deadline) {
+		$conn = @stream_socket_accept($server, 1);
+		if ($conn !== false) {
+			$held[] = $conn;
+		}
+	}
+	exit(0);
+}
 
 if ($mode === 'silent') {
 	$server = stream_socket_server('tcp://127.0.0.1:' . $port, $errno, $errstr);
@@ -171,6 +186,19 @@ while (time() < $deadline) {
 				$h .= "X-H$i: v\r\n";
 			}
 			send($conn, "HTTP/1.1 200 OK\r\nConnection: close\r\n" . $h . "Content-Length: 2\r\n\r\nok");
+			break;
+		case '/big-withheld':
+			// Declares a large body, then sends none of it.
+			if (send($conn, $ok . 'Content-Length: ' . (int) ($query['n'] ?? 0) . "\r\n\r\n")) {
+				sleep(15);
+			}
+			break;
+		case '/early-hints':
+			send($conn, "HTTP/1.1 103 Early Hints\r\nLink: </style.css>; rel=preload\r\n\r\n" . $ok . "Content-Length: 5\r\n\r\nfinal");
+			break;
+		case '/bad-terminator':
+			// Last chunk without the empty line that ends the trailer section.
+			send($conn, $ok . "Transfer-Encoding: chunked\r\n\r\n1\r\nx\r\n0\r\n");
 			break;
 		case '/bad-chunk':
 			send($conn, $ok . "Transfer-Encoding: chunked\r\n\r\nzz\r\nhello\r\n0\r\n\r\n");

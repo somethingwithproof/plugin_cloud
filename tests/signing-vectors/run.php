@@ -28,10 +28,16 @@
 require __DIR__ . '/AwsSigV4.php';
 
 $dir = $argv[1] ?? '';
+$contextFiles = is_dir($dir) ? glob(rtrim($dir, '/') . '/*/context.json') : false;
+// An empty or wrong directory must not pass on the IAM example alone.
+if ($contextFiles === false || count($contextFiles) < 30) {
+	fwrite(STDERR, "expected the suite's v4 directory with its test cases: $dir\n");
+	exit(2);
+}
 $pass = 0;
 $fail = 0;
 
-foreach (glob(rtrim($dir, '/') . '/*/context.json') as $contextFile) {
+foreach ($contextFiles as $contextFile) {
 	$case = basename(dirname($contextFile));
 	$base = dirname($contextFile);
 	$ctx = json_decode(file_get_contents($contextFile), true, 8, JSON_THROW_ON_ERROR);

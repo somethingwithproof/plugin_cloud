@@ -68,7 +68,7 @@ final class CurlTransport {
 			CURLOPT_NOSIGNAL          => true,
 			CURLOPT_PROTOCOLS         => CURLPROTO_HTTPS,
 			CURLOPT_HTTP_VERSION      => CURL_HTTP_VERSION_1_1,
-			CURLOPT_HEADERFUNCTION    => function ($ch, string $line) use (&$responseHeaders, &$headerBytes, &$failure): int {
+			CURLOPT_HEADERFUNCTION    => function ($ch, string $line) use (&$responseHeaders, &$headerBytes, &$failure, $maxBytes): int {
 				$headerBytes += strlen($line);
 				if ($headerBytes > 65536) {
 					$failure = 'headers_too_large';
@@ -78,7 +78,14 @@ final class CurlTransport {
 				if (strncmp($line, 'HTTP/', 5) === 0) {
 					$responseHeaders = array();
 				} elseif (($pos = strpos($line, ':')) !== false) {
-					$responseHeaders[strtolower(trim(substr($line, 0, $pos)))] = trim(substr($line, $pos + 1));
+					$name = strtolower(trim(substr($line, 0, $pos)));
+					$responseHeaders[$name] = trim(substr($line, $pos + 1));
+					// Refuse a declared oversize body before any of it is read.
+					if ($name === 'content-length' && (int) $responseHeaders[$name] > $maxBytes) {
+						$failure = 'too_large';
+
+						return 0;
+					}
 				}
 
 				return strlen($line);

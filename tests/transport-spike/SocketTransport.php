@@ -79,8 +79,13 @@ final class SocketTransport {
 
 			return true;
 		});
+		// The connect and TLS handshake share the total budget.
+		$connectBudget = min($connectTimeout, $deadline - microtime(true));
+		if ($connectBudget <= 0) {
+			throw new TransportError('total_timeout');
+		}
 		try {
-			$fp = stream_socket_client("tls://$host:$port", $errno, $errstr, $connectTimeout, STREAM_CLIENT_CONNECT, $ctx);
+			$fp = stream_socket_client("tls://$host:$port", $errno, $errstr, $connectBudget, STREAM_CLIENT_CONNECT, $ctx);
 		} finally {
 			restore_error_handler();
 		}
@@ -90,32 +95,53 @@ final class SocketTransport {
 		}
 
 		try {
-			stream_set_timeout($fp, (int) $connectTimeout);
+			// A peer that stops reading must not hold the write past the deadline.
 			for ($off = 0; $off < strlen($request); $off += $n) {
-				$n = @fwrite($fp, substr($request, $off));
+				$left = $deadline - microtime(true);
+				if ($left <= 0) {
+					throw new TransportError('total_timeout');
+				}
+				stream_set_timeout($fp, (int) $left, (int) (fmod($left, 1) * 1e6));
+				$n = @fwrite($fp, substr($request, $off, 65536));
+				if (stream_get_meta_data($fp)['timed_out']) {
+					throw new TransportError('total_timeout');
+				}
 				if ($n === false || $n === 0) {
 					throw new TransportError('write_failed');
 				}
 			}
 
+			// Informational (1xx) responses come before the final one and are
+			// skipped; their bytes count towards the same header limit.
 			$raw = '';
-			$headEnd = false;
-			while ($headEnd === false) {
-				$raw .= $this->readSome($fp, $deadline);
+			$headBytes = 0;
+			while (true) {
 				$headEnd = strpos($raw, "\r\n\r\n");
-				if ($headEnd === false && strlen($raw) > self::MAX_HEADER_BYTES) {
+				while ($headEnd === false) {
+					if ($headBytes + strlen($raw) > self::MAX_HEADER_BYTES) {
+						throw new TransportError('headers_too_large');
+					}
+					if (feof($fp)) {
+						throw new TransportError('malformed', 'connection closed in headers');
+					}
+					$raw .= $this->readSome($fp, $deadline);
+					$headEnd = strpos($raw, "\r\n\r\n");
+				}
+				$headBytes += $headEnd + 4;
+				if ($headBytes > self::MAX_HEADER_BYTES) {
 					throw new TransportError('headers_too_large');
 				}
-				if ($headEnd === false && feof($fp)) {
-					throw new TransportError('malformed', 'connection closed in headers');
+				[$status, $responseHeaders] = self::parseHead(substr($raw, 0, $headEnd));
+				$rest = substr($raw, $headEnd + 4);
+				if ($status === 101) {
+					// No request asks for an upgrade.
+					throw new TransportError('malformed', 'unexpected 101');
 				}
+				if ($status >= 200) {
+					break;
+				}
+				$raw = $rest;
 			}
-			if ($headEnd > self::MAX_HEADER_BYTES) {
-				throw new TransportError('headers_too_large');
-			}
-
-			[$status, $responseHeaders] = self::parseHead(substr($raw, 0, $headEnd));
-			$rest = substr($raw, $headEnd + 4);
 
 			if ($status >= 300 && $status < 400) {
 				throw new TransportError('redirect_refused', (string) $status);
@@ -203,7 +229,10 @@ final class SocketTransport {
 		return array((int) $m[1], $headers);
 	}
 
-	/** Strict RFC 9112 chunked decoding; trailers are read and ignored. */
+	/**
+	 * Strict RFC 9112 chunked decoding. Trailer fields are checked for
+	 * shape and ignored; the empty line that ends them is required.
+	 */
 	private static function dechunk(string $raw): string {
 		$out = '';
 		$pos = 0;
@@ -215,7 +244,20 @@ final class SocketTransport {
 			$size = hexdec($m[1]);
 			$pos = $eol + 2;
 			if ($size === 0) {
-				return $out;
+				while (true) {
+					$eol = strpos($raw, "\r\n", $pos);
+					if ($eol === false) {
+						throw new TransportError('malformed', 'chunked terminator');
+					}
+					$line = substr($raw, $pos, $eol - $pos);
+					$pos = $eol + 2;
+					if ($line === '') {
+						return $out;
+					}
+					if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+:/', $line) !== 1) {
+						throw new TransportError('malformed', 'trailer line');
+					}
+				}
 			}
 			if (strlen($raw) < $pos + $size + 2 || substr($raw, $pos + $size, 2) !== "\r\n") {
 				throw new TransportError('malformed', 'chunk data');
