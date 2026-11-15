@@ -36,6 +36,7 @@ final readonly class AccountHealth {
 		public int $seriesRead = 0,
 		public int $discoveredAt = 0,
 		public CollectionState $discovery = CollectionState::Never,
+		public int $retryAt = 0,
 	) {
 	}
 
@@ -63,6 +64,7 @@ final readonly class AccountHealth {
 			seriesRead: Row::int($row, 'series_read', 0, 0),
 			discoveredAt: Row::int($row, 'discovered_at', 0, 0),
 			discovery: CollectionState::tryFrom(Row::string($row, 'discovery')) ?? CollectionState::Never,
+			retryAt: Row::int($row, 'retry_at', 0, 0),
 		);
 	}
 }

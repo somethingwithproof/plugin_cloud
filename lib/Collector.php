@@ -108,6 +108,11 @@ final class Collector {
 		$start    = microtime(true);
 		$previous = $this->health->find($account->id);
 
+		// The provider asked for a pause (REQ-BUDGET-003).
+		if ($previous->retryAt > $now) {
+			return;
+		}
+
 		// Each run starts a few seconds after its poller cycle, so the time
 		// since the last start drifts around the interval. Without slack, an
 		// interval equal to the poller interval would often read as not yet
@@ -164,6 +169,7 @@ final class Collector {
 		$requests     = 0;
 		$discoveredAt = $previous->discoveredAt;
 		$discovery    = $previous->discovery;
+		$throttled    = null;
 
 		if ($now - $previous->discoveredAt >= $account->discoverInterval) {
 			try {
@@ -176,11 +182,30 @@ final class Collector {
 			} catch (DriverError|TransportError $e) {
 				$discovery = CollectionState::Failed;
 				Log::warning(sprintf('Account %d: discovery failed: %s', $account->id, $this->redactor->clean($e->getMessage())));
+
+				// Collecting now would only be throttled too.
+				if ($e instanceof DriverError && $e->errorClass === ErrorClass::Throttled) {
+					$throttled = new CollectResult([], 0, ErrorClass::Throttled, $e->retryAfter);
+				}
 			}
 		}
 
-		$wanted = $this->series->enabledFor($account->id);
-		$result = $wanted === [] ? new CollectResult([], 0) : $driver->collect($account, $credential, $wanted);
+		$wanted       = $this->series->enabledFor($account->id);
+		[$fit, $left] = RequestBudget::split($account, $driver, $wanted, $requests);
+
+		if ($left !== []) {
+			$this->observations->markUnread($account->id, $this->holder, $this->clock->now(), $left, RequestBudget::REASON);
+			Log::warning(
+				sprintf(
+					'Account %d: %d of %d series exceed the request budget and were not read',
+					$account->id,
+					count($left),
+					count($wanted)
+				)
+			);
+		}
+
+		$result = $throttled ?? ($fit === [] ? new CollectResult([], 0) : $driver->collect($account, $credential, $fit));
 		$read   = 0;
 
 		foreach ($result->observations as $observation) {
@@ -190,7 +215,8 @@ final class Collector {
 
 		$state = match (true) {
 			$result->error !== null && $read === 0 => CollectionState::Failed,
-			$result->error !== null || $read < count($wanted) => CollectionState::Partial,
+			$result->error !== null || $read < count($fit) => CollectionState::Partial,
+			$left !== [] => CollectionState::Budget,
 			default => CollectionState::Ok,
 		};
 
@@ -206,6 +232,7 @@ final class Collector {
 			seriesRead: $read,
 			discoveredAt: $discoveredAt,
 			discovery: $discovery,
+			retryAt: $result->retryAfter > 0 ? $now + $result->retryAfter : 0,
 		), $this->holder, $this->clock->now());
 	}
 }

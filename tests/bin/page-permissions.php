@@ -243,7 +243,8 @@ foreach (array(
 	$responses[] = array($label, $code, $body, $page[1]);
 }
 
-// No driver ships yet, so Verify records the configuration status.
+// CI runs with CLOUD_OFFLINE=1, so Verify's requests are refused before
+// they leave the host and it records the configuration status.
 list($code, $verified) = perm_http(
 	$base . 'cloud_accounts.php',
 	$jar,

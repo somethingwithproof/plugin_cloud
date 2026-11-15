@@ -27,6 +27,7 @@ final readonly class CollectResult {
 		public array $observations,
 		public int $requests,
 		public ?ErrorClass $error = null,
+		public int $retryAfter = 0,
 	) {
 	}
 }

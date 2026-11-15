@@ -28,3 +28,12 @@ path = "CODE_OF_CONDUCT.md"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Contributor Covenant contributors <https://www.contributor-covenant.org>"
 SPDX-License-Identifier = "CC-BY-4.0"
+
+# Example responses copied from DigitalOcean's public API specification
+# (https://docs.digitalocean.com/reference/api/reference/openapi.json),
+# which is published under Apache 2.0.
+[[annotations]]
+path = "tests/fixtures/digitalocean/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "DigitalOcean, LLC"
+SPDX-License-Identifier = "Apache-2.0"

@@ -34,7 +34,7 @@ namespace Somethingwithproof\Cloud;
  * the next run (REQ-LIFE-003). No migration calls a provider (REQ-LIFE-006).
  */
 final class Schema {
-	public const VERSION = 1;
+	public const VERSION = 2;
 
 	public const HOOKS = [
 		'config_arrays'        => 'cloud_config_arrays',
@@ -145,12 +145,13 @@ final class Schema {
 	}
 
 	/**
-	 * Stop Cacti from dropping the plugin tables on uninstall, and keep the
-	 * schema version so a reinstall reuses them.
+	 * Stop Cacti from dropping the plugin tables, or the columns migrations
+	 * added to them, on uninstall, and keep the schema version so a
+	 * reinstall reuses them.
 	 */
 	public function untrackTables(): void {
 		db_execute_prepared(
-			"DELETE FROM plugin_db_changes WHERE plugin = ? AND method = 'create'",
+			"DELETE FROM plugin_db_changes WHERE plugin = ? AND method IN ('create', 'addcolumn')",
 			[self::PLUGIN],
 			true,
 			$this->connection
@@ -167,6 +168,8 @@ final class Schema {
 	private function migrations(): array {
 		return [
 			1 => fn (): bool => $this->createTables(self::tables()),
+			// A fresh install already has the column from tables().
+			2 => fn (): bool => $this->addColumn('plugin_cloud_health', self::retryAtColumn()),
 		];
 	}
 
@@ -207,6 +210,39 @@ final class Schema {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param array{name: string, type: string, unsigned: bool, NULL: bool, default: string} $column
+	 */
+	private function addColumn(string $table, array $column): bool {
+		api_plugin_db_add_column(self::PLUGIN, $table, $column);
+
+		if (
+			(int) db_fetch_cell_prepared(
+				'SELECT COUNT(*) FROM information_schema.COLUMNS
+					WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+				[$table, $column['name']],
+				'',
+				true,
+				$this->connection
+			) === 0
+		) {
+			Log::error(sprintf('Unable to add column %s.%s', $table, $column['name']));
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * When a throttled account may be collected again (REQ-BUDGET-003).
+	 *
+	 * @return array{name: string, type: string, unsigned: bool, NULL: bool, default: string}
+	 */
+	private static function retryAtColumn(): array {
+		return ['name' => 'retry_at', 'type' => 'int(10)', 'unsigned' => true, 'NULL' => false, 'default' => '0'];
 	}
 
 	private function tableExists(string $table): bool {
@@ -364,6 +400,7 @@ final class Schema {
 					$time('discovered_at'),
 					$text('discovery', 16, 'never'),
 					$text('credential', 16, 'unknown'),
+					self::retryAtColumn(),
 				],
 				'primary' => 'account_id',
 			],

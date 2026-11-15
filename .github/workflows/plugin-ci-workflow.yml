@@ -70,6 +70,9 @@ jobs:
   integration-test:
     name: PHP ${{ matrix.php }} on Cacti ${{ matrix.cacti }}
     runs-on: ubuntu-latest
+    # The real pages and collector run below; no provider may be reached.
+    env:
+      CLOUD_OFFLINE: '1'
     timeout-minutes: 30
 
     strategy:
@@ -255,6 +258,9 @@ jobs:
   php-guard:
     name: Refusal on PHP 8.1 with Cacti 1.2.31
     runs-on: ubuntu-latest
+    # The real pages and collector run below; no provider may be reached.
+    env:
+      CLOUD_OFFLINE: '1'
     timeout-minutes: 20
 
     services:

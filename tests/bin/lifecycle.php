@@ -105,6 +105,12 @@ switch ($action) {
 		db_execute("DELETE FROM plugin_realms WHERE plugin = 'cloud'");
 
 		break;
+	case 'drop_column':
+		// A version 1 database: the column a later migration adds is absent.
+		list($table, $column) = explode('.', preg_replace('/[^a-z_.]/', '', $argument), 2);
+		db_execute('ALTER TABLE `' . $table . '` DROP COLUMN `' . $column . '`');
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
@@ -273,6 +279,20 @@ print json_encode(array(
 	'tracked' => array_column(
 		db_fetch_assoc("SELECT `table` FROM plugin_db_changes WHERE plugin = 'cloud' AND method = 'create' ORDER BY `table`"),
 		'table'
+	),
+	'tracked_columns' => array_map(
+		static fn ($r) => $r['table'] . '.' . $r['column'],
+		db_fetch_assoc(
+			"SELECT `table`, `column` FROM plugin_db_changes WHERE plugin = 'cloud' AND method = 'addcolumn' " .
+				'ORDER BY `table`, `column`'
+		)
+	),
+	'health_columns'  => array_column(
+		db_fetch_assoc(
+			'SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() ' .
+				"AND TABLE_NAME = 'plugin_cloud_health' ORDER BY ORDINAL_POSITION"
+		),
+		'c'
 	),
 	'tables'  => $tables,
 ), JSON_PRETTY_PRINT) . PHP_EOL;
