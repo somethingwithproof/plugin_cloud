@@ -1,0 +1,353 @@
+<?php
+/*
+ * SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * This file is part of plugin_cloud, a plugin for Cacti.
+ * https://github.com/somethingwithproof/plugin_cloud
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ */
+
+/*
+ * Cacti includes this file on every request, on whatever PHP version the site
+ * runs. It must parse on PHP 8.0 (CI lints it there), and nothing under lib/
+ * is loaded until cloud_boot() has confirmed PHP 8.2 or later (ADR 0004).
+ * Every hook and lifecycle function therefore starts with that check, so an
+ * unsupported runtime gets a refusal instead of a parse error that would take
+ * down the whole Cacti UI.
+ */
+
+function cloud_php_supported(): bool {
+	return version_compare(PHP_VERSION, '8.2.0', '>=');
+}
+
+/**
+ * Extensions the plugin needs that PHP can be built without. Cacti 1.2.31's
+ * composer.json already requires each of them (REQ-COMPAT-006). ext-json is
+ * always present since PHP 8.0, and ext-curl is deliberately not used
+ * (ADR 0009): TLS goes through stream sockets, which need ext-openssl.
+ *
+ * @return list<string>
+ */
+function cloud_required_extensions(): array {
+	return array('openssl');
+}
+
+/**
+ * @return list<string>
+ */
+function cloud_missing_extensions(): array {
+	$missing = array();
+
+	foreach (cloud_required_extensions() as $extension) {
+		if (!extension_loaded($extension)) {
+			$missing[] = $extension;
+		}
+	}
+
+	return $missing;
+}
+
+function cloud_boot(): bool {
+	if (!cloud_php_supported() || cloud_missing_extensions() !== array()) {
+		return false;
+	}
+
+	require_once(__DIR__ . '/include/autoload.php');
+
+	return true;
+}
+
+/**
+ * Refuse with a message naming what is missing.
+ *
+ * Used by the lifecycle functions only. Hook shims return silently instead,
+ * because they run on every page and a refused plugin must not flood the log.
+ */
+function cloud_refuse_unsupported(): bool {
+	if (!cloud_php_supported()) {
+		$message = __('The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled.', '8.2.0', PHP_VERSION, 'cloud');
+	} elseif (cloud_missing_extensions() !== array()) {
+		$message = __('The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled.', implode(', ', cloud_missing_extensions()), 'cloud');
+	} else {
+		return false;
+	}
+
+	cacti_log('ERROR: ' . $message, false, 'CLOUD');
+
+	if (PHP_SAPI === 'cli') {
+		fwrite(STDERR, $message . PHP_EOL);
+	} elseif (function_exists('raise_message')) {
+		raise_message('cloud_php', $message, MESSAGE_LEVEL_ERROR);
+	}
+
+	return true;
+}
+
+/**
+ * @return array<string, string>
+ */
+function plugin_cloud_version(): array {
+	$info = parse_ini_file(__DIR__ . '/INFO', true);
+
+	if (!is_array($info) || !isset($info['info']) || !is_array($info['info'])) {
+		return array();
+	}
+
+	$version = array();
+
+	foreach ($info['info'] as $key => $value) {
+		$version[(string) $key] = is_scalar($value) ? (string) $value : '';
+	}
+
+	return $version;
+}
+
+function plugin_cloud_install(): void {
+	if (cloud_refuse_unsupported()) {
+		return;
+	}
+
+	plugin_cloud_upgrade(true);
+}
+
+function plugin_cloud_check_config(): bool {
+	if (cloud_refuse_unsupported()) {
+		return false;
+	}
+
+	return plugin_cloud_upgrade(true);
+}
+
+/**
+ * Common start of every page script, after include/auth.php has authorized
+ * the realm. Refuses on an unsupported runtime or a disabled plugin, because
+ * Cacti keeps plugin realms registered while a plugin is disabled.
+ */
+function cloud_page_start(): bool {
+	if (cloud_boot() && api_plugin_is_enabled('cloud')) {
+		return true;
+	}
+
+	top_header();
+
+	html_start_box(__('Cloud', 'cloud'), '100%', '', '3', 'center', '');
+
+	print '<tr><td>' . html_escape(cloud_php_supported() ? __('The Cloud plugin is not enabled.', 'cloud') : __('The Cloud plugin requires PHP %s or later.', '8.2.0', 'cloud')) . '</td></tr>';
+
+	html_end_box();
+
+	bottom_footer();
+
+	return false;
+}
+
+/**
+ * State-changing actions are accepted only as POST (REQ-UI-004). A GET that
+ * names one is sent back to the page without effect.
+ *
+ * @param list<string> $actions
+ */
+function cloud_require_post(string $page, array $actions): void {
+	$action = (string) get_nfilter_request_var('action');
+
+	if (in_array($action, $actions, true) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+		header('Location: ' . $page);
+		exit;
+	}
+}
+
+function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
+	return new \Somethingwithproof\Cloud\CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()), cloud_settings()->vaultKeyFile);
+}
+
+function cloud_accounts(): \Somethingwithproof\Cloud\AccountRepository {
+	return new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+}
+
+function cloud_settings(): \Somethingwithproof\Cloud\Settings {
+	return (new \Somethingwithproof\Cloud\SettingsRepository(false))->load();
+}
+
+/**
+ * Bring the schema, hooks, and realms up to the code's version.
+ *
+ * Cacti 1.2.31 never calls this itself; check_config and the config_arrays
+ * hook do. Fresh installs take the same path as upgrades. The version stored
+ * in plugin_config changes only after every migration has succeeded, so an
+ * interrupted run is finished by the next one.
+ *
+ * $grant gives newly registered realms to the current user. Only install and
+ * check_config pass it: both run from the Plugins page, which needs plugin
+ * management. A repair triggered from config_arrays can run for anyone who
+ * opens a plugin page, so it must never grant anything.
+ */
+function plugin_cloud_upgrade(bool $grant = false): bool {
+	if (!cloud_boot()) {
+		return false;
+	}
+
+	$info   = plugin_cloud_version();
+	$schema = new \Somethingwithproof\Cloud\Schema(false);
+
+	if ($schema->isCurrent() && $schema->recordedPluginVersion() === $info['version'] && $schema->hooksRegistered()) {
+		return true;
+	}
+
+	if (!$schema->migrate()) {
+		return false;
+	}
+
+	$schema->trackTables();
+
+	cloud_setup_hooks($grant);
+
+	$schema->recordPluginVersion($info['version'], $info['author'], $info['homepage']);
+
+	return true;
+}
+
+/**
+ * Register hooks and realms.
+ *
+ * Kept procedural and named *_setup_* because api_plugin_register_hook() and
+ * api_plugin_register_realm() refuse callers whose function name does not
+ * contain install, upgrade, or setup.
+ */
+function cloud_setup_hooks(bool $grant = false): void {
+	global $config;
+
+	// Registering a hook replicates plugin config, which needs core lib/poller.php.
+	if (!function_exists('replicate_out')) {
+		include_once($config['library_path'] . '/poller.php');
+	}
+
+	foreach (\Somethingwithproof\Cloud\Schema::HOOKS as $hook => $function) {
+		api_plugin_register_hook('cloud', $hook, $function, 'setup.php');
+	}
+
+	foreach (\Somethingwithproof\Cloud\Pages::realms() as $realm) {
+		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], $grant);
+	}
+}
+
+/**
+ * Uninstall never touches cloud resources or provider accounts. Core drops
+ * the tracked plugin tables afterwards unless the administrator left "Keep
+ * Plugin Tables on Uninstall" checked, which is the default.
+ */
+function plugin_cloud_uninstall(): void {
+	if (!cloud_boot()) {
+		include_once(__DIR__ . '/include/unbooted-uninstall.php');
+		cloud_uninstall_unbooted();
+
+		return;
+	}
+
+	$schema = new \Somethingwithproof\Cloud\Schema(false);
+
+	if (cloud_settings()->keepTablesOnUninstall) {
+		$schema->untrackTables();
+
+		\Somethingwithproof\Cloud\Log::info('Uninstall kept the plugin tables as configured');
+	} else {
+		$schema->forgetVersion();
+	}
+}
+
+function cloud_config_arrays(): void {
+	global $menu;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	foreach (\Somethingwithproof\Cloud\Pages::menu() as $file => $title) {
+		$menu[__('Management')]['plugins/cloud/' . $file] = $title;
+	}
+
+	if (in_array(get_current_page(), \Somethingwithproof\Cloud\Pages::upgradeTriggers(), true)) {
+		plugin_cloud_upgrade();
+	}
+}
+
+function cloud_config_settings(): void {
+	global $tabs, $settings;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	$tabs['cloud']     = __('Cloud', 'cloud');
+	$settings['cloud'] = \Somethingwithproof\Cloud\Settings::form();
+}
+
+/**
+ * @param array<string, mixed> $nav
+ * @return array<string, mixed>
+ */
+function cloud_draw_navigation_text($nav) {
+	if (!cloud_boot()) {
+		return $nav;
+	}
+
+	return array_merge($nav, \Somethingwithproof\Cloud\Pages::navigation());
+}
+
+/**
+ * poller_bottom hook: start this poller's collector in the background
+ * (REQ-COLL-001). The collector itself skips accounts of other pollers.
+ */
+function cloud_poller_bottom(): void {
+	global $config;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	if (!function_exists('exec_background')) {
+		include_once($config['library_path'] . '/poller.php');
+	}
+
+	// exec_background() silently does nothing for a binary that does not
+	// exist, so a bare 'php' fallback would never start the collector.
+	$php = trim((string) read_config_option('path_php_binary'));
+
+	if ($php === '' || !is_file($php) || !is_executable($php)) {
+		cacti_log('ERROR: The cloud collector was not started because the PHP binary path setting is empty or not an executable file', false, 'CLOUD');
+
+		return;
+	}
+
+	// Core accepts an argument array and escapes each element, although its
+	// docblock declares a string.
+	// @phpstan-ignore argument.type
+	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
+}
+
+function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+
+	return new \Somethingwithproof\Cloud\Collector(
+		cloud_accounts(),
+		\Somethingwithproof\Cloud\Drivers::production(),
+		cloud_credentials(),
+		new \Somethingwithproof\Cloud\LeaseRepository(false, $clock),
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\SeriesRepository(false),
+		new \Somethingwithproof\Cloud\ObservationRepository(false),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		new \Somethingwithproof\Cloud\Redactor(),
+		$clock,
+		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4))
+	);
+}

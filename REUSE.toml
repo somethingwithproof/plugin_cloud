@@ -1,7 +1,8 @@
 version = 1
 
 # Files that cannot carry a comment header, or whose format makes one
-# awkward: documentation, repository metadata, and GitHub templates.
+# awkward: documentation, repository metadata, GitHub templates, test
+# configuration, and translation catalogs, which gettext regenerates.
 [[annotations]]
 path = [
     "README.md",
@@ -12,6 +13,10 @@ path = [
     ".editorconfig",
     ".gitattributes",
     "REUSE.toml",
+    "phpunit.xml",
+    "phpunit-integration.xml",
+    "locales/po/**",
+    "locales/LC_MESSAGES/**",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Thomas Vincent <thomasvincent@gmail.com>"

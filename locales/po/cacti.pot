@@ -1,0 +1,424 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Thomas Vincent
+# This file is distributed under the same license as the cloud package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr ""
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr ""
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr ""
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr ""
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr ""
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr ""
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Actions"
+msgstr ""
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "State"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr ""
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr ""
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr ""
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Account"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Resources"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Never"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr ""
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr ""
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr ""
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr ""
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr ""
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr ""
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr ""
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr ""
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr ""
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr ""
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr ""
+
+#: setup.php
+msgid "Cloud"
+msgstr ""
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr ""
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr ""
+
+#: setup.php
+msgid "Management"
+msgstr ""
