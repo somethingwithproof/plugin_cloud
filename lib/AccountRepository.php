@@ -87,12 +87,12 @@ final class AccountRepository {
 		return $id;
 	}
 
+	private const DELETE_ATTEMPTS = 3;
+
 	/**
 	 * Remove the account and everything collected for it. Its Cacti devices
 	 * and graphs are left to the administrator.
 	 */
-	private const DELETE_ATTEMPTS = 3;
-
 	public function delete(int $id, int $userId): bool {
 		if ($this->find($id) === null) {
 			return false;
