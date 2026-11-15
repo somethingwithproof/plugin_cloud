@@ -51,6 +51,11 @@ final class SecureFile {
 			throw CredentialError::because('the file is a symbolic link');
 		}
 
+		// Checked before opening too: opening a FIFO without a writer blocks.
+		if (($link['mode'] & 0170000) !== 0100000) {
+			throw CredentialError::because('the file is not a regular file');
+		}
+
 		$handle = is_readable($path) ? fopen($path, 'rb') : false;
 
 		if ($handle === false) {

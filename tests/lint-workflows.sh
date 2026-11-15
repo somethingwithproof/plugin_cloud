@@ -16,7 +16,7 @@
 # more details.
 
 # Lint the GitHub Actions workflows with actionlint (syntax, expressions,
-# shellcheck on run: steps) and zizmor (security: script injection, excessive
+# ShellCheck on run: steps) and zizmor (security: script injection, excessive
 # permissions, unpinned actions, credential persistence). CI and a developer
 # machine run this same file, so the pinned tool versions live only here.
 #

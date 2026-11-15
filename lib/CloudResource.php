@@ -20,8 +20,11 @@
 namespace Somethingwithproof\Cloud;
 
 /**
- * A resource as discovery reports it. Provider strings are untrusted: they
- * are length-limited here and escaped wherever they are printed.
+ * A resource as discovery reports it. Provider strings are untrusted and
+ * escaped wherever they are printed. The type and provider id are its
+ * identity, so a value that does not fit its column, or holds control
+ * characters, is refused rather than altered: two resources must never be
+ * made to share one row. Display fields are trimmed to fit.
  */
 final readonly class CloudResource {
 	public string $type;
@@ -30,10 +33,21 @@ final readonly class CloudResource {
 	public string $region;
 
 	public function __construct(string $type, string $providerId, string $name, string $region = '') {
-		$this->type       = self::bounded($type, 64);
-		$this->providerId = self::bounded($providerId, 255);
+		$this->type       = self::identity($type, 64, 'type');
+		$this->providerId = self::identity($providerId, 255, 'provider id');
 		$this->name       = self::bounded($name, 255);
 		$this->region     = self::bounded($region, 64);
+	}
+
+	/**
+	 * @throws DriverError
+	 */
+	private static function identity(string $value, int $length, string $what): string {
+		if ($value === '' || mb_strlen($value) > $length || preg_match('/[\x00-\x1f\x7f]/', $value) === 1) {
+			throw new DriverError(ErrorClass::Malformed, 'resource ' . $what . ' is empty, longer than ' . $length . ' characters, or holds control characters');
+		}
+
+		return $value;
 	}
 
 	private static function bounded(string $value, int $length): string {

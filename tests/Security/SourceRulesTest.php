@@ -141,7 +141,11 @@ it('issues SQL only from repository and schema classes, through prepared helpers
 
 		expect($source)->not->toMatch('/\bdb_(execute|fetch_cell|fetch_row|fetch_assoc)\s*\(/', $file);
 
-		if (!str_starts_with($file, 'lib/') || !preg_match('/^(Schema|\w+Repository)\.php$/', basename($file))) {
+		// include/unbooted-uninstall.php is the one exception: it runs where
+		// lib/ cannot load (see its header).
+		$repository = str_starts_with($file, 'lib/') && preg_match('/^(Schema|\w+Repository)\.php$/', basename($file)) === 1;
+
+		if (!$repository && $file !== 'include/unbooted-uninstall.php') {
 			expect($source)->not->toMatch('/\bdb_\w+_prepared\s*\(/', $file);
 		}
 	}

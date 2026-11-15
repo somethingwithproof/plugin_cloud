@@ -117,7 +117,7 @@ function plugin_cloud_install(): void {
 		return;
 	}
 
-	plugin_cloud_upgrade();
+	plugin_cloud_upgrade(true);
 }
 
 function plugin_cloud_check_config(): bool {
@@ -125,7 +125,7 @@ function plugin_cloud_check_config(): bool {
 		return false;
 	}
 
-	return plugin_cloud_upgrade();
+	return plugin_cloud_upgrade(true);
 }
 
 /**
@@ -185,8 +185,13 @@ function cloud_settings(): \Somethingwithproof\Cloud\Settings {
  * hook do. Fresh installs take the same path as upgrades. The version stored
  * in plugin_config changes only after every migration has succeeded, so an
  * interrupted run is finished by the next one.
+ *
+ * $grant gives newly registered realms to the current user. Only install and
+ * check_config pass it: both run from the Plugins page, which needs plugin
+ * management. A repair triggered from config_arrays can run for anyone who
+ * opens a plugin page, so it must never grant anything.
  */
-function plugin_cloud_upgrade(): bool {
+function plugin_cloud_upgrade(bool $grant = false): bool {
 	if (!cloud_boot()) {
 		return false;
 	}
@@ -204,7 +209,7 @@ function plugin_cloud_upgrade(): bool {
 
 	$schema->trackTables();
 
-	cloud_setup_hooks();
+	cloud_setup_hooks($grant);
 
 	$schema->recordPluginVersion($info['version'], $info['author'], $info['homepage']);
 
@@ -218,7 +223,7 @@ function plugin_cloud_upgrade(): bool {
  * api_plugin_register_realm() refuse callers whose function name does not
  * contain install, upgrade, or setup.
  */
-function cloud_setup_hooks(): void {
+function cloud_setup_hooks(bool $grant = false): void {
 	global $config;
 
 	// Registering a hook replicates plugin config, which needs core lib/poller.php.
@@ -231,7 +236,7 @@ function cloud_setup_hooks(): void {
 	}
 
 	foreach (\Somethingwithproof\Cloud\Pages::realms() as $realm) {
-		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], true);
+		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], $grant);
 	}
 }
 
@@ -242,6 +247,9 @@ function cloud_setup_hooks(): void {
  */
 function plugin_cloud_uninstall(): void {
 	if (!cloud_boot()) {
+		include_once(__DIR__ . '/include/unbooted-uninstall.php');
+		cloud_uninstall_unbooted();
+
 		return;
 	}
 

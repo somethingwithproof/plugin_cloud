@@ -203,5 +203,33 @@ it('collects only what is due, owned, enabled, mapped, and leased', function () 
 		->and($r['after_foreign_writes'])->toEqual(['value' => $r['observation']['value'], 'observed_at' => $r['observation']['observed_at']])
 		->and($r['while_leased'])->toBe(['accounts' => 0, 'skipped' => 1, 'stopped_early' => false])
 		->and($r['no_budget'])->toBe(['accounts' => 0, 'skipped' => 0, 'stopped_early' => true])
-		->and($r['d2_lifecycle'])->toBe(['missing', 'missing', 'deleted']);
+		->and($r['d2_lifecycle'])->toBe(['missing', 'missing', 'deleted'])
+		->and($r['health_unchanged'])->toBeTrue()
+		->and($r['order_run1']['stopped_early'])->toBeTrue()
+		->and($r['order'])->toBe(['Second', 'Main']);
+});
+
+it('honours keep tables on uninstall when the runtime is refused', function () {
+	lifecycle('install');
+	lifecycle('seed');
+
+	$kept = lifecycle('uninstall_unbooted');
+	expect($kept['tables']['plugin_cloud_account'])->toBe(1)
+		->and($kept['tracked'])->toBe([]);
+
+	lifecycle('reset');
+	lifecycle('install');
+	lifecycle('set_setting', 'cloud_uninstall_keep_tables=');
+
+	$dropped = lifecycle('uninstall_unbooted');
+	expect($dropped['tables'])->toBe([])
+		->and($dropped['schema'])->toBeEmpty();
+});
+
+it('grants realms on install but never on a repair a viewer triggers', function () {
+	expect(lifecycle('install')['admin'])->toBe(2);
+
+	$repair = lifecycle('repair_as_viewer');
+	expect($repair['realms'])->toHaveCount(2)
+		->and($repair['result'])->toBe(['viewer_realms' => 0]);
 });

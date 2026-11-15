@@ -79,7 +79,9 @@ if [ "${1:-}" = "--check" ]; then
 		# Cacti's __() formats a message only when it holds a plain placeholder
 		# (%d, %s, ...); a positional one (%1$d) is printed literally, so
 		# translations keep the message's argument order.
-		if msgattrib --no-obsolete "$po" | grep -E '^msgstr' | grep -qE '%[0-9]+\$'; then
+		# --no-wrap keeps each msgstr on one line, so a long translation's
+		# continuation lines are checked too.
+		if msgattrib --no-obsolete --no-wrap "$po" | grep -E '^msgstr' | grep -qE '%[0-9]+\$'; then
 			echo "ERROR: $po uses a positional placeholder such as %1\$d, which Cacti prints literally" >&2
 			rc=1
 		fi

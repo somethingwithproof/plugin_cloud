@@ -22,24 +22,31 @@ namespace Somethingwithproof\Cloud;
 /**
  * A secret value: a token, key, or credential document.
  *
- * It refuses serialization and hides itself from var_dump(), print_r(), and
- * var_export() (REQ-CRED-006). It has no __toString(), so it cannot reach a
- * string context by accident; reveal() is the one, greppable, way out.
+ * It refuses serialization, cloning, and export, and hides itself from
+ * var_dump(), print_r(), and var_export() (REQ-CRED-006). The value lives in
+ * a static WeakMap rather than a property, because var_export() prints an
+ * object's properties without asking it. It has no __toString(), so it cannot
+ * reach a string context by accident; reveal() is the one, greppable, way out.
  */
 final class Secret {
-	public function __construct(#[\SensitiveParameter] private readonly string $value) {
+	/** @var \WeakMap<self, string>|null */
+	private static ?\WeakMap $values = null;
+
+	public function __construct(#[\SensitiveParameter] string $value) {
+		self::$values ??= new \WeakMap();
+		self::$values[$this] = $value;
 	}
 
 	public function reveal(): string {
-		return $this->value;
+		return self::$values[$this] ?? '';
 	}
 
 	public function isEmpty(): bool {
-		return $this->value === '';
+		return $this->reveal() === '';
 	}
 
 	public function equals(self $other): bool {
-		return hash_equals($this->value, $other->value);
+		return hash_equals($this->reveal(), $other->reveal());
 	}
 
 	/**
@@ -47,6 +54,10 @@ final class Secret {
 	 */
 	public function __debugInfo(): array {
 		return ['value' => '[redacted]'];
+	}
+
+	public function __clone() {
+		throw new \LogicException('A secret cannot be cloned');
 	}
 
 	/**

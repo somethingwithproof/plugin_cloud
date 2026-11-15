@@ -37,7 +37,7 @@ final class ObservationRepository {
 			ON DUPLICATE KEY UPDATE
 				value = IF(VALUES(observed_at) >= observed_at, VALUES(value), value),
 				status = IF(VALUES(observed_at) >= observed_at, VALUES(status), status),
-				fetched_at = VALUES(fetched_at),
+				fetched_at = IF(VALUES(observed_at) >= observed_at, VALUES(fetched_at), fetched_at),
 				observed_at = GREATEST(observed_at, VALUES(observed_at))', [
 			$observation->resourceId, $observation->metric, $observation->value, $observation->observedAt, $observation->fetchedAt, $observation->value === null ? 'unknown' : 'ok',
 			$accountId, $holder, $now,

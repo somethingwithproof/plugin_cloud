@@ -159,6 +159,12 @@ final class SocketTransport implements HttpTransport {
 				$raw = $rest;
 			}
 
+			// These responses end with their headers whatever Content-Length
+			// says (RFC 9112 section 6.3).
+			if ($method === 'HEAD' || $status === 204 || $status === 304) {
+				return new HttpResponse($status, $responseHeaders, '');
+			}
+
 			if ($status >= 300 && $status < 400) {
 				throw new TransportError('redirect_refused', (string) $status);
 			}

@@ -96,17 +96,33 @@ final class AccountRepository {
 			return false;
 		}
 
-		foreach (['plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease', 'plugin_cloud_health'] as $table) {
-			db_execute_prepared("DELETE FROM $table WHERE account_id = ?", [$id], true, $this->connection);
+		// All or nothing: an account must not lose its credential or data
+		// while its row stays.
+		if (!db_begin_transaction($this->connection)) {
+			return false;
 		}
 
-		db_execute_prepared('DELETE o FROM plugin_cloud_observation o INNER JOIN plugin_cloud_resource r ON r.id = o.resource_id WHERE r.account_id = ?', [$id], true, $this->connection);
-		db_execute_prepared('DELETE FROM plugin_cloud_resource WHERE account_id = ?', [$id], true, $this->connection);
-		$ok = db_execute_prepared('DELETE FROM plugin_cloud_account WHERE id = ?', [$id], true, $this->connection);
+		$statements = [
+			['DELETE FROM plugin_cloud_secret WHERE account_id = ?', [$id]],
+			['DELETE FROM plugin_cloud_series WHERE account_id = ?', [$id]],
+			['DELETE FROM plugin_cloud_lease WHERE account_id = ?', [$id]],
+			['DELETE FROM plugin_cloud_health WHERE account_id = ?', [$id]],
+			['DELETE o FROM plugin_cloud_observation o INNER JOIN plugin_cloud_resource r ON r.id = o.resource_id WHERE r.account_id = ?', [$id]],
+			['DELETE FROM plugin_cloud_resource WHERE account_id = ?', [$id]],
+			['DELETE FROM plugin_cloud_account WHERE id = ?', [$id]],
+		];
+
+		foreach ($statements as [$sql, $params]) {
+			if (!db_execute_prepared($sql, $params, true, $this->connection)) {
+				db_rollback_transaction($this->connection);
+
+				return false;
+			}
+		}
 
 		$this->audit($id, $userId, 'delete', []);
 
-		return (bool) $ok;
+		return (bool) db_commit_transaction($this->connection);
 	}
 
 	public function recordVerify(int $id, VerifyStatus $status, int $userId): void {

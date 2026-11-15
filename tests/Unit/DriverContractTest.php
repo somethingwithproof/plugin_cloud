@@ -162,6 +162,29 @@ it('reports a configuration status for a provider without a driver', function ()
 	expect($verifier->verify($account, 1))->toBe(VerifyStatus::Config);
 });
 
+it('reports a configuration status, and no exception text, when a driver fails unexpectedly', function () {
+	$GLOBALS['__cloud_log'] = [];
+	$account = Account::fromRow(['id' => 9, 'provider' => 'digitalocean', 'credential_source' => 'vault']);
+	$drivers = new Drivers(cloud_canned(200));
+	$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => throw new RuntimeException('provider said sk-live-123'));
+	$clock    = new FixedClock(1);
+	$verifier = new Verifier($drivers, new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'), new AccountRepository(false, $clock));
+
+	expect($verifier->verify($account, 1))->toBe(VerifyStatus::Config)
+		->and(implode("\n", array_column($GLOBALS['__cloud_log'], 'message')))->not->toContain('sk-live-123');
+});
+
+it('refuses resource identities that do not fit or hold control characters, and trims display fields', function () {
+	$long = new \Somethingwithproof\Cloud\CloudResource('droplet', 'd1', str_repeat('n', 300), str_repeat('r', 80));
+
+	expect(mb_strlen($long->name))->toBe(255)
+		->and(mb_strlen($long->region))->toBe(64)
+		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', str_repeat('i', 256), 'x'))->toThrow(DriverError::class)
+		->and(fn () => new \Somethingwithproof\Cloud\CloudResource(str_repeat('t', 65), 'd1', 'x'))->toThrow(DriverError::class)
+		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', "d1\nd2", 'x'))->toThrow(DriverError::class)
+		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', '', 'x'))->toThrow(DriverError::class);
+});
+
 it('wires drivers to a transport that refuses operations off their list', function () {
 	$drivers = new Drivers(cloud_canned(200));
 	$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => new FakeDriver($http));

@@ -22,8 +22,9 @@ namespace Somethingwithproof\Cloud;
 /**
  * Resources found by discovery, with their lifecycle (REQ-STATE-003): active
  * when the last discovery listed them, missing after a discovery without
- * them, deleted after DELETE_AFTER such discoveries. Writes run only while
- * the caller still holds the account's lease.
+ * them, deleted after DELETE_AFTER such discoveries. Each write names the
+ * caller's lease in the statement itself, so a run that lost its lease
+ * between checks cannot overwrite the newer holder's inventory.
  */
 final class ResourceRepository {
 	public const DELETE_AFTER = 3;
@@ -40,8 +41,9 @@ final class ResourceRepository {
 				return false;
 			}
 
-			db_execute_prepared('INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, region, lifecycle, missing_count, first_seen, last_seen) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
-				ON DUPLICATE KEY UPDATE name = VALUES(name), region = VALUES(region), lifecycle = VALUES(lifecycle), missing_count = 0, last_seen = VALUES(last_seen)', [$accountId, $resource->type, $resource->providerId, $resource->name, $resource->region, Lifecycle::Active->value, $now, $now], true, $this->connection);
+			db_execute_prepared('INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, region, lifecycle, missing_count, first_seen, last_seen)
+				SELECT ?, ?, ?, ?, ?, ?, 0, ?, ? FROM plugin_cloud_lease l WHERE l.account_id = ? AND l.holder = ? AND l.expires_at >= ?
+				ON DUPLICATE KEY UPDATE name = VALUES(name), region = VALUES(region), lifecycle = VALUES(lifecycle), missing_count = 0, last_seen = VALUES(last_seen)', [$accountId, $resource->type, $resource->providerId, $resource->name, $resource->region, Lifecycle::Active->value, $now, $now, $accountId, $holder, $now], true, $this->connection);
 
 			$seen[] = $resource->type . "\0" . $resource->providerId;
 		}
@@ -57,7 +59,8 @@ final class ResourceRepository {
 
 			$missing = Row::int($row, 'missing_count', 0, 0) + 1;
 
-			db_execute_prepared('UPDATE plugin_cloud_resource SET missing_count = ?, lifecycle = ? WHERE id = ?', [$missing, ($missing >= self::DELETE_AFTER ? Lifecycle::Deleted : Lifecycle::Missing)->value, Row::int($row, 'id')], true, $this->connection);
+			db_execute_prepared('UPDATE plugin_cloud_resource r INNER JOIN plugin_cloud_lease l ON l.account_id = r.account_id AND l.holder = ? AND l.expires_at >= ?
+				SET r.missing_count = ?, r.lifecycle = ? WHERE r.id = ?', [$holder, $now, $missing, ($missing >= self::DELETE_AFTER ? Lifecycle::Deleted : Lifecycle::Missing)->value, Row::int($row, 'id')], true, $this->connection);
 		}
 
 		return true;

@@ -53,7 +53,20 @@ final class Collector {
 		$done    = 0;
 		$skipped = 0;
 
-		foreach ($this->accounts->enabledForPoller($pollerId) as $account) {
+		// Least recently attempted first, so an account that overruns the
+		// budget on every run cannot keep the ones after it from running.
+		// Attempts come from the lease, because an overrun can lose the lease
+		// and with it the health write that would have recorded the run.
+		$accounts = $this->accounts->enabledForPoller($pollerId);
+		$lastRun  = [];
+
+		foreach ($accounts as $account) {
+			$lastRun[$account->id] = $this->leases->lastAcquired($account->id);
+		}
+
+		usort($accounts, static fn (Account $a, Account $b): int => [$lastRun[$a->id], $a->id] <=> [$lastRun[$b->id], $b->id]);
+
+		foreach ($accounts as $account) {
 			if ($this->clock->now() - $started >= $budgetSeconds) {
 				Log::warning(sprintf('Collector budget of %d seconds spent; remaining accounts resume next run', $budgetSeconds));
 
@@ -89,7 +102,7 @@ final class Collector {
 		$driver = $this->drivers->for($account);
 
 		if ($driver === null) {
-			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery));
+			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery), $this->holder, $this->clock->now());
 
 			return;
 		}
@@ -98,7 +111,7 @@ final class Collector {
 			$credential = $this->credentials->credentialFor($account);
 		} catch (CredentialError $e) {
 			Log::warning(sprintf('Account %d: credential unavailable: %s', $account->id, $e->getMessage()));
-			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery));
+			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery), $this->holder, $this->clock->now());
 
 			return;
 		}
@@ -148,6 +161,6 @@ final class Collector {
 			seriesRead: $read,
 			discoveredAt: $discoveredAt,
 			discovery: $discovery,
-		));
+		), $this->holder, $this->clock->now());
 	}
 }

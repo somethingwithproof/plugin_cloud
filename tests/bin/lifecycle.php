@@ -160,6 +160,32 @@ switch ($action) {
 		include($config['base_path'] . '/plugins/cloud/tests/bin/collector-flow.php');
 
 		break;
+	case 'uninstall_unbooted':
+		// What core does on uninstall when cloud_boot() refuses: the PHP 8.0
+		// fallback, then core drops whatever is still tracked.
+		include_once($config['base_path'] . '/plugins/cloud/include/unbooted-uninstall.php');
+		cloud_uninstall_unbooted();
+		api_plugin_db_changes_remove('cloud');
+		api_plugin_remove_hooks('cloud');
+		api_plugin_remove_realms('cloud');
+		db_execute("DELETE FROM plugin_config WHERE directory = 'cloud'");
+
+		break;
+	case 'repair_as_viewer':
+		// A viewer opens a plugin page after the realm rows went missing.
+		db_execute("DELETE FROM user_auth WHERE username = 'cloudviewer'");
+		db_execute("INSERT INTO user_auth (username, password, realm, full_name, enabled) VALUES ('cloudviewer', '', 0, 'viewer', 'on')");
+		$viewer = (int) db_fetch_insert_id();
+		db_execute("DELETE FROM plugin_realms WHERE plugin = 'cloud'");
+		db_execute("DELETE FROM plugin_hooks WHERE name = 'cloud'");
+		$_SESSION['sess_user_id'] = $viewer;
+		db_execute("REPLACE INTO settings (name, value) VALUES ('admin_user', '0')");
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		plugin_cloud_upgrade();
+		$result = array('viewer_realms' => (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM user_auth_realm WHERE user_id = ?', array($viewer)));
+		db_execute("REPLACE INTO settings (name, value) VALUES ('admin_user', '1')");
+
+		break;
 	case 'state':
 		break;
 	default:

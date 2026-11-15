@@ -57,6 +57,11 @@ final class FlowDriver implements ProviderDriver {
 	/** @var list<string> */
 	public static array $collected = [];
 	public static int $observedAt = 0;
+	/** @var list<string> account names in the order discovery ran */
+	public static array $order = [];
+	public static ?FixedClock $clock = null;
+	/** seconds each discovery takes on $clock */
+	public static int $tick = 0;
 
 	public function __construct(HttpTransport $http) {
 	}
@@ -79,6 +84,8 @@ final class FlowDriver implements ProviderDriver {
 
 	public function discover(Account $account, Secret $credential): Inventory {
 		self::$discoveries++;
+		self::$order[] = $account->name;
+		self::$clock?->advance(self::$tick);
 
 		return new Inventory(array_map(fn (string $id) => new CloudResource('droplet', $id, 'Droplet ' . $id, 'nyc3'), self::$present), 1);
 	}
@@ -180,6 +187,24 @@ for ($i = 0; $i < 3; $i++) {
 	flow_collector($flow_clock, 'h7')->run(1, 240);
 	$result['d2_lifecycle'][] = db_fetch_cell_prepared('SELECT lifecycle FROM plugin_cloud_resource WHERE id = ?', array($d2));
 }
+
+// A writer without the lease cannot replace health either.
+$health_before = db_fetch_row_prepared('SELECT * FROM plugin_cloud_health WHERE account_id = ?', array($main));
+(new HealthRepository(false))->save(new \Somethingwithproof\Cloud\AccountHealth($main, 1, 1, 0.0, \Somethingwithproof\Cloud\CollectionState::Failed), 'stranger', $flow_clock->now());
+$result['health_unchanged'] = db_fetch_row_prepared('SELECT * FROM plugin_cloud_health WHERE account_id = ?', array($main)) == $health_before;
+
+// Each discovery takes 300 s against a 100 s budget, so a run reaches one
+// account. The never-run account goes first, then the least recent.
+$second = flow_account('Second', 1, 'enabled');
+FlowDriver::$order = array();
+FlowDriver::$clock = $flow_clock;
+FlowDriver::$tick  = 300;
+$flow_clock->advance(3700);
+$result['order_run1'] = flow_collector($flow_clock, 'h8')->run(1, 100);
+$flow_clock->advance(3700);
+flow_collector($flow_clock, 'h9')->run(1, 100);
+$result['order'] = FlowDriver::$order;
+FlowDriver::$clock = null;
 
 db_execute('DELETE FROM data_template_data WHERE local_data_id IN (900001, 900002)');
 unlink($flow_dir . '/token');

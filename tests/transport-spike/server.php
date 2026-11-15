@@ -128,6 +128,14 @@ while (time() < $deadline) {
 			$b = '{"ok":true}';
 			send($conn, $ok . "Content-Type: application/json\r\nX-Spike: one\r\nRatelimit-Remaining: 4999\r\nContent-Length: " . strlen($b) . "\r\n\r\n" . $b);
 			break;
+		case '/head':
+			// Headers only, with a length the body never sends: correct for
+			// a HEAD response.
+			send($conn, $ok . "Content-Length: 100\r\n\r\n");
+			break;
+		case '/no-content':
+			send($conn, "HTTP/1.1 204 No Content\r\nConnection: close\r\nContent-Length: 50\r\n\r\n");
+			break;
 		case '/log':
 			$b = json_encode($log);
 			send($conn, $ok . 'Content-Length: ' . strlen($b) . "\r\n\r\n" . $b);

@@ -41,13 +41,13 @@ final class Verifier {
 	}
 
 	private function status(Account $account): VerifyStatus {
-		$driver = $this->drivers->for($account);
-
-		if ($driver === null) {
-			return VerifyStatus::Config;
-		}
-
 		try {
+			$driver = $this->drivers->for($account);
+
+			if ($driver === null) {
+				return VerifyStatus::Config;
+			}
+
 			return $driver->verify($account, $this->credentials->credentialFor($account));
 		} catch (CredentialError) {
 			return VerifyStatus::Config;
@@ -55,6 +55,11 @@ final class Verifier {
 			return VerifyStatus::fromError($error->errorClass);
 		} catch (TransportError $error) {
 			return VerifyStatus::fromError($error->errorClass());
+		} catch (\Throwable $error) {
+			// The class only: an unexpected message may carry provider text.
+			Log::warning(sprintf('Account %d: verify failed unexpectedly (%s)', $account->id, $error::class));
+
+			return VerifyStatus::Config;
 		}
 	}
 }

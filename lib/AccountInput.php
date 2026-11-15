@@ -45,7 +45,7 @@ final readonly class AccountInput {
 		$errors   = [];
 		$provider = Provider::tryFrom(Row::string($input, 'provider'));
 
-		if ($provider === null || ($id === 0 && !in_array($provider, $offered, true))) {
+		if ($provider === null || ($id <= 0 && !in_array($provider, $offered, true))) {
 			return new self(null, ['provider' => __('Provider: choose one of the listed providers.', 'cloud')]);
 		}
 

@@ -36,8 +36,9 @@ final class Redactor {
 	public function add(Secret $secret): void {
 		$value = $secret->reveal();
 
-		// Short values would match ordinary text and hide the error itself.
-		if (strlen($value) < 8) {
+		// Every accepted credential is masked, however short: a readable
+		// error is worth less than a leaked secret.
+		if ($value === '') {
 			return;
 		}
 

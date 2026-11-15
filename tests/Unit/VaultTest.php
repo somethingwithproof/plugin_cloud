@@ -210,11 +210,39 @@ it('redacts known secrets in every encoding and authorization material by patter
 	expect($clean)->toContain('expires_in');
 });
 
-it('leaves short known values alone so errors stay readable', function () {
+it('masks every accepted credential, however short', function () {
 	$redactor = new Redactor();
-	$redactor->add(new Secret('abc'));
+	$redactor->add(new Secret('s3cr3t!'));
+	$redactor->add(new Secret(''));
 
-	expect($redactor->clean('abc error'))->toBe('abc error');
+	expect($redactor->clean('credential rejected: s3cr3t!'))->toBe('credential rejected: [redacted]');
+});
+
+it('keeps secrets out of var_export, including inside a vault key', function () {
+	$secret = new Secret('example-token-value');
+	$key    = VaultKey::fromBytes(str_repeat('k', 32));
+
+	expect(var_export($secret, true))->not->toContain('example-token-value')
+		->and(var_export($key, true))->not->toContain(str_repeat('k', 32))
+		->and(print_r($secret, true))->not->toContain('example-token-value')
+		->and($secret->reveal())->toBe('example-token-value')
+		->and(fn () => clone $secret)->toThrow(LogicException::class);
+});
+
+it('refuses a FIFO before opening it, which would block', function () {
+	$fifo = $this->dir . '/fifo';
+
+	$made = function_exists('posix_mkfifo') ? posix_mkfifo($fifo, 0600) : (exec('mkfifo -m 600 ' . escapeshellarg($fifo) . ' 2>/dev/null', $out, $rc) !== false && $rc === 0);
+
+	if (!$made) {
+		$this->markTestSkipped('posix_mkfifo is not available');
+	}
+
+	try {
+		expect(cloud_refusal(fn () => VaultKey::fromFile($fifo)))->toContain('not a regular file');
+	} finally {
+		unlink($fifo);
+	}
 });
 
 it('pins vault rows with missing, wrongly sized, and malformed fields', function () {

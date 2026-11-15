@@ -71,9 +71,9 @@ it('refuses each invalid field with a message naming it', function (array $overr
 ]);
 
 it('refuses providers that are not released for new accounts', function () {
-	$parsed = AccountInput::parse(cloud_account_input(['provider' => 'aws']), 0, Provider::released());
-
-	expect($parsed->errors)->toHaveKey('provider');
+	foreach ([0, -1] as $id) {
+		expect(AccountInput::parse(cloud_account_input(['provider' => 'aws']), $id, Provider::released())->errors)->toHaveKey('provider');
+	}
 });
 
 it('validates every provider scope field against its strict pattern', function (string $provider, string $field, string $good, string $bad) {

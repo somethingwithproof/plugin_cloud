@@ -111,6 +111,14 @@ it('returns status, headers, and body from a trusted server', function () {
 		->and($r->header('X-Spike'))->toBe('one');
 });
 
+it('ends HEAD and 204 responses at their headers whatever Content-Length says', function () {
+	$port = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
+
+	expect(cloud_transport($port)->send(new HttpRequest('HEAD', "https://127.0.0.1:$port/head"))->body)->toBe('')
+		->and(cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/no-content"))->status)->toBe(204)
+		->and(cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/head"))))->toBe('malformed');
+});
+
 it('decodes chunked bodies, skips 1xx responses, and returns error bodies', function () {
 	$port = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
 	$t    = cloud_transport($port);
@@ -217,6 +225,7 @@ it('refuses operations that are not on the driver list before they are sent', fu
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', [], 'Action=PutMetricAlarm'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets', [], 'x'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', ['CONTENT-TYPE' => 'Application/X-WWW-Form-Urlencoded; charset=utf-8'], 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&action=DeleteAlarms'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/?Action=PutMetricAlarm', $form, 'Action=GetMetricData'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=1&page=2&per_page=1'))))->toBe('operation_refused')

@@ -63,7 +63,15 @@ final readonly class Operation {
 			return $body === '';
 		}
 
-		$form = str_starts_with(strtolower($request->headers['Content-Type'] ?? $request->headers['content-type'] ?? ''), 'application/x-www-form-urlencoded');
+		$type = '';
+
+		foreach ($request->headers as $name => $value) {
+			if (strcasecmp((string) $name, 'Content-Type') === 0) {
+				$type = strtolower(trim($value));
+			}
+		}
+
+		$form = str_starts_with($type, 'application/x-www-form-urlencoded');
 
 		return !($form && self::repeatsName($body)) && preg_match($this->bodyPattern, $body) === 1;
 	}

@@ -41,6 +41,15 @@ final class LeaseRepository {
 		return (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_lease WHERE account_id = ? AND holder = ? AND expires_at >= ?', [$accountId, $holder, $this->clock->now()], '', true, $this->connection) === 1;
 	}
 
+	/**
+	 * When a run last took this account's lease, or 0. Written as an attempt
+	 * starts and kept after release, so it records attempts whose results
+	 * were never written.
+	 */
+	public function lastAcquired(int $accountId): int {
+		return (int) db_fetch_cell_prepared('SELECT acquired_at FROM plugin_cloud_lease WHERE account_id = ?', [$accountId], '', true, $this->connection);
+	}
+
 	public function release(int $accountId, string $holder): void {
 		db_execute_prepared('UPDATE plugin_cloud_lease SET expires_at = 0 WHERE account_id = ? AND holder = ?', [$accountId, $holder], true, $this->connection);
 	}
