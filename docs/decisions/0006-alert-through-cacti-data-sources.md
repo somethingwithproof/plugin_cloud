@@ -4,7 +4,7 @@ Status: Accepted (2026-11-14)
 
 ## Context
 
-Operators want one alerting path for SNMP devices and cloud resources. Thold evaluates values that reach it through the `poller_output` hook ([plugin_thold setup.php](https://github.com/Cacti/plugin_thold/blob/develop/setup.php)), and Maint suppresses notifications for devices in maintenance through the `is_device_in_maintenance` hook ([plugin_maint setup.php](https://github.com/Cacti/plugin_maint/blob/develop/setup.php)). Each provider also has its own alarm service.
+Operators want one alerting path for SNMP devices and cloud resources. Thold evaluates values that reach it through the `poller_output` hook ([plugin_thold setup.php](https://github.com/Cacti/plugin_thold/blob/develop/setup.php)), and Maint suppresses those notifications for devices in maintenance: Thold calls Maint's `plugin_maint_check_cacti_host()` directly when Maint is enabled ([plugin_thold includes/polling.php](https://github.com/Cacti/plugin_thold/blob/develop/includes/polling.php), [plugin_maint includes/functions.php](https://github.com/Cacti/plugin_maint/blob/develop/includes/functions.php)). The record first named Maint's `is_device_in_maintenance` hook, which nothing calls; corrected on 2026-11-14 ([Cacti core](../research/cacti-core.md)). Each provider also has its own alarm service.
 
 Provider metrics arrive late. A datapoint for a period is published some time after the period ends, and the latest value can still change ([CloudWatch concepts](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html); Google documents up to 240 seconds for Compute Engine CPU, [GCP metrics](https://docs.cloud.google.com/monitoring/api/metrics_gcp_c)).
 
