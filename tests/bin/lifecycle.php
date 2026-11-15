@@ -161,6 +161,64 @@ switch ($action) {
 		);
 
 		break;
+	case 'scope_device':
+		// The account a seed made, with two Droplets, gets its scope device.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+
+		foreach (array('101' => 'web-1', '102' => 'web-2') as $provider_id => $name) {
+			db_execute_prepared(
+				"INSERT IGNORE INTO plugin_cloud_resource (account_id, type, provider_id, name, lifecycle, first_seen, last_seen)
+					VALUES (?, 'droplet', ?, ?, 'active', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())",
+				array($account, $provider_id, $name)
+			);
+		}
+
+		$result = cloud_scope_devices()->create(cloud_accounts()->find($account));
+
+		break;
+	case 'resource':
+		// Change one Droplet as discovery would: add, rename or retire it.
+		list($provider_id, $change) = explode('=', $argument, 2);
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+
+		if ($change === 'deleted') {
+			db_execute_prepared(
+				"UPDATE plugin_cloud_resource SET lifecycle = 'deleted' WHERE account_id = ? AND provider_id = ?",
+				array($account, $provider_id)
+			);
+		} else {
+			db_execute_prepared(
+				"INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, lifecycle, first_seen, last_seen)
+					VALUES (?, 'droplet', ?, ?, 'active', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+					ON DUPLICATE KEY UPDATE name = VALUES(name)",
+				array($account, $provider_id, $change)
+			);
+		}
+
+		break;
+	case 'reindex':
+		include_once($config['base_path'] . '/lib/data_query.php');
+		include_once($config['base_path'] . '/lib/snmp.php');
+
+		foreach (db_fetch_assoc('SELECT host_id, snmp_query_id FROM host_snmp_query') as $row) {
+			run_data_query($row['host_id'], $row['snmp_query_id']);
+		}
+
+		break;
+	case 'remove_device':
+		include_once($config['base_path'] . '/lib/api_device.php');
+		api_device_remove((int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device'));
+
+		break;
+	case 'ss':
+		// Call ss_cloud() as the script server does: "<host> <type> <cmd> [field] [index]".
+		$called_by_script_server = true;
+		include_once($config['base_path'] . '/plugins/cloud/ss_cloud.php');
+		$result = (string) call_user_func_array('ss_cloud', explode(' ', $argument));
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
@@ -307,6 +365,34 @@ foreach (db_fetch_assoc(
 	$tables[$row['t']] = (int) db_fetch_cell('SELECT COUNT(*) FROM `' . $row['t'] . '`');
 }
 
+// The device state, only while the plugin's device table exists.
+$device_state = array('devices' => array(), 'device_queries' => array(), 'device_index' => array());
+
+if (isset($tables['plugin_cloud_device'])) {
+	$device_state = array(
+		'devices' => db_fetch_assoc(
+			'SELECT d.host_id, d.account_id, h.description, h.availability_method, h.poller_id, ht.name AS template
+				FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
+				LEFT JOIN host_template ht ON ht.id = h.host_template_id'
+		),
+		'device_queries' => array_column(
+			db_fetch_assoc(
+				'SELECT sq.name FROM host_snmp_query hsq INNER JOIN snmp_query sq ON sq.id = hsq.snmp_query_id
+					INNER JOIN plugin_cloud_device d ON d.host_id = hsq.host_id ORDER BY sq.name'
+			),
+			'name'
+		),
+		'device_index' => array_column(
+			db_fetch_assoc(
+				"SELECT c.snmp_index, c.field_value FROM host_snmp_cache c INNER JOIN plugin_cloud_device d ON d.host_id = c.host_id
+					WHERE c.field_name = 'resourceName' ORDER BY c.snmp_index"
+			),
+			'field_value',
+			'snmp_index'
+		),
+	);
+}
+
 print json_encode(array(
 	'result'  => $result,
 	'output'  => $output,
@@ -362,6 +448,10 @@ print json_encode(array(
 		db_fetch_assoc("SELECT name FROM graph_templates WHERE name LIKE 'Cloud: %' ORDER BY name"),
 		'name'
 	),
+	'devices' => $device_state['devices'],
+	'device_queries' => $device_state['device_queries'],
+	'device_index' => $device_state['device_index'],
+	'hosts' => (int) db_fetch_cell('SELECT COUNT(*) FROM host'),
 	'templates_sha' => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_templates_sha256'"),
 	'resource_files' => array_map(
 		'basename',

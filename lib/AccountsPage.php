@@ -31,6 +31,7 @@ final class AccountsPage {
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly CredentialStore $credentials,
+		private readonly DeviceRepository $devices,
 	) {
 	}
 
@@ -43,13 +44,14 @@ final class AccountsPage {
 			__('Credential', 'cloud'),
 			__('State', 'cloud'),
 			__('Verify', 'cloud'),
+			__('Device', 'cloud'),
 			__('Actions', 'cloud'),
 		])) . '</th></tr>';
 
 		$accounts = $this->accounts->all();
 
 		if ($accounts === []) {
-			print '<tr><td colspan="6"><em>' . html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
+			print '<tr><td colspan="7"><em>' . html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
 		}
 
 		foreach ($accounts as $account) {
@@ -61,6 +63,7 @@ final class AccountsPage {
 				. '<td>' . html_escape($account->enabled() ? __('Enabled', 'cloud') : __('Disabled', 'cloud')) . '</td>'
 				. '<td title="' . html_escape($account->verifyStatus->message()) . '">'
 					. html_escape($account->verifyStatus->message()) . '</td>'
+				. '<td>' . $this->deviceCell($account) . '</td>'
 				. '<td>' . $this->actionForm($account->id, 'verify', __('Verify', 'cloud')) . ' '
 					. $this->actionForm($account->id, 'delete', __('Delete', 'cloud')) . '</td>'
 				. '</tr>';
@@ -188,6 +191,20 @@ final class AccountsPage {
 			CredentialSource::File     => __('File on the poller', 'cloud'),
 			CredentialSource::Instance => __('Instance identity', 'cloud'),
 		};
+	}
+
+	/**
+	 * A link to the account's scope device, or the button that creates it.
+	 */
+	private function deviceCell(Account $account): string {
+		$host = $this->devices->hostFor($account->id);
+
+		if ($host !== null) {
+			return '<a class="linkEditMain" href="' . html_escape('../../host.php?action=edit&id=' . $host) . '">'
+				. html_escape(__('Device %d', $host, 'cloud')) . '</a>';
+		}
+
+		return $this->actionForm($account->id, 'create_device', __('Create Cacti Device', 'cloud'));
 	}
 
 	private function actionForm(int $id, string $action, string $label): string {

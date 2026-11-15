@@ -37,6 +37,15 @@ msgstr ""
 msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
 msgstr ""
 
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr ""
+
 #: lib/AccountInput.php
 msgid "Provider: choose one of the listed providers."
 msgstr ""
@@ -128,6 +137,10 @@ msgid "Verify"
 msgstr ""
 
 #: lib/AccountsPage.php
+msgid "Device"
+msgstr ""
+
+#: lib/AccountsPage.php
 msgid "Actions"
 msgstr ""
 
@@ -198,6 +211,15 @@ msgstr ""
 
 #: lib/AccountsPage.php
 msgid "Instance identity"
+msgstr ""
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
 msgstr ""
 
 #: lib/CredentialSource.php

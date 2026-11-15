@@ -75,6 +75,28 @@ final class ObservationRepository {
 	}
 
 	/**
+	 * @return array<string, array{observation: Observation, status: string}> metric => entry
+	 */
+	public function forResource(int $resourceId): array {
+		$out = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT * FROM plugin_cloud_observation WHERE resource_id = ?',
+			[$resourceId],
+			true,
+			$this->connection
+		)) as $row) {
+			$observation = Observation::fromRow($row);
+
+			if ($observation !== null) {
+				$out[$observation->metric] = ['observation' => $observation, 'status' => Row::string($row, 'status')];
+			}
+		}
+
+		return $out;
+	}
+
+	/**
 	 * @return list<array{observation: Observation, status: string}>
 	 */
 	public function forAccount(int $accountId): array {

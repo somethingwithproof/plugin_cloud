@@ -83,6 +83,33 @@ final class ResourceRepository {
 	}
 
 	/**
+	 * Resources a scope device serves: every one discovery has not retired,
+	 * so a missing resource keeps its index and reads as unknown.
+	 *
+	 * @return list<array{id: int, providerId: string, name: string, firstSeen: int}>
+	 */
+	public function served(int $accountId, string $type): array {
+		$out = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT id, provider_id, name, first_seen FROM plugin_cloud_resource
+				WHERE account_id = ? AND type = ? AND lifecycle != ? ORDER BY provider_id',
+			[$accountId, $type, Lifecycle::Deleted->value],
+			true,
+			$this->connection
+		)) as $row) {
+			$out[] = [
+				'id'         => Row::int($row, 'id'),
+				'providerId' => Row::string($row, 'provider_id'),
+				'name'       => Row::string($row, 'name'),
+				'firstSeen'  => Row::int($row, 'first_seen'),
+			];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * @return array<string, int> lifecycle => count
 	 */
 	public function counts(int $accountId): array {

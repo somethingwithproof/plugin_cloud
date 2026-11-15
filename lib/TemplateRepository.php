@@ -45,15 +45,13 @@ final class TemplateRepository {
 	}
 
 	public function recordedChecksum(): string {
-		$value = db_fetch_cell_prepared(
+		return (string) db_fetch_cell_prepared(
 			'SELECT value FROM settings WHERE name = ?',
 			[self::SETTING],
 			'',
 			true,
 			$this->connection
 		);
-
-		return is_string($value) ? $value : '';
 	}
 
 	public function recordChecksum(string $sha256): void {
@@ -111,6 +109,26 @@ final class TemplateRepository {
 	 */
 	public static function hash(string $key): string {
 		return substr(hash('sha256', 'plugin_cloud/' . $key), 0, 32);
+	}
+
+	/**
+	 * The id of one package object, or null when it is not imported.
+	 */
+	public function id(string $table, string $key): ?int {
+		if (!in_array($key, self::objects()[$table] ?? [], true)) {
+			return null;
+		}
+
+		// $table is a key of objects(), so never input.
+		$id = (int) db_fetch_cell_prepared(
+			'SELECT id FROM `' . $table . '` WHERE hash = ?',
+			[self::hash($key)],
+			'',
+			true,
+			$this->connection
+		);
+
+		return $id > 0 ? $id : null;
 	}
 
 	/**
