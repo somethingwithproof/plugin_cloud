@@ -30,7 +30,7 @@
  *
  * The layout follows Cacti's own export (lib/export.php), field for field,
  * so the importer reads it as it reads any shipped package. Output is
- * reproducible: every hash is md5('plugin_cloud/' . key) over a fixed key.
+ * reproducible: every hash comes from TemplateRepository::hash() over a fixed key.
  * The template unit test runs these functions and compares their output
  * with the shipped files.
  *
@@ -99,12 +99,12 @@ const CLOUD_TPL_QUERIES = array(
  * The XML element name or reference for one object, as get_hash_version()
  * builds it.
  */
-function cloud_tpl_ref(string $type, string $md5): string {
-	return 'hash_' . CLOUD_TPL_TYPES[$type] . CLOUD_TPL_VERSION . $md5;
+function cloud_tpl_ref(string $type, string $id): string {
+	return 'hash_' . CLOUD_TPL_TYPES[$type] . CLOUD_TPL_VERSION . $id;
 }
 
 function cloud_tpl_own(string $type, string $key): string {
-	return cloud_tpl_ref($type, md5('plugin_cloud/' . $key));
+	return cloud_tpl_ref($type, \Somethingwithproof\Cloud\TemplateRepository::hash($key));
 }
 
 /**
@@ -332,7 +332,7 @@ function cloud_tpl_graph_template(string $key, array $graph): array {
 			$items[cloud_tpl_own('graph_template_item', $item)] = cloud_tpl_graph_item($task, $row, $sequence);
 
 			/* The exporter writes input items with the graph template type
-			 * code, and the importer reads only the md5, so an export of the
+			 * code, and the importer reads only the 32-digit id, so an export of the
 			 * imported template matches this file. */
 			$used[] = cloud_tpl_own('graph_template', $item);
 		}
