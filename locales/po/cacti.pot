@@ -337,7 +337,7 @@ msgid "Vault Key File"
 msgstr ""
 
 #: lib/Settings.php
-msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user; the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
 msgstr ""
 
 #: lib/Settings.php

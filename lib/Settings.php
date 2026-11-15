@@ -76,7 +76,7 @@ final readonly class Settings {
 			],
 			'cloud_vault_key_file' => [
 				'friendly_name' => __('Vault Key File', 'cloud'),
-				'description'   => __('Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user; the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again.', 'cloud'),
+				'description'   => __('Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again.', 'cloud'),
 				'method'        => 'textbox',
 				'default'       => self::DEFAULT_KEY_FILE,
 				'max_length'    => '255',
