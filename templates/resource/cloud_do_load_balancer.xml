@@ -1,0 +1,112 @@
+<interface>
+	<name>Get Cloud: DigitalOcean Load Balancers</name>
+	<script_path>|path_cacti|/plugins/cloud/ss_cloud.php</script_path>
+	<script_function>ss_cloud</script_function>
+	<script_server>php</script_server>
+	<arg_prepend>|host_id| load_balancer</arg_prepend>
+	<arg_index>index</arg_index>
+	<arg_query>query</arg_query>
+	<arg_get>get</arg_get>
+	<arg_num_indexes>num_indexes</arg_num_indexes>
+	<output_delimiter>!</output_delimiter>
+	<index_order>resourceId</index_order>
+	<index_order_type>alphabetic</index_order_type>
+	<index_title_format>|chosen_order_field|</index_title_format>
+	<fields>
+		<resourceId>
+			<name>Resource ID</name>
+			<direction>input</direction>
+			<query_name>resourceId</query_name>
+		</resourceId>
+		<resourceName>
+			<name>Resource Name</name>
+			<direction>input</direction>
+			<query_name>resourceName</query_name>
+		</resourceName>
+		<dolb_conn_cur>
+			<name>Connections: dolb_conn_cur</name>
+			<direction>output</direction>
+			<query_name>dolb_conn_cur</query_name>
+		</dolb_conn_cur>
+		<dolb_conn_lim>
+			<name>Connections: dolb_conn_lim</name>
+			<direction>output</direction>
+			<query_name>dolb_conn_lim</query_name>
+		</dolb_conn_lim>
+		<dolb_cpu_pct>
+			<name>CPU: dolb_cpu_pct</name>
+			<direction>output</direction>
+			<query_name>dolb_cpu_pct</query_name>
+		</dolb_cpu_pct>
+		<dolb_http_rps>
+			<name>HTTP Requests: dolb_http_rps</name>
+			<direction>output</direction>
+			<query_name>dolb_http_rps</query_name>
+		</dolb_http_rps>
+		<dolb_http_resp>
+			<name>HTTP Responses: dolb_http_resp</name>
+			<direction>output</direction>
+			<query_name>dolb_http_resp</query_name>
+		</dolb_http_resp>
+		<dolb_http_Bps>
+			<name>Throughput: dolb_http_Bps</name>
+			<direction>output</direction>
+			<query_name>dolb_http_Bps</query_name>
+		</dolb_http_Bps>
+		<dolb_tcp_Bps>
+			<name>Throughput: dolb_tcp_Bps</name>
+			<direction>output</direction>
+			<query_name>dolb_tcp_Bps</query_name>
+		</dolb_tcp_Bps>
+		<dolb_udp_Bps>
+			<name>Throughput: dolb_udp_Bps</name>
+			<direction>output</direction>
+			<query_name>dolb_udp_Bps</query_name>
+		</dolb_udp_Bps>
+		<dolb_nlbtcp_Bps>
+			<name>Throughput: dolb_nlbtcp_Bps</name>
+			<direction>output</direction>
+			<query_name>dolb_nlbtcp_Bps</query_name>
+		</dolb_nlbtcp_Bps>
+		<dolb_nlbudp_Bps>
+			<name>Throughput: dolb_nlbudp_Bps</name>
+			<direction>output</direction>
+			<query_name>dolb_nlbudp_Bps</query_name>
+		</dolb_nlbudp_Bps>
+		<dolb_hc_status>
+			<name>Health Checks: dolb_hc_status</name>
+			<direction>output</direction>
+			<query_name>dolb_hc_status</query_name>
+		</dolb_hc_status>
+		<dolb_downtime>
+			<name>Downtime: dolb_downtime</name>
+			<direction>output</direction>
+			<query_name>dolb_downtime</query_name>
+		</dolb_downtime>
+		<dolb_resp_avg_s>
+			<name>Response Time: dolb_resp_avg_s</name>
+			<direction>output</direction>
+			<query_name>dolb_resp_avg_s</query_name>
+		</dolb_resp_avg_s>
+		<dolb_resp_p95_s>
+			<name>Response Time: dolb_resp_p95_s</name>
+			<direction>output</direction>
+			<query_name>dolb_resp_p95_s</query_name>
+		</dolb_resp_p95_s>
+		<dolb_back_conn>
+			<name>Droplet Connections: dolb_back_conn</name>
+			<direction>output</direction>
+			<query_name>dolb_back_conn</query_name>
+		</dolb_back_conn>
+		<dolb_queue>
+			<name>Droplet Connections: dolb_queue</name>
+			<direction>output</direction>
+			<query_name>dolb_queue</query_name>
+		</dolb_queue>
+		<dolb_age>
+			<name>Collection Age: dolb_age</name>
+			<direction>output</direction>
+			<query_name>dolb_age</query_name>
+		</dolb_age>
+	</fields>
+</interface>
