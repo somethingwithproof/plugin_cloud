@@ -182,7 +182,8 @@ function cloud_require_post(string $page, array $actions): void {
 function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
 	return new \Somethingwithproof\Cloud\CredentialStore(
 		new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
-		cloud_settings()->vaultKeyFile
+		cloud_settings()->vaultKeyFile,
+		cloud_settings()->credentialDir
 	);
 }
 

@@ -270,6 +270,8 @@ Credential sources are vault, credential file, and instance identity ([ADR 0007]
 | Google Cloud | Service account JSON key; only `client_email`, `private_key`, and `private_key_id` are used | Metadata server (phase 3) |
 | Azure | Tenant ID, client ID, client secret | Managed identity (phase 4) |
 
+A credential file must sit inside the Credential File Directory, a Cloud setting on Cacti's Settings page. Only full administrators can change it, and it is empty by default, which refuses credential files. Cloud Admin picks an account's file, so without this limit it could name any file the Cacti user can read, the vault key included, and have the collector send it to the provider. A path outside the directory is refused before the file is opened, so the refusal reveals nothing about the file.
+
 Short-lived tokens are cached per collector run. When a provider limits how often tokens can be issued, they are cached in the vault with their expiry.
 
 ## Security

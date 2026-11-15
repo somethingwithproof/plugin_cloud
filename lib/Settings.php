@@ -28,6 +28,7 @@ namespace Somethingwithproof\Cloud;
 final readonly class Settings {
 	public const NAMES = [
 		'cloud_vault_key_file',
+		'cloud_credential_dir',
 		'cloud_collector_budget',
 		'cloud_uninstall_keep_tables',
 	];
@@ -39,6 +40,7 @@ final readonly class Settings {
 		public string $vaultKeyFile,
 		public int $collectorBudget,
 		public bool $keepTablesOnUninstall,
+		public string $credentialDir = '',
 	) {
 	}
 
@@ -59,6 +61,7 @@ final readonly class Settings {
 				$row,
 				'cloud_uninstall_keep_tables'
 			) : true,
+			credentialDir: Row::string($row, 'cloud_credential_dir'),
 		);
 	}
 
@@ -85,6 +88,17 @@ final readonly class Settings {
 				),
 				'method'        => 'textbox',
 				'default'       => self::DEFAULT_KEY_FILE,
+				'max_length'    => '255',
+				'size'          => '60',
+			],
+			'cloud_credential_dir' => [
+				'friendly_name' => __('Credential File Directory', 'cloud'),
+				'description'   => __(
+					'Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here.',
+					'cloud'
+				),
+				'method'        => 'textbox',
+				'default'       => '',
 				'max_length'    => '255',
 				'size'          => '60',
 			],

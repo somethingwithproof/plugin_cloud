@@ -148,7 +148,7 @@ function flow_collector($clock, $holder) {
 
 	return new Collector(
 		new \Somethingwithproof\Cloud\AccountRepository(false, $clock), $drivers,
-		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'),
+		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent', $GLOBALS['flow_dir']),
 		new LeaseRepository(false, $clock), new ResourceRepository(false, $clock), new SeriesRepository(false),
 		new ObservationRepository(false), new HealthRepository(false), new Redactor(), $clock, $holder
 	);
