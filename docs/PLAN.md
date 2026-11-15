@@ -216,7 +216,7 @@ The implementation is a `stream_socket_client()` TLS connection with a small HTT
 
 ## Cacti objects
 
-The proposed mapping, an open decision with maintainers:
+The mapping, decided in [ADR 0010](decisions/0010-scope-devices-with-resource-data-queries.md):
 
 | Object | Created from | Notes |
 |---|---|---|
@@ -378,7 +378,6 @@ Engineering targets, to be measured, not yet demonstrated:
 
 | Decision | Options | Needed before | Decided by |
 |---|---|---|---|
-| How resources appear in Cacti | Scope device with data queries (proposed); a device per resource; graphs on existing devices | Milestone 3 | Core maintainers |
 | Repository home and plugin name | `Cacti/plugin_cloud`, or remain a community plugin | Before code is proposed upstream | Cacti maintainers |
 | Test harness | Whatever maintained plugins use | Milestone 2 | Cacti maintainers |
 | Outbound proxy support | No proxy (proposed for phase 1); an explicit proxy setting | Milestone 4 | Pilot feedback |
