@@ -216,3 +216,15 @@ it('leaves short known values alone so errors stay readable', function () {
 
 	expect($redactor->clean('abc error'))->toBe('abc error');
 });
+
+it('pins vault rows with missing, wrongly sized, and malformed fields', function () {
+	$row = ['nonce' => str_repeat('n', 12), 'ciphertext' => 'c', 'tag' => str_repeat('t', 16), 'key_id' => 'k1', 'expires_at' => '1800000000'];
+
+	expect(VaultEntry::fromRow($row))->toEqual(new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), 'k1', 1800000000))
+		->and(VaultEntry::fromRow(['expires_at' => 'x', 'key_id' => null] + $row))->toEqual(new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), '', 0))
+		->and(VaultEntry::fromRow(['nonce' => str_repeat('n', 11)] + $row))->toBeNull()
+		->and(VaultEntry::fromRow(['tag' => str_repeat('t', 15)] + $row))->toBeNull()
+		->and(VaultEntry::fromRow(['ciphertext' => null] + $row))->toBeNull()
+		->and(VaultEntry::fromRow(['nonce' => 12] + $row))->toBeNull()
+		->and(VaultEntry::fromRow([]))->toBeNull();
+});
