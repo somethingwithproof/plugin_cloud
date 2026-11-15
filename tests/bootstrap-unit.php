@@ -70,6 +70,58 @@ if (!function_exists('read_config_option')) {
 	}
 }
 
+// Repositories in unit tests talk to these stubs. A test reads the
+// statements from $GLOBALS['__cloud_db_exec'] and queues query results in
+// $GLOBALS['__cloud_db_rows'] (keyed by a substring of the SQL).
+$GLOBALS['__cloud_db_exec'] = [];
+$GLOBALS['__cloud_db_rows'] = [];
+
+function cloud_test_rows(string $sql): mixed {
+	foreach ($GLOBALS['__cloud_db_rows'] as $needle => $rows) {
+		if (str_contains($sql, $needle)) {
+			return $rows;
+		}
+	}
+
+	return [];
+}
+
+if (!function_exists('db_execute_prepared')) {
+	function db_execute_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
+		$GLOBALS['__cloud_db_exec'][] = ['sql' => $sql, 'params' => $params];
+
+		return true;
+	}
+}
+
+if (!function_exists('db_fetch_assoc_prepared')) {
+	function db_fetch_assoc_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
+		return cloud_test_rows($sql);
+	}
+}
+
+if (!function_exists('db_fetch_row_prepared')) {
+	function db_fetch_row_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
+		$rows = cloud_test_rows($sql);
+
+		return is_array($rows) && isset($rows[0]) ? $rows[0] : [];
+	}
+}
+
+if (!function_exists('db_fetch_cell_prepared')) {
+	function db_fetch_cell_prepared($sql, $params = [], $col_name = '', $log = true, $db_conn = false, $log_function = null) {
+		$rows = cloud_test_rows($sql);
+
+		return is_array($rows) && isset($rows[0]) ? reset($rows[0]) : 0;
+	}
+}
+
+if (!function_exists('db_fetch_insert_id')) {
+	function db_fetch_insert_id($db_conn = false) {
+		return 1;
+	}
+}
+
 $GLOBALS['config'] = [
 	'base_path'    => '/var/www/cacti',
 	'library_path' => '/var/www/cacti/lib',
