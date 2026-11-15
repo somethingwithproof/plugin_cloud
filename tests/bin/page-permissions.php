@@ -27,9 +27,11 @@
  *
  * Then shows that a delete sent as GET, or as POST without the csrf-magic
  * token, has no effect, and that the same delete as a proper POST works.
- * Last, it saves an account with a vault credential through the form and
+ * Then it saves an account with a vault credential through the form and
  * searches every response, the Cacti log, and every plugin table for the
- * credential (#32).
+ * credential (#32). Last (#45), it views a cloud graph as users allowed and
+ * denied by Cacti's graph and device permissions, checks that ss_cloud.php
+ * serves nothing over HTTP, and revokes each realm from a logged-in user.
  * Disposable databases only: it resets the admin password and adds users.
  * Must parse on PHP 8.0.
  *
@@ -61,21 +63,33 @@ db_execute_prepared(
 	array(password_hash($password, PASSWORD_DEFAULT))
 );
 
-// Realm 8 is Console access.
-foreach (array('viewer' => array(8, $view), 'norealm' => array(8)) as $name => $realms) {
+/**
+ * A user with these realms, every graph policy allow (1) or deny (2).
+ *
+ * @return int the user id
+ */
+function perm_user($name, $realms, $policy = 1) {
+	global $password;
+
 	db_execute_prepared('DELETE FROM user_auth WHERE username = ?', array($name));
 	db_execute_prepared(
 		"INSERT INTO user_auth (username, password, realm, full_name, must_change_password, password_change, " .
-			"policy_graphs, policy_trees, policy_hosts, policy_graph_templates, enabled) VALUES (?, ?, 0, ?, '', '', 1, 1, 1, " .
-			"1, 'on')",
-		array($name, password_hash($password, PASSWORD_DEFAULT), $name)
+			"policy_graphs, policy_trees, policy_hosts, policy_graph_templates, enabled) VALUES (?, ?, 0, ?, '', '', ?, ?, ?, " .
+			"?, 'on')",
+		array($name, password_hash($password, PASSWORD_DEFAULT), $name, $policy, $policy, $policy, $policy)
 	);
 	$id = (int) db_fetch_insert_id();
 
 	foreach ($realms as $realm) {
 		db_execute_prepared('INSERT INTO user_auth_realm (realm_id, user_id) VALUES (?, ?)', array($realm, $id));
 	}
+
+	return $id;
 }
+
+// Realm 8 is Console access, realm 7 View Graphs.
+perm_user('viewer', array(8, $view));
+perm_user('norealm', array(8));
 
 function perm_expect($ok, $message) {
 	global $failures;
@@ -292,6 +306,114 @@ perm_expect(
 		array_unique($leaks)
 	))
 );
+
+// Cloud graphs follow Cacti's graph and device permissions, with no plugin
+// layer (REQ-PERM-002): a graph on a scope device, viewed through Cacti.
+include_once($config['base_path'] . '/plugins/cloud/setup.php');
+include_once($config['base_path'] . '/lib/api_data_source.php');
+include_once($config['base_path'] . '/lib/api_graph.php');
+include_once($config['base_path'] . '/lib/data_query.php');
+include_once($config['base_path'] . '/lib/template.php');
+include_once($config['base_path'] . '/lib/utility.php');
+cloud_boot();
+
+// Permissive: a graph is visible when its graph, device, or template is.
+db_execute("REPLACE INTO settings (name, value) VALUES ('graph_auth_method', '1')");
+db_execute_prepared(
+	"INSERT INTO plugin_cloud_account (provider, name, credential_source) VALUES ('digitalocean', ?, 'vault')",
+	array('Graph probe')
+);
+$graphAccount = (int) db_fetch_insert_id();
+$resourceName = 'graph-probe-' . bin2hex(random_bytes(3));
+db_execute_prepared(
+	"INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, lifecycle, first_seen, last_seen)
+		VALUES (?, 'droplet', '7001', ?, 'active', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())",
+	array($graphAccount, $resourceName)
+);
+$host      = cloud_scope_devices()->create(cloud_accounts()->find($graphAccount));
+$templates = new \Somethingwithproof\Cloud\TemplateRepository(false);
+$query     = (int) $templates->id('snmp_query', 'data_query/droplet');
+$suggested = array();
+$created   = create_complete_graph_from_template(
+	$templates->id('graph_templates', 'graph_template/do_cpu'),
+	$host,
+	array(
+		'snmp_query_id'       => $query,
+		'snmp_index_on'       => get_best_data_query_index_type($host, $query),
+		'snmp_query_graph_id' => $templates->id('snmp_query_graph', 'data_query_graph/do_cpu'),
+		'snmp_index'          => '7001',
+	),
+	$suggested
+);
+$graph = (int) $created['local_graph_id'];
+perm_expect($host > 0 && $graph > 0, "a cloud graph exists on scope device $host (graph $graph)");
+
+perm_user('graphs', array(7));
+perm_user('nographs', array(7), 2);
+db_execute_prepared(
+	'INSERT INTO user_auth_perms (user_id, item_id, type) VALUES (?, ?, 3)',
+	array(perm_user('deviceonly', array(7), 2), $host)
+);
+
+foreach (array('graphs' => true, 'nographs' => false, 'deviceonly' => true) as $user => $allowed) {
+	$graphJar = perm_login($user);
+	list($code, $body) = perm_http($root . 'graph.php?action=view&rra_id=all&local_graph_id=' . $graph, $graphJar);
+	$shown = strpos($body, 'local_graph_id=' . $graph) !== false && strpos($body, 'permission_denied') === false
+		&& stripos($body, 'Permission Denied') === false;
+
+	perm_expect($shown === $allowed, "$user " . ($allowed ? 'sees' : 'is denied') . " the cloud graph (HTTP $code)");
+	unlink($graphJar);
+}
+
+// The script server entry point serves nothing over the web, even to an administrator.
+list($code, $body) = perm_http($base . 'ss_cloud.php?argv[]=' . $host . '&argv[]=droplet&argv[]=index', $jar);
+// Cacti's cli_check.php answers 404, so the file must exist for the 404 to count.
+perm_expect(
+	is_file($config['base_path'] . '/plugins/cloud/ss_cloud.php')
+		&& strpos($body, '7001') === false && strpos($body, $resourceName) === false,
+	"ss_cloud.php serves no data over HTTP (HTTP $code)"
+);
+
+// Access revoked while logged in (REQ-PERM-001): Cacti's user page removes
+// the realm and changes reset_perms, so the open session loses the page.
+foreach (array('cloud_health.php' => array('revoked', $view), 'cloud_accounts.php' => array('revokedadmin', $admin)) as
+	$page => $revoke) {
+	list($user, $realm) = $revoke;
+	$id          = perm_user($user, array(8, $realm));
+	$revokedJar  = perm_login($user);
+	list(, $before) = perm_http($base . $page, $revokedJar);
+
+	db_execute_prepared('DELETE FROM user_auth_realm WHERE user_id = ? AND realm_id = ?', array($id, $realm));
+	db_execute_prepared('UPDATE user_auth SET reset_perms = ? WHERE id = ?', array(mt_rand(1, 2147483647), $id));
+
+	$after = array();
+
+	foreach (array(1, 2) as $attempt) {
+		list(, $after[]) = perm_http($base . $page, $revokedJar);
+	}
+
+	perm_expect(
+		preg_match('/' . $pages[$page] . '/', $before) === 1
+			&& preg_match('/' . $pages[$page] . '/', $after[0]) !== 1
+			&& preg_match('/' . $pages[$page] . '/', $after[1]) !== 1,
+		"$user loses $page in the same session once the realm is revoked"
+	);
+
+	// A form taken before the revocation changes nothing after it.
+	if ($page === 'cloud_accounts.php') {
+		perm_http(
+			$base . 'cloud_accounts.php',
+			$revokedJar,
+			array('__csrf_magic' => perm_token($before), 'action' => 'delete', 'id' => $graphAccount)
+		);
+		perm_expect(
+			(int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_account WHERE id = ?', array($graphAccount)) === 1,
+			'a revoked administrator\'s delete has no effect'
+		);
+	}
+
+	unlink($revokedJar);
+}
 
 db_execute("DELETE FROM settings WHERE name = 'cloud_vault_key_file'");
 unlink($keyFile);
