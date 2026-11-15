@@ -384,7 +384,7 @@ foreach (array('cloud_health.php' => array('revoked', $view), 'cloud_accounts.ph
 	list(, $before) = perm_http($base . $page, $revokedJar);
 
 	db_execute_prepared('DELETE FROM user_auth_realm WHERE user_id = ? AND realm_id = ?', array($id, $realm));
-	db_execute_prepared('UPDATE user_auth SET reset_perms = ? WHERE id = ?', array(mt_rand(1, 2147483647), $id));
+	db_execute_prepared('UPDATE user_auth SET reset_perms = ? WHERE id = ?', array(random_int(1, 2147483647), $id));
 
 	$after = array();
 
