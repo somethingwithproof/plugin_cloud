@@ -73,17 +73,19 @@ final class SocketTransport {
 			'disable_compression' => true,
 		)));
 
+		// The connect and TLS handshake share the total budget. Checked before
+		// the warning collector is installed, so a throw cannot leave it behind.
+		$connectBudget = min($connectTimeout, $deadline - microtime(true));
+		if ($connectBudget <= 0) {
+			throw new TransportError('total_timeout');
+		}
+
 		$warnings = array();
 		set_error_handler(function (int $no, string $message) use (&$warnings): bool {
 			$warnings[] = $message;
 
 			return true;
 		});
-		// The connect and TLS handshake share the total budget.
-		$connectBudget = min($connectTimeout, $deadline - microtime(true));
-		if ($connectBudget <= 0) {
-			throw new TransportError('total_timeout');
-		}
 		try {
 			$fp = stream_socket_client("tls://$host:$port", $errno, $errstr, $connectBudget, STREAM_CLIENT_CONNECT, $ctx);
 		} finally {

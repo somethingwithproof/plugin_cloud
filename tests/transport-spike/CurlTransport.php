@@ -117,7 +117,8 @@ final class CurlTransport {
 			$kind = match ($errno) {
 				60, 77 => 'tls_verify',
 				51     => 'tls_name',
-				28     => $status === 0 ? 'connect_timeout' : 'total_timeout',
+				// 28 is both; libcurl names the phase in the message.
+				28     => str_starts_with($error, 'Connection timed out') || str_contains($error, 'SSL connection timeout') ? 'connect_timeout' : 'total_timeout',
 				7      => 'connect_refused',
 				default => 'curl_' . $errno,
 			};

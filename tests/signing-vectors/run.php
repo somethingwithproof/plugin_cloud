@@ -27,11 +27,55 @@
 
 require __DIR__ . '/AwsSigV4.php';
 
+// The 38 cases of the pinned suite (aws-c-auth ac5652e, tests/aws-signing-test-suite/v4).
+// A missing or extra case stops the run, so a partial copy cannot pass.
+const EXPECTED_CASES = array(
+	'get-header-key-duplicate',
+	'get-header-value-multiline',
+	'get-header-value-order',
+	'get-header-value-trim',
+	'get-relative-normalized',
+	'get-relative-relative-normalized',
+	'get-relative-relative-unnormalized',
+	'get-relative-unnormalized',
+	'get-slash-dot-slash-normalized',
+	'get-slash-dot-slash-unnormalized',
+	'get-slash-normalized',
+	'get-slash-pointless-dot-normalized',
+	'get-slash-pointless-dot-unnormalized',
+	'get-slash-unnormalized',
+	'get-slashes-normalized',
+	'get-slashes-unnormalized',
+	'get-space-normalized',
+	'get-space-unnormalized',
+	'get-unreserved',
+	'get-utf8',
+	'get-vanilla',
+	'get-vanilla-empty-query-key',
+	'get-vanilla-query',
+	'get-vanilla-query-order-encoded',
+	'get-vanilla-query-order-key-case',
+	'get-vanilla-query-unreserved',
+	'get-vanilla-utf8-query',
+	'get-vanilla-with-session-token',
+	'post-header-key-case',
+	'post-header-key-sort',
+	'post-header-value-case',
+	'post-sts-header-after',
+	'post-sts-header-before',
+	'post-vanilla',
+	'post-vanilla-empty-query-value',
+	'post-vanilla-query',
+	'post-x-www-form-urlencoded',
+	'post-x-www-form-urlencoded-parameters',
+);
+
 $dir = $argv[1] ?? '';
 $contextFiles = is_dir($dir) ? glob(rtrim($dir, '/') . '/*/context.json') : false;
-// An empty or wrong directory must not pass on the IAM example alone.
-if ($contextFiles === false || count($contextFiles) < 30) {
-	fwrite(STDERR, "expected the suite's v4 directory with its test cases: $dir\n");
+$found = $contextFiles === false ? array() : array_map(static fn (string $f): string => basename(dirname($f)), $contextFiles);
+sort($found);
+if ($found !== EXPECTED_CASES) {
+	fwrite(STDERR, "not the pinned suite's v4 directory: missing " . implode(', ', array_diff(EXPECTED_CASES, $found)) . '; extra ' . implode(', ', array_diff($found, EXPECTED_CASES)) . "\n");
 	exit(2);
 }
 $pass = 0;

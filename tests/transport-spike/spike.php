@@ -197,12 +197,18 @@ check('total timeout shorter than connect timeout', 'aborted at the total timeou
 	try {
 		$t->send('GET', "https://127.0.0.1:$silent/ok", array(), null, $connectTimeout, 0.25);
 		$observed = 'no error';
+		$kind = null;
 	} catch (TransportError $e) {
 		$observed = $e->getMessage();
+		$kind = $e->kind;
 	}
 	$elapsed = microtime(true) - $start;
 
-	return array(sprintf('%s after %.2f s', $observed, $elapsed), $observed !== 'no error' && $elapsed <= 0.75);
+	// A timeout kind after waiting at least most of the budget; an immediate
+	// unrelated error must not count.
+	$timedOut = in_array($kind, array('connect_timeout', 'total_timeout'), true);
+
+	return array(sprintf('%s after %.2f s', $observed, $elapsed), $timedOut && $elapsed >= 0.2 && $elapsed <= 0.75);
 });
 
 check('peer stops reading the request', 'aborted at the total timeout', function () use ($t, $noread, $connectTimeout, $totalTimeout) {
@@ -210,12 +216,16 @@ check('peer stops reading the request', 'aborted at the total timeout', function
 	try {
 		$t->send('POST', "https://127.0.0.1:$noread/echo", array('Content-Type' => 'application/octet-stream'), str_repeat('u', 32 * 1048576), $connectTimeout, $totalTimeout);
 		$observed = 'no error';
+		$kind = null;
 	} catch (TransportError $e) {
 		$observed = $e->getMessage();
+		$kind = $e->kind;
 	}
 	$elapsed = microtime(true) - $start;
 
-	return array(sprintf('%s after %.1f s', $observed, $elapsed), $observed !== 'no error' && $elapsed <= $totalTimeout + 0.5);
+	// The handshake completes at once, so only a write held until the total
+	// timeout can produce total_timeout after waiting most of the budget.
+	return array(sprintf('%s after %.1f s', $observed, $elapsed), $kind === 'total_timeout' && $elapsed >= $totalTimeout - 0.5 && $elapsed <= $totalTimeout + 0.5);
 });
 
 check('connect to an address that drops packets', 'aborted within the connect timeout', function () use ($get, $connectTimeout) {

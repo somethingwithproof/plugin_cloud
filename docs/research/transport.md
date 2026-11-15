@@ -22,7 +22,7 @@ The URL allowlist is not part of the spike. plugin_cloudflare's `OutboundPolicy`
 
 ## Results
 
-Each cell covers both container runs; a note marks where a version differed. Times are the slower of the two runs, shown where the case waits. Memory cases reset PHP's peak counter before each request.
+Each cell covers both container runs; a note marks where a version differed. Times are the slower of the two runs, shown where the case waits. Memory cases reset PHP's peak counter before each request. Timeout cases pass only on a timeout error after waiting most of the budget.
 
 | Case | Required behavior | Stream wrapper | Socket client | ext-curl |
 |---|---|---|---|---|
@@ -37,12 +37,12 @@ Each cell covers both container runs; a note marks where a version differed. Tim
 | Oversized, Content-Length declared | Refused from the header without reading the body | pass | pass | pass |
 | Oversized, no Content-Length | Cut off at the cap | pass | pass | pass |
 | Stalled body | Aborted at the total timeout | pass (4.1 s) | pass (4.1 s) | pass (4.1 s) |
-| Slow body (1 byte per 0.5 s) | Aborted at the total timeout | pass (4.1 s) | pass (4.1 s) | pass (4.2 s) |
-| Slow headers (1 byte per 0.5 s) | Aborted at the total timeout | **fail** (30.7 s) | pass (4.1 s) | pass (4.1 s) |
+| Slow body (1 byte per 0.5 s) | Aborted at the total timeout | pass (4.1 s) | pass (4.1 s) | pass (4.1 s) |
+| Slow headers (1 byte per 0.5 s) | Aborted at the total timeout | **fail** (30.2 s) | pass (4.1 s) | pass (4.1 s) |
 | TLS handshake never answered | Aborted within the connect timeout | pass (2.0 s) | pass (2.0 s) | pass (2.0 s) |
 | Total timeout shorter than connect timeout | Aborted at the total timeout | **fail** (2.0 s) | pass (0.3 s) | pass (0.3 s) |
-| Peer stops reading the request | Aborted at the total timeout | pass (4.2 s) | pass (4.1 s) | pass (4.1 s) |
-| Connect to an address that drops packets | Aborted within the connect timeout | pass (2.0 s) | pass (2.0 s) | pass (2.0 s) |
+| Peer stops reading the request | Aborted at the total timeout | **fail** (4.0 s), reported as `open_failed` | pass (4.0 s) | pass (4.0 s) |
+| Connect to an address that drops packets | Aborted within the connect timeout | pass (2.0 s) | pass (2.0 s) | pass (2.1 s) |
 | 1 MiB response header | Refused or bounded; no unbounded memory | pass | pass | pass |
 | 20,000 response headers | Refused or bounded | **fail** on PHP 8.2.35; pass on 8.4.27 | pass | pass |
 | Proxy environment variables | Ignored; the request goes direct | pass | pass | pass |
@@ -54,13 +54,14 @@ Each cell covers both container runs; a note marks where a version differed. Tim
 | 64 MiB of response headers | Bounded; refused without buffering it all | **fail** | pass | pass |
 | CRLF in a request header value | Refused before sending | pass | pass | pass |
 
-162 checks ran in containers (27 cases, three prototypes, two PHP versions); 149 met the requirement. The socket client met all 54. Of the 13 failures, 11 were the stream wrapper, and two were libcurl 8.14.1 accepting two different `Content-Length` values (it used the second); libcurl 8.23.0 on the host refused them.
+162 checks ran in containers (27 cases, three prototypes, two PHP versions); 147 met the requirement. The socket client met all 54. Of the 15 failures, 13 were the stream wrapper, and two were libcurl 8.14.1 accepting two different `Content-Length` values (it used the second); libcurl 8.23.0 on the host refused them.
 
 The stream wrapper failures in detail:
 
-- **Slow headers.** A server sending one header byte every 0.5 s held the request for 30.7 s against a 4 s budget, until the server stopped. The wrapper's `timeout` applies to each read while `fopen()` reads the head, and the plugin gets control only after the head is complete. Each request can therefore run as long as a slow or hostile server chooses, which breaks the collector's time budget.
+- **Slow headers.** A server sending one header byte every 0.5 s held the request for 30.2 s against a 4 s budget, until the server stopped. The wrapper's `timeout` applies to each read while `fopen()` reads the head, and the plugin gets control only after the head is complete. Each request can therefore run as long as a slow or hostile server chooses, which breaks the collector's time budget.
 - **64 MiB of headers.** Peak memory grew by 82.0 MiB and the request succeeded. There is no header limit to set. With 20,000 short headers it grew 4.2 MiB on PHP 8.2, over the 4 MiB bound.
 - **Total budget below the connect timeout.** With a 0.25 s total budget against a server that never answers the handshake, the request took 2.0 s, the connect timeout. The wrapper has one timeout for the handshake and each read, and no total.
+- **Peer stops reading.** A 32 MiB `POST` to a server that never reads stopped after 4.0 s, but `fopen()` reported only "HTTP request failed", so the caller cannot tell a timeout from a refused or broken request. Timeout cases require a timeout error after a real wait, so this counts as a failure.
 - **Malformed chunk size.** A body framed with chunk size `zz` came back as status 200 with the raw framing as the body. A body ending `0\r\n` without the final empty line came back as `x`, a complete-looking result. PHP's `dechunk` filter, which the wrapper uses, passes input it cannot parse through unchanged and does not require the ending. The socket prototype therefore decodes chunks itself instead of using that filter.
 
 The prototypes' own validation (request header names and values, conflicting `Content-Length`) applies equally to all three and is not a property of the transport.
