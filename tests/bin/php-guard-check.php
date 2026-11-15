@@ -78,6 +78,15 @@ function guard_call_shims() {
 		guard_expect(cloud_draw_navigation_text($nav) === $nav, 'draw_navigation_text returns the navigation unchanged');
 	}
 
+	// Every device save passes its fields through these two.
+	$save = array('id' => 0, 'description' => 'guard');
+
+	foreach (array('cloud_device_save', 'cloud_device_saved') as $function) {
+		if (function_exists($function)) {
+			guard_expect($function($save) === $save, $function . ' returns the device fields unchanged');
+		}
+	}
+
 	// Core's own dispatch, as every page load does.
 	api_plugin_hook('config_arrays');
 	api_plugin_hook('config_settings');

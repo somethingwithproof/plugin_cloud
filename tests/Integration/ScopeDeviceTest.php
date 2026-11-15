@@ -48,7 +48,8 @@ it('creates a scope device with its template, no availability check, and the acc
 			'template'            => 'Cloud: DigitalOcean Scope',
 		]])
 		->and($created['device_queries'])->toBe(['Cloud: DigitalOcean Droplets', 'Cloud: DigitalOcean Load Balancers'])
-		->and($created['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2']);
+		->and($created['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2'])
+		->and($created['device_reindex'])->toBe([2, 2]);
 });
 
 it('creates no device while another request is creating the account\'s', function () {
@@ -137,4 +138,28 @@ it('leaves the series alone when the collector syncing them no longer holds the 
 
 	expect(lifecycle('sync', 'stolen')['series'])->toBe(['101 do_cpu_pct'])
 		->and(lifecycle('sync')['series'])->toBe([]);
+});
+
+it('keeps reindexing a scope device after an ordinary edit, so a resource added upstream is found', function () {
+	$host = (string) lifecycle('scope_device')['result'];
+	$edit = lifecycle('edit_device')['result'];
+
+	// Index count changed (2), as created, on both data queries. The
+	// Droplets query's reindex check expects its two cached indexes; Cacti
+	// writes no check for the load balancer query, which has none cached.
+	expect($edit['description'])->toBe('Seed edited')
+		->and($edit['reindex'])->toBe([2, 2])
+		->and($edit['checks'])->toBe(['2']);
+
+	// The poller's check now sees three Droplets against two and reindexes.
+	lifecycle('resource', '103=web-3');
+	expect(lifecycle('ss', $host . ' droplet num_indexes')['output'])->toBe('3')
+		->and(lifecycle('reindex')['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2', '103' => 'web-3']);
+});
+
+it('keeps a reindex method an administrator chose for the scope device across an edit', function () {
+	lifecycle('scope_device');
+
+	// Verify all fields (3), as chosen on the device page.
+	expect(lifecycle('edit_device', '3')['result']['reindex'])->toBe([3, 3]);
 });

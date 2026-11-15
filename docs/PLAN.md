@@ -292,7 +292,7 @@ Plugin code is object-oriented wherever Cacti's plugin contract allows it, follo
 **Where procedural code remains.** Cacti calls plugins by function name, so these entry points stay procedural. Each is a thin shim, parseable on PHP 8.0, that checks the PHP version, validates input, and hands off to a class:
 
 - `setup.php` lifecycle functions: `plugin_cloud_install()`, `plugin_cloud_uninstall()`, `plugin_cloud_version()`, `plugin_cloud_check_config()`, `plugin_cloud_upgrade()`.
-- Hook callbacks: `config_arrays`, `config_settings`, `draw_navigation_text`, `poller_bottom`, `api_device_save`, `device_remove`, `graph_buttons`; `replicate_out` and `remote_agent` in phase 5.
+- Hook callbacks: `config_arrays`, `config_settings`, `draw_navigation_text`, `poller_bottom`, `api_device_save`, `api_device_new`, `device_remove`, `graph_buttons`; `replicate_out` and `remote_agent` in phase 5.
 - Page scripts such as `cloud_accounts.php` and `cloud.php`, which include `include/auth.php`, read request variables with `get_filter_request_var()`, and call a page class.
 - The script server input function and the `poller_cloud.php` CLI entry point.
 

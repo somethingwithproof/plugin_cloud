@@ -217,6 +217,46 @@ switch ($action) {
 		}
 
 		break;
+	case 'edit_device':
+		// Save the scope device with a new description, as host.php does,
+		// optionally after setting its data queries' reindex method as on the
+		// device page. Prints each query's reindex method and reindex checks
+		// after the save.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_scope_devices();
+		$host    = (int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device');
+		$account = cloud_accounts()->find((int) db_fetch_cell('SELECT account_id FROM plugin_cloud_device'));
+
+		if ($argument !== '') {
+			foreach (db_fetch_assoc_prepared('SELECT snmp_query_id FROM host_snmp_query WHERE host_id = ?', array($host)) as $row) {
+				api_device_dq_change($host, $row['snmp_query_id'], (int) $argument);
+			}
+		}
+
+		$fields    = \Somethingwithproof\Cloud\ScopeDevices::deviceFields(
+			$account,
+			(int) db_fetch_cell_prepared('SELECT host_template_id FROM host WHERE id = ?', array($host))
+		);
+		$fields[0] = $host;
+		$fields[2] = 'Seed edited';
+		call_user_func_array('api_device_save', $fields);
+
+		$result = array(
+			'description' => db_fetch_cell_prepared('SELECT description FROM host WHERE id = ?', array($host)),
+			'reindex'     => array_map('intval', array_column(
+				db_fetch_assoc_prepared('SELECT reindex_method FROM host_snmp_query WHERE host_id = ? ORDER BY snmp_query_id', array($host)),
+				'reindex_method'
+			)),
+			'checks'      => array_column(
+				db_fetch_assoc_prepared(
+					'SELECT assert_value FROM poller_reindex WHERE host_id = ? ORDER BY data_query_id',
+					array($host)
+				),
+				'assert_value'
+			),
+		);
+
+		break;
 	case 'drop_host':
 		// Delete the device row without Cacti's hooks, as when the plugin is disabled.
 		db_execute('DELETE h FROM host h INNER JOIN plugin_cloud_device d ON d.host_id = h.id');
@@ -440,6 +480,7 @@ foreach (db_fetch_assoc(
 
 // The device state, only while the plugin's device table exists.
 $device_state = array(
+	'device_reindex' => array(),
 	'devices'        => array(),
 	'device_queries' => array(),
 	'device_index'   => array(),
@@ -448,6 +489,13 @@ $device_state = array(
 
 if (isset($tables['plugin_cloud_device'])) {
 	$device_state = array(
+		'device_reindex' => array_map('intval', array_column(
+			db_fetch_assoc(
+				'SELECT q.reindex_method FROM host_snmp_query q INNER JOIN plugin_cloud_device d ON d.host_id = q.host_id
+					ORDER BY q.snmp_query_id'
+			),
+			'reindex_method'
+		)),
 		'devices' => db_fetch_assoc(
 			'SELECT d.host_id, d.account_id, h.description, h.availability_method, h.poller_id, ht.name AS template
 				FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
@@ -538,6 +586,7 @@ print json_encode(array(
 	'devices' => $device_state['devices'],
 	'device_queries' => $device_state['device_queries'],
 	'device_index' => $device_state['device_index'],
+	'device_reindex' => $device_state['device_reindex'],
 	'series' => $device_state['series'],
 	'hosts' => (int) db_fetch_cell('SELECT COUNT(*) FROM host'),
 	'templates_sha' => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_templates_sha256'"),

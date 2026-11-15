@@ -35,7 +35,15 @@ const CLOUD_TABLES = [
 	'plugin_cloud_series',
 ];
 
-const CLOUD_HOOKS = ['config_arrays', 'config_settings', 'device_remove', 'draw_navigation_text', 'poller_bottom'];
+const CLOUD_HOOKS = [
+	'api_device_new',
+	'api_device_save',
+	'config_arrays',
+	'config_settings',
+	'device_remove',
+	'draw_navigation_text',
+	'poller_bottom',
+];
 
 beforeEach(function () {
 	lifecycle('reset');

@@ -31,13 +31,22 @@ final class ScopeDevices {
 	/** api_device_save()'s availability method None (AVAIL_NONE). */
 	private const AVAILABILITY_NONE = 0;
 
+	/**
+	 * Reindex on an index count change (DATA_QUERY_AUTOINDEX_INDEX_NUM_CHANGE):
+	 * the poller compares ss_cloud()'s num_indexes with the cached count. The
+	 * site default, uptime going backwards, needs SNMP, which a scope device
+	 * does not have, so it would never reindex.
+	 */
+	public const REINDEX_METHOD = 2;
+
 	/** The device template of each provider, as TemplateRepository keys. */
 	private const TEMPLATES = [Provider::DigitalOcean->value => 'host_template/digitalocean'];
 
 	/**
 	 * @param \Closure(Account, int): int $save    api_device_save() for this account
 	 *        and device template, returning the new device id or 0
-	 * @param \Closure(int, int): void     $reindex run_data_query() for a device and data query
+	 * @param \Closure(int, int, int): void $reindex api_device_dq_change() for a device,
+	 *        data query and reindex method, which also runs the data query
 	 * @param \Closure(int): void          $remove  api_device_remove() for a device
 	 * @param int                          $lockTimeout seconds to wait for another
 	 *        request creating the same account's device
@@ -110,13 +119,14 @@ final class ScopeDevices {
 			return 0;
 		}
 
-		// Saving applied the template's data queries and indexed them before
-		// the link existed, so they found nothing; index them again now.
+		// Saving applied the template's data queries with the site's reindex
+		// method and indexed them before the link existed, so they found
+		// nothing; set the method and index them again now.
 		foreach (TemplateRepository::objects()['snmp_query'] as $query) {
 			$id = $this->templates->id('snmp_query', $query);
 
 			if ($id !== null) {
-				($this->reindex)($host, $id);
+				($this->reindex)($host, $id, self::REINDEX_METHOD);
 			}
 		}
 

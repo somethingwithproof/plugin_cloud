@@ -422,6 +422,61 @@ function cloud_device_remove($ids) {
 	return $ids;
 }
 
+/**
+ * Cacti is about to save a device: remember a scope device's reindex
+ * methods, which the save resets (see ScopeReindex).
+ *
+ * @param mixed $save
+ * @return mixed the device fields, unchanged, for the save
+ */
+function cloud_device_save($save) {
+	if (cloud_boot() && is_array($save) && isset($save['id']) && is_numeric($save['id']) && $save['id'] > 0) {
+		cloud_scope_reindex()->remember((int) $save['id']);
+	}
+
+	return $save;
+}
+
+/**
+ * Cacti saved a device, new or edited: put back the reindex methods of a
+ * scope device that the save reset.
+ *
+ * @param mixed $save
+ * @return mixed the device fields, unchanged
+ */
+function cloud_device_saved($save) {
+	if (cloud_boot() && is_array($save) && isset($save['id']) && is_numeric($save['id']) && $save['id'] > 0) {
+		cloud_scope_reindex()->restore((int) $save['id']);
+	}
+
+	return $save;
+}
+
+/**
+ * One instance per request, so the save hook's memory reaches the hook
+ * that runs after the save.
+ */
+function cloud_scope_reindex(): \Somethingwithproof\Cloud\ScopeReindex {
+	global $config;
+
+	static $keeper = null;
+
+	if ($keeper === null) {
+		foreach (array('api_device.php', 'data_query.php', 'poller.php', 'snmp.php') as $file) {
+			include_once($config['library_path'] . '/' . $file);
+		}
+
+		$keeper = new \Somethingwithproof\Cloud\ScopeReindex(
+			new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+			function (int $host, int $query, int $method): void {
+				api_device_dq_change($host, $query, $method);
+			}
+		);
+	}
+
+	return $keeper;
+}
+
 function cloud_poller_bottom(): void {
 	global $config;
 
@@ -476,8 +531,8 @@ function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\S
 
 			return is_numeric($id) ? (int) $id : 0;
 		},
-		function (int $host, int $query): void {
-			run_data_query($host, $query);
+		function (int $host, int $query, int $method): void {
+			api_device_dq_change($host, $query, $method);
 		},
 		function (int $host): void {
 			api_device_remove($host);

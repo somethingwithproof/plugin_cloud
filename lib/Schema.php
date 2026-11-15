@@ -37,6 +37,8 @@ final class Schema {
 	public const VERSION = 3;
 
 	public const HOOKS = [
+		'api_device_new'       => 'cloud_device_saved',
+		'api_device_save'      => 'cloud_device_save',
 		'config_arrays'        => 'cloud_config_arrays',
 		'config_settings'      => 'cloud_config_settings',
 		'device_remove'        => 'cloud_device_remove',

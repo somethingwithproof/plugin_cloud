@@ -51,8 +51,8 @@ function cloud_scope_devices_under_test(): ScopeDevices {
 
 			return 42;
 		},
-		static function (int $host, int $query): void {
-			$GLOBALS['__cloud_scope']['reindexed'][] = [$host, $query];
+		static function (int $host, int $query, int $method): void {
+			$GLOBALS['__cloud_scope']['reindexed'][] = [$host, $query, $method];
 		},
 		static function (int $host): void {
 			$GLOBALS['__cloud_scope']['removed'][] = $host;
@@ -74,12 +74,12 @@ function cloud_scope_account(): Account {
 	return $account;
 }
 
-it('links the device it saved and indexes its data queries', function () {
+it('links the device it saved and indexes its data queries, reindexing on an index count change', function () {
 	cloud_scope_world();
 
 	expect(cloud_scope_devices_under_test()->create(cloud_scope_account()))->toBe(42)
 		->and($GLOBALS['__cloud_scope']['saved'])->toBe([3])
-		->and($GLOBALS['__cloud_scope']['reindexed'])->toBe([[42, 9], [42, 9]])
+		->and($GLOBALS['__cloud_scope']['reindexed'])->toBe([[42, 9, 2], [42, 9, 2]])
 		->and($GLOBALS['__cloud_scope']['removed'])->toBe([]);
 });
 
