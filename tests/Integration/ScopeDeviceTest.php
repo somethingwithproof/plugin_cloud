@@ -51,6 +51,25 @@ it('creates a scope device with its template, no availability check, and the acc
 		->and($created['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2']);
 });
 
+it('creates no device while another request is creating the account\'s', function () {
+	$hosts  = lifecycle('state')['hosts'];
+	$locked = lifecycle('scope_device', 'locked');
+
+	expect($locked['result'])->toBe(0)
+		->and($locked['devices'])->toBe([])
+		->and($locked['hosts'])->toBe($hosts)
+		->and(lifecycle('scope_device')['result'])->toBeGreaterThan(0);
+});
+
+it('removes the device it saved when the account link cannot be written', function () {
+	$hosts = lifecycle('state')['hosts'];
+	lifecycle('drop_table', 'plugin_cloud_device');
+
+	$failed = lifecycle('scope_device');
+	expect($failed['result'])->toBe(0)
+		->and($failed['hosts'])->toBe($hosts);
+});
+
 it('reindexes resources added, renamed, and retired upstream', function () {
 	lifecycle('scope_device');
 	lifecycle('resource', '103=web-3');

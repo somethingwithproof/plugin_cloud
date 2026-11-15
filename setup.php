@@ -454,7 +454,7 @@ function cloud_poller_bottom(): void {
 	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
 }
 
-function cloud_scope_devices(): \Somethingwithproof\Cloud\ScopeDevices {
+function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\ScopeDevices {
 	global $config;
 
 	// The libraries host.php loads to save a device and run its data queries.
@@ -481,7 +481,8 @@ function cloud_scope_devices(): \Somethingwithproof\Cloud\ScopeDevices {
 		},
 		function (int $host): void {
 			api_device_remove($host);
-		}
+		},
+		$lockTimeout
 	);
 }
 

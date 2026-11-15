@@ -175,7 +175,17 @@ switch ($action) {
 			);
 		}
 
-		$result = cloud_scope_devices()->create(cloud_accounts()->find($account));
+		// "locked": another request holds the account's creation lock.
+		if ($argument === 'locked') {
+			$other = new PDO(
+				'mysql:host=' . $database_hostname . ';port=' . $database_port . ';dbname=' . $database_default,
+				$database_username,
+				$database_password
+			);
+			$other->query("SELECT GET_LOCK('plugin_cloud_device_" . $account . "', 0)");
+		}
+
+		$result = cloud_scope_devices(1)->create(cloud_accounts()->find($account));
 
 		break;
 	case 'resource':

@@ -39,6 +39,8 @@ final class ScopeDevices {
 	 *        and device template, returning the new device id or 0
 	 * @param \Closure(int, int): void     $reindex run_data_query() for a device and data query
 	 * @param \Closure(int): void          $remove  api_device_remove() for a device
+	 * @param int                          $lockTimeout seconds to wait for another
+	 *        request creating the same account's device
 	 */
 	public function __construct(
 		private readonly DeviceRepository $devices,
@@ -46,6 +48,7 @@ final class ScopeDevices {
 		private readonly \Closure $save,
 		private readonly \Closure $reindex,
 		private readonly \Closure $remove,
+		private readonly int $lockTimeout = 10,
 	) {
 	}
 
@@ -67,6 +70,27 @@ final class ScopeDevices {
 			Log::error(sprintf('Account %d: no Cacti device template; import the plugin templates first', $account->id));
 
 			return 0;
+		}
+
+		// Two requests that both found no device would each save one.
+		if (!$this->devices->lock($account->id, $this->lockTimeout)) {
+			Log::error(sprintf('Account %d: another request is creating its scope device', $account->id));
+
+			return 0;
+		}
+
+		try {
+			return $this->createLocked($account, $template);
+		} finally {
+			$this->devices->unlock($account->id);
+		}
+	}
+
+	private function createLocked(Account $account, int $template): int {
+		$existing = $this->devices->hostFor($account->id);
+
+		if ($existing !== null) {
+			return $existing;
 		}
 
 		$host = ($this->save)($account, $template);

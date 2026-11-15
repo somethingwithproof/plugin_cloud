@@ -34,17 +34,43 @@ final class DeviceRepository {
 
 	public const EXTERNAL_PREFIX = 'cloud:';
 
+	private const LOCK = 'plugin_cloud_device_';
+
 	/**
-	 * Replaces any earlier link of the account, which can only be stale when
-	 * the caller found no live one.
+	 * Serializes creating one account's device. The lock is per connection,
+	 * so it ends with the request at the latest.
+	 */
+	public function lock(int $accountId, int $timeout): bool {
+		$locked = db_fetch_cell_prepared(
+			'SELECT GET_LOCK(?, ?)',
+			[self::LOCK . $accountId, $timeout],
+			'',
+			true,
+			$this->connection
+		);
+
+		return (string) $locked === '1';
+	}
+
+	public function unlock(int $accountId): void {
+		db_execute_prepared('DO RELEASE_LOCK(?)', [self::LOCK . $accountId], true, $this->connection);
+	}
+
+	/**
+	 * Replaces the account's stale links, those whose host is gone or no
+	 * longer carries the account's external_id. A live link stays, so the
+	 * account key refuses a second device for the account.
 	 *
 	 * @return bool whether the link was recorded; without it the device
 	 *              serves nothing
 	 */
 	public function link(int $hostId, int $accountId): bool {
-		return db_execute_prepared('DELETE FROM plugin_cloud_device WHERE account_id = ? OR host_id = ?', [
+		return db_execute_prepared('DELETE d FROM plugin_cloud_device d LEFT JOIN host h ON h.id = d.host_id
+			WHERE (d.account_id = ? OR d.host_id = ?)
+				AND (h.id IS NULL OR NOT (h.external_id <=> CONCAT(?, d.account_id)))', [
 			$accountId,
 			$hostId,
+			self::EXTERNAL_PREFIX,
 		], true, $this->connection) !== false
 			&& db_execute_prepared(
 				'INSERT INTO plugin_cloud_device (host_id, account_id, created_at) VALUES (?, ?, ?)',

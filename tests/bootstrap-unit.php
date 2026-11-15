@@ -72,9 +72,10 @@ if (!function_exists('read_config_option')) {
 
 // Repositories in unit tests talk to these stubs. A test reads the
 // statements from $GLOBALS['__cloud_db_exec'] and queues query results in
-// $GLOBALS['__cloud_db_rows'] (keyed by a substring of the SQL). A statement
-// containing a substring listed in $GLOBALS['__cloud_db_fail'] fails, as
-// core's wrapper reports an SQL error, by returning false.
+// $GLOBALS['__cloud_db_rows'] (keyed by a substring of the SQL; a closure
+// there answers each query, so answers can change between calls). A
+// statement containing a substring listed in $GLOBALS['__cloud_db_fail']
+// fails, as core's wrapper reports an SQL error, by returning false.
 $GLOBALS['__cloud_db_exec'] = [];
 $GLOBALS['__cloud_db_rows'] = [];
 $GLOBALS['__cloud_db_fail'] = [];
@@ -82,7 +83,7 @@ $GLOBALS['__cloud_db_fail'] = [];
 function cloud_test_rows(string $sql): mixed {
 	foreach ($GLOBALS['__cloud_db_rows'] as $needle => $rows) {
 		if (str_contains($sql, $needle)) {
-			return $rows;
+			return $rows instanceof Closure ? $rows($sql) : $rows;
 		}
 	}
 

@@ -37,6 +37,7 @@ function cloud_scope_world(): void {
 		'FROM plugin_cloud_device' => [],
 		'FROM `host_template`'     => [['id' => 3]],
 		'FROM `snmp_query`'        => [['id' => 9]],
+		'GET_LOCK'                 => [['locked' => 1]],
 	];
 	$GLOBALS['__cloud_scope'] = ['saved' => [], 'reindexed' => [], 'removed' => []];
 }
@@ -92,4 +93,26 @@ it('removes the device it saved when the link is not recorded, and reports failu
 		->and(implode("\n", array_column($GLOBALS['__cloud_log'], 'message')))->toContain('ERROR: Account 4');
 
 	$GLOBALS['__cloud_db_fail'] = [];
+});
+
+it('creates nothing while another request holds the account\'s creation lock', function () {
+	cloud_scope_world();
+	$GLOBALS['__cloud_db_rows']['GET_LOCK'] = [['locked' => 0]];
+
+	expect(cloud_scope_devices_under_test()->create(cloud_scope_account()))->toBe(0)
+		->and($GLOBALS['__cloud_scope']['saved'])->toBe([])
+		->and(array_column($GLOBALS['__cloud_db_exec'], 'sql'))->not->toContain('DO RELEASE_LOCK(?)');
+});
+
+it('returns the device another request created while it waited for the lock', function () {
+	cloud_scope_world();
+	$lookups = 0;
+
+	$GLOBALS['__cloud_db_rows']['FROM plugin_cloud_device'] = static function () use (&$lookups): array {
+		return ++$lookups === 1 ? [] : [['host_id' => 77]];
+	};
+
+	expect(cloud_scope_devices_under_test()->create(cloud_scope_account()))->toBe(77)
+		->and($GLOBALS['__cloud_scope']['saved'])->toBe([])
+		->and(array_column($GLOBALS['__cloud_db_exec'], 'sql'))->toContain('DO RELEASE_LOCK(?)');
 });
