@@ -2,7 +2,7 @@
 
 Research for [#21](https://github.com/somethingwithproof/plugin_cloud/issues/21), run 2026-11-14. Question: for each phase 1 to 4 resource type, which metrics does the plugin collect by default, and with what statistic, period, unit, conversion, data source name, and RRD bounds?
 
-**Result.** One table per resource type follows, built from each provider's metric reference. Agent-free defaults are five series for a DigitalOcean Droplet, 14 for an EC2 instance, 9 for a Compute Engine instance, and 8 for an Azure VM. DigitalOcean documents no period or delay for any metric, and AWS and Azure document no publication delay, so those values come from the [live checks](provider-facts.md#live-checks) before templates fix an RRD step. All 77 data source names meet Cacti's limit (below).
+**Result.** One table per resource type follows, built from each provider's metric reference. Agent-free defaults are four series for a DigitalOcean Droplet, 14 for an EC2 instance, 9 for a Compute Engine instance, and 8 for an Azure VM. DigitalOcean documents no period or delay for any metric (the live check on #16 measured 120 s samples), and AWS and Azure document no publication delay, so those values come from the [live checks](provider-facts.md#live-checks) before templates fix an RRD step. All 77 data source names meet Cacti's limit (below).
 
 ## Conventions
 
@@ -23,7 +23,7 @@ Reference: OpenAPI spec, Monitoring section, `https://docs.digitalocean.com/refe
 
 | Provider metric (path under `/v2/monitoring/metrics/droplet/`) | Dimensions / labels / filter | Stat or aligner | Native period | Delay | Provider unit | Conversion to Cacti value | DS name | RRD min / max |
 |---|---|---|---|---|---|---|---|---|
-| `cpu` | label `mode` (example shows idle, iowait, irq, nice, softirq, steal; the example is cut off, so the full mode list is unverified) | none (raw series, one per mode) | not documented | not documented | cumulative seconds per mode (inferred from the example, the spec does not state it) | `100 * (delta total - delta idle) / delta total` over the two newest samples, summed over modes. GAUGE percent. If live data shows values are not cumulative, change the conversion. | `do_cpu_pct` | 0 / 100 |
+| `cpu` | label `mode`: idle, iowait, irq, nice, softirq, steal, system, user (live, #16). **AGENT**: no series without the metrics agent (live) | none (raw series, one per mode) | not documented | not documented | cumulative seconds per mode (confirmed live: no mode decreased over an hour) | `100 * (delta total - delta idle) / delta total` over the two newest samples, summed over modes. GAUGE percent. | `do_cpu_pct` | 0 / 100 |
 | `bandwidth` | `interface=public`, `direction=inbound` | none | not documented | not documented | megabits per second (spec states Mbps) | value * 1,000,000 = bits per second, GAUGE | `do_bw_pub_in` | 0 / U |
 | `bandwidth` | `interface=public`, `direction=outbound` | none | not documented | not documented | Mbps | same | `do_bw_pub_out` | 0 / U |
 | `bandwidth` | `interface=private`, `direction=inbound` | none | not documented | not documented | Mbps | same | `do_bw_prv_in` | 0 / U |
@@ -38,7 +38,7 @@ Reference: OpenAPI spec, Monitoring section, `https://docs.digitalocean.com/refe
 | `filesystem_free` **AGENT** | labels `device`, `fstype`, `mountpoint` | none | not documented | not documented | bytes (example value 25832407040) | absolute, GAUGE, one index per mountpoint | `do_fs_free` | 0 / U |
 | `filesystem_size` **AGENT** | same | none | not documented | not documented | bytes | absolute, GAUGE | `do_fs_size` | 0 / U |
 
-Default set (agent-free): `do_cpu_pct`, `do_bw_pub_in`, `do_bw_pub_out`, `do_bw_prv_in`, `do_bw_prv_out`. That is five requests per Droplet per collection, matching the plan. Packet counts and disk I/O are **not available through the API** (no endpoint exists), although the control panel shows disk I/O.
+Default set (agent-free): `do_bw_pub_in`, `do_bw_pub_out`, `do_bw_prv_in`, `do_bw_prv_out`. That is four requests per Droplet per collection. `do_cpu_pct` was in this set until the live check on #16 found that `cpu` needs the agent; it stays in the catalog for Droplets that have one. Packet counts and disk I/O are **not available through the API** (no endpoint exists), although the control panel shows disk I/O.
 
 ### Load balancers (index: load balancer ID, passed as `lb_id` query parameter)
 

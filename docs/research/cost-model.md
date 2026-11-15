@@ -19,7 +19,7 @@ Research for [#22](https://github.com/somethingwithproof/plugin_cloud/issues/22)
 
 - Requests per hour: `S × 3600 / I`, plus discovery: `ceil(R / 200)` list requests per resource type per discovery run (hourly by default).
 - Limits per token: 5,000 an hour and 250 a minute. The collector budgets `share × 5,000` an hour (default share 50 percent) and spreads requests so no minute exceeds 250.
-- Capacity at the defaults: `0.5 × 5,000 / 12 = 208` series at 300 s, which is 41 Droplets with the five agent-free series. At 100 percent share it is 416 series, or 83 Droplets.
+- Capacity at the defaults: `0.5 × 5,000 / 12 = 208` series at 300 s, which is 52 Droplets with the four agent-free series. At 100 percent share it is 416 series, or 104 Droplets.
 - Cost: none found. No page states DigitalOcean API calls are free, so the plugin reports "no charge documented", not "free".
 
 **AWS.** `GetMetricData` bills each metric requested, counting up to five statistics of one metric as one.

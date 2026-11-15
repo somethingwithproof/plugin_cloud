@@ -26,8 +26,9 @@ namespace Somethingwithproof\Cloud;
  * the live checks on #16 record them.
  *
  * Conversions:
- * - cpu: CPU seconds per mode, read as cumulative (inferred from the API
- *   example, unconfirmed): percent busy between the two newest samples.
+ * - cpu: CPU seconds per mode, cumulative (confirmed live on #16): percent
+ *   busy between the two newest samples. It needs the metrics agent: on a
+ *   Droplet without it the API returns no series, so it is not a default.
  * - mbps: megabits per second, as the API states, to bits per second.
  * - value: the newest value as it is.
  * - single: the newest value as it is. Load balancer label sets are
@@ -48,7 +49,7 @@ final class DigitalOceanCatalog {
 	 * @var array<string, array{0: string, 1: string, 2: array<string, string>, 3: string, 4: bool}>
 	 */
 	private const METRICS = [
-		'do_cpu_pct'      => [self::DROPLET, 'cpu', [], 'cpu', false],
+		'do_cpu_pct'      => [self::DROPLET, 'cpu', [], 'cpu', true],
 		'do_bw_pub_in'    => [self::DROPLET, 'bandwidth', ['interface' => 'public', 'direction' => 'inbound'], 'mbps', false],
 		'do_bw_pub_out'   => [
 			self::DROPLET, 'bandwidth', ['interface' => 'public', 'direction' => 'outbound'], 'mbps', false,
