@@ -94,15 +94,33 @@ it('changes nothing once another run holds the lease', function () {
 		->and(cloud_series_writes())->toBe(['BEGIN', 'ROLLBACK']);
 });
 
-it('rolls back when a write leaves the transaction, as a deadlock retry does', function () {
+it('runs no statement once the transaction has ended', function () {
 	cloud_series_world([['local_data_id' => 6, 'metric' => 'do_load_1', 'resource_id' => 11]]);
-	// The delete runs, but InnoDB has ended the transaction by then.
-	$GLOBALS['__cloud_in_tx'] = [0, 0];
+	// Open after the lease check, the read and before the delete; InnoDB
+	// ends it during the delete, so the insert must not run on its own.
+	$GLOBALS['__cloud_in_tx'] = [1, 1, 1, 0, 0];
 
 	expect(cloud_series_sync())->toBeFalse()
 		->and(cloud_series_writes())->toBe(['BEGIN', 'DELETE']);
 
 	$GLOBALS['__cloud_in_tx'] = [];
+});
+
+it('writes unlogged, so core cannot retry a deadlocked write outside the transaction, and stops on a failure', function () {
+	cloud_series_world([['local_data_id' => 6, 'metric' => 'do_load_1', 'resource_id' => 11]]);
+	$GLOBALS['__cloud_db_fail'] = ['DELETE FROM plugin_cloud_series'];
+
+	$synced = cloud_series_sync();
+	$logged = array_column(array_filter(
+		$GLOBALS['__cloud_db_exec'],
+		static fn (array $exec): bool => str_contains($exec['sql'], 'plugin_cloud_series')
+	), 'log');
+
+	expect($synced)->toBeFalse()
+		->and(cloud_series_writes())->toBe(['BEGIN', 'DELETE', 'ROLLBACK'])
+		->and($logged)->toBe([false]);
+
+	$GLOBALS['__cloud_db_fail'] = [];
 });
 
 it('keeps a series whose data source, resource and account are unchanged', function () {

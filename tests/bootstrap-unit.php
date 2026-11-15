@@ -92,7 +92,7 @@ function cloud_test_rows(string $sql): mixed {
 
 if (!function_exists('db_execute_prepared')) {
 	function db_execute_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
-		$GLOBALS['__cloud_db_exec'][] = ['sql' => $sql, 'params' => $params];
+		$GLOBALS['__cloud_db_exec'][] = ['sql' => $sql, 'params' => $params, 'log' => $log];
 
 		foreach ($GLOBALS['__cloud_db_fail'] as $needle) {
 			if (str_contains($sql, $needle)) {

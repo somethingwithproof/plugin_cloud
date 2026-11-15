@@ -49,6 +49,14 @@ final class SeriesRepository {
 	 * and checks it is still held, so a run that lost its lease while it read
 	 * cannot replace a newer holder's rows from its older snapshot.
 	 *
+	 * Core's database wrapper retries a statement that hit a deadlock or a
+	 * lock wait timeout, but InnoDB has by then rolled the transaction back,
+	 * so the retry would run on its own, outside the lease's lock. Core
+	 * retries only statements it logs, so every statement in the transaction
+	 * runs unlogged and fails instead, and the transaction is checked to be
+	 * still open before each one. Any failure rolls back and stops; the next
+	 * collector run syncs again.
+	 *
 	 * @return bool whether the series were rebuilt
 	 */
 	public function sync(int $accountId, LeaseRepository $leases, string $holder): bool {
@@ -103,7 +111,7 @@ final class SeriesRepository {
 			return false;
 		}
 
-		if (!$leases->holdsForUpdate($accountId, $holder)) {
+		if (!$leases->holdsForUpdate($accountId, $holder) || !$this->inTransaction()) {
 			$this->rollback();
 
 			return false;
@@ -115,14 +123,12 @@ final class SeriesRepository {
 				LEFT JOIN data_local dl ON dl.id = s.local_data_id
 				WHERE s.account_id = ? OR dl.host_id = ?',
 			[$accountId, $host],
-			true,
+			false,
 			$this->connection
 		);
 
-		if (!is_array($rows)) {
-			$this->rollback();
-
-			return false;
+		if (!is_array($rows) || !$this->inTransaction()) {
+			return $this->abandon($accountId);
 		}
 
 		foreach (Row::rows($rows) as $row) {
@@ -157,18 +163,26 @@ final class SeriesRepository {
 		}
 
 		foreach ($writes as [$sql, $params]) {
-			// InnoDB ends the transaction on a deadlock and core retries the
-			// statement on its own, outside the lease's lock.
-			if (db_execute_prepared($sql, $params, true, $this->connection) === false || !$this->inTransaction()) {
-				$this->rollback();
-
-				return false;
+			if (!$this->inTransaction() || db_execute_prepared($sql, $params, false, $this->connection) === false) {
+				return $this->abandon($accountId);
 			}
 		}
 
-		return db_commit_transaction($this->connection) === true;
+		return $this->inTransaction() && db_commit_transaction($this->connection) === true;
 	}
 
+	private function abandon(int $accountId): bool {
+		$this->rollback();
+		Log::warning(sprintf('Account %d: series sync rolled back; the next run retries it', $accountId));
+
+		return false;
+	}
+
+	/**
+	 * InnoDB can end the transaction under any statement.
+	 *
+	 * @phpstan-impure
+	 */
 	private function inTransaction(): bool {
 		return (int) db_fetch_cell_prepared('SELECT @@in_transaction', [], '', true, $this->connection) === 1;
 	}
