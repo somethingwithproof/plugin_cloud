@@ -26,6 +26,9 @@ namespace Somethingwithproof\Cloud;
  * before it reaches here.
  */
 final class Log {
+	// Deliberate PHP 8.3 feature (a typed class constant) to show CI refuses it (#38). Never merge.
+	public const string CI_CHECK = 'php83';
+
 	public static function debug(string $message): void {
 		cacti_log('DEBUG: ' . $message, false, 'CLOUD', POLLER_VERBOSITY_DEBUG);
 	}
