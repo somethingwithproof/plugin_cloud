@@ -116,7 +116,7 @@ final class ScriptServer {
 	}
 
 	/**
-	 * @param array{id: int, providerId: string, name: string, firstSeen: int} $resource
+	 * @param array{id: int, providerId: string, name: string, firstSeen: int, lifecycle: string} $resource
 	 */
 	private function value(Account $account, array $resource, string $field): string {
 		if ($field === 'resourceId') {
@@ -131,6 +131,12 @@ final class ScriptServer {
 
 		if (in_array($field, DigitalOceanCatalog::AGE, true)) {
 			return (string) $this->age($resource, $entries);
+		}
+
+		// Collection has stopped for a resource discovery no longer lists, so
+		// its last value would read as current until it aged out.
+		if ($resource['lifecycle'] === Lifecycle::Missing->value) {
+			return self::UNKNOWN;
 		}
 
 		$entry = $entries[$field] ?? null;
@@ -152,7 +158,7 @@ final class ScriptServer {
 	 * Seconds since the newest datapoint with a value, or since discovery
 	 * when there is none; never negative, always numeric (REQ-SS-003).
 	 *
-	 * @param array{id: int, providerId: string, name: string, firstSeen: int} $resource
+	 * @param array{id: int, providerId: string, name: string, firstSeen: int, lifecycle: string} $resource
 	 * @param array<string, array{observation: Observation, status: string}> $entries
 	 */
 	private function age(array $resource, array $entries): int {

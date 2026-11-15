@@ -65,6 +65,7 @@ function cloud_ss_world(array $observations = [], array $account = [], ?int $own
 			'provider_id' => '3164444',
 			'name'        => "web!01\nprod",
 			'first_seen'  => CLOUD_SS_NOW - 5000,
+			'lifecycle'   => 'active',
 		]],
 		'FROM plugin_cloud_observation' => $observations,
 	];
@@ -118,6 +119,17 @@ it('serves U for a metric never collected and for a disabled account', function 
 
 	cloud_ss_world([cloud_ss_obs('do_cpu_pct', 12.5, 60)], ['admin_state' => 'disabled']);
 	expect(cloud_ss()->run(7, 'droplet', 'get', 'do_cpu_pct', '3164444'))->toBe('U');
+});
+
+it('serves U for a resource discovery no longer lists, but keeps its index, name and age', function () {
+	cloud_ss_world([cloud_ss_obs('do_cpu_pct', 12.5, 60)]);
+	$GLOBALS['__cloud_db_rows']['FROM plugin_cloud_resource'][0]['lifecycle'] = 'missing';
+
+	expect(cloud_ss()->run(7, 'droplet', 'get', 'do_cpu_pct', '3164444'))->toBe('U')
+		->and(cloud_ss()->run(7, 'droplet', 'query', 'do_cpu_pct'))->toBe("3164444!U\n")
+		->and(cloud_ss()->run(7, 'droplet', 'index'))->toBe("3164444\n")
+		->and(cloud_ss()->run(7, 'droplet', 'get', 'resourceName', '3164444'))->toBe('web 01 prod')
+		->and(cloud_ss()->run(7, 'droplet', 'get', 'do_age', '3164444'))->toBe('60');
 });
 
 it('keeps age numeric: since the newest value, or since discovery without one', function () {
