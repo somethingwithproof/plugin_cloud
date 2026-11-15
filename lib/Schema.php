@@ -40,6 +40,7 @@ final class Schema {
 		'config_arrays'        => 'cloud_config_arrays',
 		'config_settings'      => 'cloud_config_settings',
 		'draw_navigation_text' => 'cloud_draw_navigation_text',
+		'poller_bottom'        => 'cloud_poller_bottom',
 	];
 
 	private const PLUGIN  = 'cloud';

@@ -31,7 +31,7 @@ const CLOUD_TABLES = [
 	'plugin_cloud_series',
 ];
 
-const CLOUD_HOOKS = ['config_arrays', 'config_settings', 'draw_navigation_text'];
+const CLOUD_HOOKS = ['config_arrays', 'config_settings', 'draw_navigation_text', 'poller_bottom'];
 
 beforeEach(function () {
 	lifecycle('reset');
@@ -180,4 +180,28 @@ it('stores credentials only as ciphertext and audits every account change', func
 		->and($state['result']['account_gone'])->toBeTrue()
 		->and($state['tables']['plugin_cloud_secret'])->toBe(0)
 		->and($state['tables']['plugin_cloud_audit'])->toBe(5);
+});
+
+it('collects only what is due, owned, enabled, mapped, and leased', function () {
+	lifecycle('install');
+
+	$r = lifecycle('collector_flow')['result'];
+
+	expect($r['run1'])->toBe(['accounts' => 1, 'skipped' => 0, 'stopped_early' => false])
+		->and($r['discoveries'])->toBe(1)
+		->and($r['resources'])->toBe(2)
+		->and($r['others'])->toBe(0)
+		// Inside the collection interval nothing runs.
+		->and($r['collected_early'])->toBe([])
+		// Only the active, plugin-mapped data source is read; discovery is not due again.
+		->and($r['collected'])->toBe(['d1/cpu'])
+		->and($r['discoveries_after'])->toBe(1)
+		->and((float) $r['observation']['value'])->toBe(42.5)
+		->and($r['observation']['status'])->toBe('ok')
+		->and($r['health'])->toEqual(['collection' => 'ok', 'series_total' => '1', 'series_read' => '1'])
+		// No lease, or an older datapoint, never overwrites the cache.
+		->and($r['after_foreign_writes'])->toEqual(['value' => $r['observation']['value'], 'observed_at' => $r['observation']['observed_at']])
+		->and($r['while_leased'])->toBe(['accounts' => 0, 'skipped' => 1, 'stopped_early' => false])
+		->and($r['no_budget'])->toBe(['accounts' => 0, 'skipped' => 0, 'stopped_early' => true])
+		->and($r['d2_lifecycle'])->toBe(['missing', 'missing', 'deleted']);
 });

@@ -156,6 +156,10 @@ switch ($action) {
 		$result = array('read_back' => $readBack, 'audit' => $audit, 'leaks' => $leaks, 'account_gone' => $accounts->find($id) === null);
 
 		break;
+	case 'collector_flow':
+		include($config['base_path'] . '/plugins/cloud/tests/bin/collector-flow.php');
+
+		break;
 	case 'state':
 		break;
 	default:

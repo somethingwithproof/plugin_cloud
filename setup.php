@@ -294,3 +294,52 @@ function cloud_draw_navigation_text($nav) {
 
 	return array_merge($nav, \Somethingwithproof\Cloud\Pages::navigation());
 }
+
+/**
+ * poller_bottom hook: start this poller's collector in the background
+ * (REQ-COLL-001). The collector itself skips accounts of other pollers.
+ */
+function cloud_poller_bottom(): void {
+	global $config;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	if (!function_exists('exec_background')) {
+		include_once($config['library_path'] . '/poller.php');
+	}
+
+	// exec_background() silently does nothing for a binary that does not
+	// exist, so a bare 'php' fallback would never start the collector.
+	$php = trim((string) read_config_option('path_php_binary'));
+
+	if ($php === '' || !is_file($php) || !is_executable($php)) {
+		cacti_log('ERROR: The cloud collector was not started because the PHP binary path setting is empty or not an executable file', false, 'CLOUD');
+
+		return;
+	}
+
+	// Core accepts an argument array and escapes each element, although its
+	// docblock declares a string.
+	// @phpstan-ignore argument.type
+	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
+}
+
+function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+
+	return new \Somethingwithproof\Cloud\Collector(
+		cloud_accounts(),
+		\Somethingwithproof\Cloud\Drivers::production(),
+		cloud_credentials(),
+		new \Somethingwithproof\Cloud\LeaseRepository(false, $clock),
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\SeriesRepository(false),
+		new \Somethingwithproof\Cloud\ObservationRepository(false),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		new \Somethingwithproof\Cloud\Redactor(),
+		$clock,
+		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4))
+	);
+}
