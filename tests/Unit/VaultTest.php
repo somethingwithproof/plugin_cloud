@@ -112,8 +112,16 @@ it('refuses key files that fail a check, naming the check', function (string $ca
 	$path = match ($case) {
 		'relative'   => 'etc/cloud.key',
 		'missing'    => $dir . '/missing.key',
-		'symlink'    => (function () use ($dir) { symlink(cloud_file($dir, 'target', bin2hex(random_bytes(32))), $dir . '/link'); return $dir . '/link'; })(),
-		'directory'  => (function () use ($dir) { mkdir($dir . '/sub', 0700); return $dir . '/sub'; })(),
+		'symlink'    => (function () use ($dir) {
+			symlink(cloud_file($dir, 'target', bin2hex(random_bytes(32))), $dir . '/link');
+
+			return $dir . '/link';
+		})(),
+		'directory'  => (function () use ($dir) {
+			mkdir($dir . '/sub', 0700);
+
+			return $dir . '/sub';
+		})(),
 		'world-read' => cloud_file($dir, 'wr', bin2hex(random_bytes(32)), 0604),
 		'world-write'=> cloud_file($dir, 'ww', bin2hex(random_bytes(32)), 0602),
 		'short'      => cloud_file($dir, 'short', random_bytes(31)),

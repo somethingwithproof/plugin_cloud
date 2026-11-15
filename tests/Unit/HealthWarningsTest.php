@@ -60,8 +60,16 @@ it('has no warnings for a usable key, safe files, and matching intervals', funct
 it('warns everyone when the vault key file is missing or refused', function (string $fixture, string $reason) {
 	$path = match ($fixture) {
 		'missing' => $this->dir . '/none.key',
-		'shared'  => (function () { chmod($this->key, 0644); return $this->key; })->call($this),
-		'short'   => (function () { file_put_contents($this->key, 'abc'); return $this->key; })->call($this),
+		'shared'  => (function () {
+			chmod($this->key, 0644);
+
+			return $this->key;
+		})->call($this),
+		'short'   => (function () {
+			file_put_contents($this->key, 'abc');
+
+			return $this->key;
+		})->call($this),
 	};
 
 	$warnings = cloud_warnings($path, [cloud_warn_account()]);
@@ -79,8 +87,16 @@ it('warns everyone when the vault key file is missing or refused', function (str
 it('warns Cloud Admin only when a credential file is unsafe', function (string $fixture, string $reason) {
 	$path = match ($fixture) {
 		'missing' => $this->dir . '/none',
-		'shared'  => (function () { chmod($this->token, 0604); return $this->token; })->call($this),
-		'link'    => (function () { symlink($this->token, $this->dir . '/link'); return $this->dir . '/link'; })->call($this),
+		'shared'  => (function () {
+			chmod($this->token, 0604);
+
+			return $this->token;
+		})->call($this),
+		'link'    => (function () {
+			symlink($this->token, $this->dir . '/link');
+
+			return $this->dir . '/link';
+		})->call($this),
 	};
 
 	$warnings = cloud_warnings($this->key, [cloud_warn_account(['credential_source' => 'file', 'credential_file' => $path])]);
