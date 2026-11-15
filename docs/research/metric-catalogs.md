@@ -65,7 +65,7 @@ Paths are under `/v2/monitoring/metrics/load_balancer/`. The spec gives only a o
 
 Other LB paths exist and are left out of the default set: `frontend_tls_connections_current`, `frontend_tls_connections_limit`, `frontend_tls_connections_exceeding_rate_limit`, `frontend_firewall_dropped_bytes` and `_packets` (network LBs only), `droplets_http_session_duration_*`, `droplets_http_response_time_50p` and `_99p`, `droplets_http_responses`.
 
-Request cost: one request per metric per load balancer. Fifteen of the proposed LB metrics per load balancer is 15 requests per collection against the 5,000 per hour limit.
+Request cost: one request per metric per load balancer. The 16 proposed LB metrics are 16 requests per load balancer per collection against the 5,000 per hour limit.
 
 ---
 
@@ -75,7 +75,7 @@ Reference pages: EC2 `https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/viewin
 
 Query shape for all rows: `GetMetricData` with one `MetricStat` per row (one statistic, so one billed metric). Delay is **not documented** for any AWS metric in these pages. The newest period is partial and may change (cloudwatch_concepts page), so the window ends before the current period and the cache keeps the newest complete datapoint.
 
-### EC2 instances (namespace `AWS/EC2`, dimension `InstanceId`, native period 300 s with basic monitoring, 60 s with detailed monitoring)
+### EC2 instances (namespace `AWS/EC2`, dimension `InstanceId`, native period 300 s with basic monitoring, 60 s with detailed monitoring except the two packet metrics, which are basic monitoring only)
 
 | Provider metric | Dimensions | Statistic | Native period | Delay | Provider unit | Conversion to Cacti value | DS name | RRD min / max |
 |---|---|---|---|---|---|---|---|---|
@@ -83,7 +83,7 @@ Query shape for all rows: `GetMetricData` with one `MetricStat` per row (one sta
 | `NetworkIn` | InstanceId | Sum | 300 s | not documented | Bytes | Sum / period seconds = bytes per second ("divide this number by 300"), GAUGE | `ec2_net_in_Bps` | 0 / U |
 | `NetworkOut` | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_net_out_Bps` | 0 / U |
 | `NetworkPacketsIn` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / 300 = packets per second, GAUGE | `ec2_pkt_in_ps` | 0 / U |
-| `NetworkPacketsOut` | InstanceId | Sum | 300 s | not documented | Count | Sum / 300, GAUGE | `ec2_pkt_out_ps` | 0 / U |
+| `NetworkPacketsOut` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / 300 = packets per second, GAUGE | `ec2_pkt_out_ps` | 0 / U |
 | `EBSReadBytes` (Nitro instances) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_ebs_rd_Bps` | 0 / U |
 | `EBSWriteBytes` (Nitro) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_ebs_wr_Bps` | 0 / U |
 | `EBSReadOps` (Nitro) | InstanceId | Sum | 300 s | not documented | Count | Sum / 300 = IOPS, GAUGE | `ec2_ebs_rd_ops` | 0 / U |
@@ -101,7 +101,7 @@ Notes:
 
 ### Application Load Balancers (namespace `AWS/ApplicationELB`, dimension `LoadBalancer`; target-level metrics also `TargetGroup`)
 
-Native period 60 s: "Elastic Load Balancing measures and sends its metrics in 60-second intervals", only while requests flow. Many metrics list "Reporting criteria: There is a nonzero value", so an absent datapoint means zero for count metrics on an idle balancer; the plugin must map missing Sum datapoints to 0 and missing Average datapoints (response time) to unknown. Delay not documented.
+Native period 60 s: "Elastic Load Balancing measures and sends its metrics in 60-second intervals", only while requests flow. Many metrics list "Reporting criteria: There is a nonzero value", so an absent datapoint can mean zero, but AWS also says absence can mean no data. The plugin maps a missing Sum datapoint to 0 only for metrics with that nonzero-value criterion, and only when the query returned complete data for an interval older than the publication delay. Every other missing datapoint, including Average (response time), is unknown. Delay not documented.
 
 | Provider metric | Dimensions | Statistic | Native period | Delay | Provider unit | Conversion to Cacti value | DS name | RRD min / max |
 |---|---|---|---|---|---|---|---|---|

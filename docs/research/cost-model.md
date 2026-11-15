@@ -9,6 +9,7 @@ Research for [#22](https://github.com/somethingwithproof/plugin_cloud/issues/22)
 - `I`: collection interval in seconds (default 300).
 - `C = 2,592,000 / I`: collections in a 30-day month (8,640 at 300 s).
 - `S`: series, one resource and one metric field (one data source item).
+- `M`: AWS metric requests. For each resource and metric, `ceil(statistics / 5)`, because AWS bills up to five statistics of one metric as one metric request. With one statistic per metric, as in the [catalog](metric-catalogs.md), `M = S`.
 - `R`: resources of one type in one scope.
 - Prices are list prices in USD with no discounts or taxes, and carry their check date into the estimator.
 
@@ -21,11 +22,11 @@ Research for [#22](https://github.com/somethingwithproof/plugin_cloud/issues/22)
 - Capacity at the defaults: `0.5 × 5,000 / 12 = 208` series at 300 s, which is 41 Droplets with the five agent-free series. At 100 percent share it is 416 series, or 83 Droplets.
 - Cost: none found. No page states DigitalOcean API calls are free, so the plugin reports "no charge documented", not "free".
 
-**AWS.** `GetMetricData` bills each metric requested; one `MetricStat` with one statistic is one metric.
+**AWS.** `GetMetricData` bills each metric requested, counting up to five statistics of one metric as one.
 
-- Calls per collection: `ceil(S_region / 500)` per region.
-- Monthly cost: `Σ_region S_region × C × p_region`, with `p` = $0.00001 per metric in most regions, $0.000013 in GovCloud, $0.000014 in `sa-east-1`. There is no free tier for `GetMetricData`.
-- At 1,000 series, 300 s, us-east-1: `1,000 × 8,640 × 0.00001 = $86.40` a month.
+- Calls per collection: `ceil(S_region / 500)` per region, because each query item returns one series.
+- Monthly cost: `Σ_region M_region × C × p_region`, with `p` = $0.00001 per metric in most regions, $0.000013 in GovCloud, $0.000014 in `sa-east-1`. There is no free tier for `GetMetricData`.
+- At 1,000 metric requests, 300 s, us-east-1: `1,000 × 8,640 × 0.00001 = $86.40` a month.
 - Inventory (`DescribeRegions`, `DescribeInstances`, ELB describe calls) has no documented charge and is shown as such. `ListMetrics` is not needed by the plan; if used it costs $0.01 per 1,000 after 1 million free requests a month.
 
 **Google Cloud.** `timeSeries.list` bills series returned, at least one per call.
@@ -36,12 +37,12 @@ Research for [#22](https://github.com/somethingwithproof/plugin_cloud/issues/22)
 - At 1,000 series, 300 s: `(8,640,000 − 1,000,000) × 0.0000005 = $3.82` a month.
 - Unsettled: whether `crossSeriesReducer` bills series before or after reduction. Per-disk and per-label metrics in the catalog use it, so the estimator counts their series before reduction (the higher figure) until the live check on [#18](https://github.com/somethingwithproof/plugin_cloud/issues/18).
 
-**Azure.** `metrics:getBatch` takes up to 50 resources of one subscription, region, and type per call, and one aggregation per call.
+**Azure.** `metrics:getBatch` takes up to 50 resources of one subscription, region, and type per call, and a comma-separated list of aggregations ([reference](https://learn.microsoft.com/en-us/rest/api/monitor/metrics-batch/batch?view=rest-monitor-2023-10-01)), so one call per batch covers every metric and aggregation the type needs.
 
-- Calls per collection, optimistic reading (one call per batch): `Σ_(subscription, region, type, aggregation group) ceil(R / 50)`.
-- Calls per collection, pessimistic reading (one call per resource): `Σ R × aggregation groups`.
+- Calls per collection, optimistic reading (one call per batch): `Σ_(subscription, region, type) ceil(R / 50)`.
+- Calls per collection, pessimistic reading (one call per resource): `Σ R`.
 - Monthly cost: `max(0, calls × C − 1,000,000) × $0.01 / 1,000` per subscription; $0.0125 per 1,000 in US Government regions; six newer regions list no free tier.
-- At 1,000 VMs in one subscription and region, two aggregation groups (Total and Average), 300 s: optimistic `40 × 8,640 = 345,600` calls, inside the free million; pessimistic `2,000 × 8,640 = 17,280,000` calls, $162.80 a month.
+- At 1,000 VMs in one subscription and region, 300 s: optimistic `20 × 8,640 = 172,800` calls, inside the free million; pessimistic `1,000 × 8,640 = 8,640,000` calls, `(8,640,000 − 1,000,000) × 0.00001 = $76.40` a month.
 - Inventory through Resource Graph is free and throttled.
 
 ## Prices
