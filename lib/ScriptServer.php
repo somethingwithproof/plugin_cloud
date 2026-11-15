@@ -156,7 +156,9 @@ final class ScriptServer {
 
 	/**
 	 * Seconds since the newest datapoint with a value, or since discovery
-	 * when there is none; never negative, always numeric (REQ-SS-003).
+	 * when there is none; never negative, always numeric (REQ-SS-003). A
+	 * series skipped for budget keeps its last datapoint, and with it its
+	 * age, whatever status the skip recorded.
 	 *
 	 * @param array{id: int, providerId: string, name: string, firstSeen: int, lifecycle: string} $resource
 	 * @param array<string, array{observation: Observation, status: string}> $entries
@@ -165,7 +167,7 @@ final class ScriptServer {
 		$newest = 0;
 
 		foreach ($entries as $entry) {
-			if ($entry['observation']->value !== null && $entry['status'] === 'ok') {
+			if ($entry['observation']->value !== null) {
 				$newest = max($newest, $entry['observation']->observedAt);
 			}
 		}

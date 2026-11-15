@@ -143,6 +143,13 @@ it('keeps age numeric: since the newest value, or since discovery without one', 
 	expect(cloud_ss()->run(7, 'droplet', 'get', 'do_age', '3164444'))->toBe('5000');
 });
 
+it('ages a series skipped for budget from the datapoint it kept, not from discovery', function () {
+	cloud_ss_world([cloud_ss_obs('do_cpu_pct', 12.5, 60, 'budget')]);
+
+	expect(cloud_ss()->run(7, 'droplet', 'get', 'do_age', '3164444'))->toBe('60')
+		->and(cloud_ss()->run(7, 'droplet', 'get', 'do_cpu_pct', '3164444'))->toBe('U');
+});
+
 it('refuses a device that is no account\'s scope device', function () {
 	cloud_ss_world([cloud_ss_obs('do_cpu_pct', 12.5, 60)], [], null);
 
