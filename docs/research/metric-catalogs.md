@@ -77,21 +77,23 @@ Query shape for all rows: `GetMetricData` with one `MetricStat` per row (one sta
 
 ### EC2 instances (namespace `AWS/EC2`, dimension `InstanceId`, native period 300 s with basic monitoring, 60 s with detailed monitoring except the two packet metrics, which are basic monitoring only)
 
+Rate conversions divide each Sum by the query period in seconds, which is the `Period` the collector sends: the collection interval, 300 s by default. A detailed-monitoring instance queried at 300 s still gets a 300 s Sum.
+
 | Provider metric | Dimensions | Statistic | Native period | Delay | Provider unit | Conversion to Cacti value | DS name | RRD min / max |
 |---|---|---|---|---|---|---|---|---|
 | `CPUUtilization` | InstanceId | Average | 300 s | not documented | Percent | absolute, GAUGE | `ec2_cpu_pct` | 0 / 100 |
-| `NetworkIn` | InstanceId | Sum | 300 s | not documented | Bytes | Sum / period seconds = bytes per second ("divide this number by 300"), GAUGE | `ec2_net_in_Bps` | 0 / U |
-| `NetworkOut` | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_net_out_Bps` | 0 / U |
-| `NetworkPacketsIn` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / 300 = packets per second, GAUGE | `ec2_pkt_in_ps` | 0 / U |
-| `NetworkPacketsOut` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / 300 = packets per second, GAUGE | `ec2_pkt_out_ps` | 0 / U |
-| `EBSReadBytes` (Nitro instances) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_ebs_rd_Bps` | 0 / U |
-| `EBSWriteBytes` (Nitro) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_ebs_wr_Bps` | 0 / U |
-| `EBSReadOps` (Nitro) | InstanceId | Sum | 300 s | not documented | Count | Sum / 300 = IOPS, GAUGE | `ec2_ebs_rd_ops` | 0 / U |
-| `EBSWriteOps` (Nitro) | InstanceId | Sum | 300 s | not documented | Count | Sum / 300, GAUGE | `ec2_ebs_wr_ops` | 0 / U |
-| `DiskReadBytes` (instance store only) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_dsk_rd_Bps` | 0 / U |
-| `DiskWriteBytes` (instance store only) | InstanceId | Sum | 300 s | not documented | Bytes | Sum / 300, GAUGE | `ec2_dsk_wr_Bps` | 0 / U |
-| `DiskReadOps` (instance store only) | InstanceId | Sum | 300 s | not documented | Count | Sum / 300, GAUGE | `ec2_dsk_rd_ops` | 0 / U |
-| `DiskWriteOps` (instance store only) | InstanceId | Sum | 300 s | not documented | Count | Sum / 300, GAUGE | `ec2_dsk_wr_ops` | 0 / U |
+| `NetworkIn` | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period = bytes per second (the page says "divide this number by 300" for basic monitoring), GAUGE | `ec2_net_in_Bps` | 0 / U |
+| `NetworkOut` | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period, GAUGE | `ec2_net_out_Bps` | 0 / U |
+| `NetworkPacketsIn` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / query period = packets per second, GAUGE | `ec2_pkt_in_ps` | 0 / U |
+| `NetworkPacketsOut` | InstanceId | Sum | 300 s ("available for basic monitoring only (5-minute periods)") | not documented | Count | Sum / query period = packets per second, GAUGE | `ec2_pkt_out_ps` | 0 / U |
+| `EBSReadBytes` (Nitro instances) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period, GAUGE | `ec2_ebs_rd_Bps` | 0 / U |
+| `EBSWriteBytes` (Nitro) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period, GAUGE | `ec2_ebs_wr_Bps` | 0 / U |
+| `EBSReadOps` (Nitro) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Count | Sum / query period = IOPS, GAUGE | `ec2_ebs_rd_ops` | 0 / U |
+| `EBSWriteOps` (Nitro) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Count | Sum / query period, GAUGE | `ec2_ebs_wr_ops` | 0 / U |
+| `DiskReadBytes` (instance store only) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period, GAUGE | `ec2_dsk_rd_Bps` | 0 / U |
+| `DiskWriteBytes` (instance store only) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Bytes | Sum / query period, GAUGE | `ec2_dsk_wr_Bps` | 0 / U |
+| `DiskReadOps` (instance store only) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Count | Sum / query period, GAUGE | `ec2_dsk_rd_ops` | 0 / U |
+| `DiskWriteOps` (instance store only) | InstanceId | Sum | 300 s (60 s with detailed monitoring) | not documented | Count | Sum / query period, GAUGE | `ec2_dsk_wr_ops` | 0 / U |
 | `StatusCheckFailed` | InstanceId | Maximum | 60 s ("By default, this metric is available at a 1-minute frequency at no charge") | not documented | Count (0 or 1) | absolute, GAUGE | `ec2_status_fail` | 0 / 1 |
 
 Notes:
