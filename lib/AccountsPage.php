@@ -74,7 +74,7 @@ final class AccountsPage {
 		$offered  = $account === null ? Provider::released() : [$account->provider];
 
 		print '<form method="post" action="' . html_escape(self::FILE) . '">';
-		html_start_box($account === null ? __('New Cloud Account', 'cloud') : __('Cloud Account: %s', $account->name, 'cloud'), '100%', '', '3', 'center', '');
+		html_start_box($account === null ? __('New Cloud Account', 'cloud') : __('Cloud Account: %s', html_escape($account->name), 'cloud'), '100%', '', '3', 'center', '');
 
 		foreach ($errors as $message) {
 			print '<tr><td colspan="2" class="textError">' . html_escape($message) . '</td></tr>';

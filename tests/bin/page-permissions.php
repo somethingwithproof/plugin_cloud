@@ -102,7 +102,7 @@ function perm_login($user) {
 // Markers that only the rendered plugin page contains.
 $pages = array('cloud_accounts.php' => 'name="action" value="save"|No cloud accounts yet|linkEditMain', 'cloud_health.php' => 'Credential Vault');
 
-db_execute("INSERT INTO plugin_cloud_account (provider, name, credential_source, admin_state) VALUES ('digitalocean', 'Permission probe', 'vault', 'disabled')");
+db_execute_prepared("INSERT INTO plugin_cloud_account (provider, name, credential_source, admin_state) VALUES ('digitalocean', ?, 'vault', 'disabled')", array('<b id="cloudprobe">Probe</b>'));
 $probe = (int) db_fetch_insert_id();
 
 foreach (array('admin' => array('cloud_accounts.php' => true, 'cloud_health.php' => true), 'viewer' => array('cloud_accounts.php' => false, 'cloud_health.php' => true), 'norealm' => array('cloud_accounts.php' => false, 'cloud_health.php' => false)) as $user => $expect) {
@@ -122,6 +122,12 @@ $jar = perm_login('admin');
 $exists = function () use ($probe) {
 	return (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_account WHERE id = ?', array($probe)) === 1;
 };
+
+// The probe's name is markup; every page that prints it must escape it.
+foreach (array('cloud_accounts.php', 'cloud_accounts.php?action=edit&id=' . $probe) as $page) {
+	list(, $body) = perm_http($base . $page, $jar);
+	perm_expect(strpos($body, '<b id="cloudprobe">') === false && strpos($body, '&lt;b id=&quot;cloudprobe&quot;&gt;') !== false, "$page escapes the account name");
+}
 
 perm_http($base . 'cloud_accounts.php?action=delete&id=' . $probe, $jar);
 perm_expect($exists(), 'a delete sent as GET has no effect');
