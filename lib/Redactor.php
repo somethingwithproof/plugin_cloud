@@ -56,10 +56,13 @@ final class Redactor {
 	 * Each pattern masks its named group "v", or the whole match without one.
 	 */
 	private const PATTERNS = [
-		'/\b(?:authorization|proxy-authorization|x-amz-security-token|x-goog-iam-authorization-token|cookie|set-cookie)\s*:\s*(?<v>[^\r\n]*)/i',
+		'/\b(?:authorization|proxy-authorization|x-amz-security-token|x-goog-iam-authorization-token|'
+			. 'cookie|set-cookie)\s*:\s*(?<v>[^\r\n]*)/i',
 		'/\b(?:bearer|basic)\s+(?<v>[A-Za-z0-9._~+\/=-]+)/i',
-		'/\b(?:X-Amz-Signature|X-Amz-Credential|X-Amz-Security-Token|signature|access_token|refresh_token|client_secret|assertion)=(?<v>[^&\s"]*)/i',
-		'/"(?:access_token|refresh_token|id_token|client_secret|private_key|secret_access_key|session_token)"\s*:\s*"(?<v>(?:[^"\\\\]|\\\\.)*)"/i',
+		'/\b(?:X-Amz-Signature|X-Amz-Credential|X-Amz-Security-Token|signature|access_token|refresh_token|'
+			. 'client_secret|assertion)=(?<v>[^&\s"]*)/i',
+		'/"(?:access_token|refresh_token|id_token|client_secret|private_key|secret_access_key|session_token)"'
+			. '\s*:\s*"(?<v>(?:[^"\\\\]|\\\\.)*)"/i',
 		'/-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/s',
 	];
 

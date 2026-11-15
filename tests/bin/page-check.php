@@ -40,14 +40,26 @@ $base     = rtrim($argv[1], '/') . '/';
 $pages    = array_slice($argv, 2);
 $password = 'Cloud-' . bin2hex(random_bytes(6));
 
-db_execute_prepared("UPDATE user_auth SET password = ?, must_change_password = '' WHERE id = 1", array(password_hash($password, PASSWORD_DEFAULT)));
+db_execute_prepared(
+	"UPDATE user_auth SET password = ?, must_change_password = '' WHERE id = 1",
+	array(password_hash($password, PASSWORD_DEFAULT))
+);
 
 $jar = tempnam(sys_get_temp_dir(), 'page');
 
 function page_get($url, $jar, $post = null) {
 	$ch = curl_init($url);
 
-	curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER => true, CURLOPT_COOKIEJAR => $jar, CURLOPT_COOKIEFILE => $jar, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 60));
+	curl_setopt_array(
+		$ch,
+		array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_COOKIEJAR => $jar,
+			CURLOPT_COOKIEFILE => $jar,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_TIMEOUT => 60
+		)
+	);
 
 	if ($post !== null) {
 		curl_setopt($ch, CURLOPT_POST, true);
@@ -61,7 +73,16 @@ function page_get($url, $jar, $post = null) {
 
 list(, $login) = page_get($base . 'index.php', $jar);
 preg_match('/csrfMagicToken\s*=\s*"([^"]+)"/', $login, $match);
-page_get($base . 'index.php', $jar, array('__csrf_magic' => isset($match[1]) ? $match[1] : '', 'action' => 'login', 'login_username' => 'admin', 'login_password' => $password));
+page_get(
+	$base . 'index.php',
+	$jar,
+	array(
+		'__csrf_magic' => isset($match[1]) ? $match[1] : '',
+		'action' => 'login',
+		'login_username' => 'admin',
+		'login_password' => $password
+	)
+);
 
 $failures = 0;
 

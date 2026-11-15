@@ -47,7 +47,10 @@ switch ($action) {
 	case 'reset':
 		api_plugin_uninstall('cloud');
 
-		foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'plugin\\_cloud\\_%'") as $row) {
+		foreach (db_fetch_assoc(
+			"SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE " .
+				"'plugin\\_cloud\\_%'"
+		) as $row) {
 			db_execute('DROP TABLE `' . $row['t'] . '`');
 		}
 
@@ -108,7 +111,9 @@ switch ($action) {
 		break;
 	case 'seed':
 		// An account row, so table drops and keeps are visible.
-		db_execute("INSERT INTO plugin_cloud_account (provider, name, credential_source) VALUES ('digitalocean', 'Seed', 'vault')");
+		db_execute(
+			"INSERT INTO plugin_cloud_account (provider, name, credential_source) VALUES ('digitalocean', 'Seed', 'vault')"
+		);
 
 		break;
 	case 'credential_flow':
@@ -125,20 +130,45 @@ switch ($action) {
 
 		$clock    = new \Somethingwithproof\Cloud\SystemClock();
 		$accounts = new \Somethingwithproof\Cloud\AccountRepository(false, $clock);
-		$store    = new \Somethingwithproof\Cloud\CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, $clock), $keyFile);
-		$input    = array('provider' => 'digitalocean', 'name' => 'Flow', 'poller_id' => '1', 'credential_source' => 'vault', 'collect_interval' => '300', 'discover_interval' => '3600', 'request_share' => '50', 'enabled' => 'on');
+		$store    = new \Somethingwithproof\Cloud\CredentialStore(
+			new \Somethingwithproof\Cloud\SecretRepository(false, $clock),
+			$keyFile
+		);
+		$input    = array(
+			'provider' => 'digitalocean',
+			'name' => 'Flow',
+			'poller_id' => '1',
+			'credential_source' => 'vault',
+			'collect_interval' => '300',
+			'discover_interval' => '3600',
+			'request_share' => '50',
+			'enabled' => 'on'
+		);
 
-		$id = $accounts->save(\Somethingwithproof\Cloud\AccountInput::parse($input, 0, \Somethingwithproof\Cloud\Provider::released())->account, 1);
+		$id = $accounts->save(
+			\Somethingwithproof\Cloud\AccountInput::parse($input, 0, \Somethingwithproof\Cloud\Provider::released())->account,
+			1
+		);
 		$store->storeVaultCredential($id, new \Somethingwithproof\Cloud\Secret($secret));
 		$accounts->recordCredentialChange($id, 1);
-		$accounts->save(\Somethingwithproof\Cloud\AccountInput::parse(array('name' => 'Flow renamed') + $input, $id, \Somethingwithproof\Cloud\Provider::released())->account, 1);
+		$accounts->save(
+			\Somethingwithproof\Cloud\AccountInput::parse(
+				array('name' => 'Flow renamed') + $input,
+				$id,
+				\Somethingwithproof\Cloud\Provider::released()
+			)->account,
+			1
+		);
 		$accounts->recordVerify($id, \Somethingwithproof\Cloud\VerifyStatus::Invalid, 1);
 
 		$readBack = $store->credentialFor($accounts->find($id))->reveal() === $secret;
 		$audit    = array_reverse(array_column($accounts->auditLog($id), 'action'));
 		$leaks    = array();
 
-		foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'plugin\\_cloud\\_%'") as $table) {
+		foreach (db_fetch_assoc(
+			"SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE " .
+				"'plugin\\_cloud\\_%'"
+		) as $table) {
 			foreach (db_fetch_assoc('SELECT * FROM `' . $table['t'] . '`') as $row) {
 				if (strpos(implode("\0", array_map('strval', $row)), $secret) !== false) {
 					$leaks[] = $table['t'];
@@ -153,7 +183,12 @@ switch ($action) {
 		$accounts->delete($id, 1);
 		unlink($keyFile);
 
-		$result = array('read_back' => $readBack, 'audit' => $audit, 'leaks' => $leaks, 'account_gone' => $accounts->find($id) === null);
+		$result = array(
+			'read_back' => $readBack,
+			'audit' => $audit,
+			'leaks' => $leaks,
+			'account_gone' => $accounts->find($id) === null
+		);
 
 		break;
 	case 'collector_flow':
@@ -174,7 +209,10 @@ switch ($action) {
 	case 'repair_as_viewer':
 		// A viewer opens a plugin page after the realm rows went missing.
 		db_execute("DELETE FROM user_auth WHERE username = 'cloudviewer'");
-		db_execute("INSERT INTO user_auth (username, password, realm, full_name, enabled) VALUES ('cloudviewer', '', 0, 'viewer', 'on')");
+		db_execute(
+			"INSERT INTO user_auth (username, password, realm, full_name, enabled) VALUES ('cloudviewer', '', 0, 'viewer', " .
+				"'on')"
+		);
 		$viewer = (int) db_fetch_insert_id();
 		db_execute("DELETE FROM plugin_realms WHERE plugin = 'cloud'");
 		db_execute("DELETE FROM plugin_hooks WHERE name = 'cloud'");
@@ -182,7 +220,10 @@ switch ($action) {
 		db_execute("REPLACE INTO settings (name, value) VALUES ('admin_user', '0')");
 		include_once($config['base_path'] . '/plugins/cloud/setup.php');
 		plugin_cloud_upgrade();
-		$result = array('viewer_realms' => (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM user_auth_realm WHERE user_id = ?', array($viewer)));
+		$result = array('viewer_realms' => (int) db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM user_auth_realm WHERE user_id = ?',
+			array($viewer)
+		));
 		db_execute("REPLACE INTO settings (name, value) VALUES ('admin_user', '1')");
 
 		break;
@@ -203,7 +244,10 @@ $output = ob_get_clean();
 
 $tables = array();
 
-foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'plugin\\_cloud\\_%' ORDER BY TABLE_NAME") as $row) {
+foreach (db_fetch_assoc(
+	"SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE " .
+		"'plugin\\_cloud\\_%' ORDER BY TABLE_NAME"
+) as $row) {
 	$tables[$row['t']] = (int) db_fetch_cell('SELECT COUNT(*) FROM `' . $row['t'] . '`');
 }
 
@@ -212,9 +256,23 @@ print json_encode(array(
 	'output'  => $output,
 	'plugin'  => db_fetch_row("SELECT status, version FROM plugin_config WHERE directory = 'cloud'"),
 	'schema'  => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_schema_version'"),
-	'hooks'   => array_column(db_fetch_assoc("SELECT hook, status FROM plugin_hooks WHERE name = 'cloud' ORDER BY hook"), 'status', 'hook'),
-	'realms'  => array_column(db_fetch_assoc("SELECT file, display FROM plugin_realms WHERE plugin = 'cloud' ORDER BY file"), 'display', 'file'),
-	'admin'   => (int) db_fetch_cell("SELECT COUNT(*) FROM user_auth_realm AS uar INNER JOIN plugin_realms AS pr ON pr.id + 100 = uar.realm_id WHERE pr.plugin = 'cloud' AND uar.user_id = 1"),
-	'tracked' => array_column(db_fetch_assoc("SELECT `table` FROM plugin_db_changes WHERE plugin = 'cloud' AND method = 'create' ORDER BY `table`"), 'table'),
+	'hooks'   => array_column(
+		db_fetch_assoc("SELECT hook, status FROM plugin_hooks WHERE name = 'cloud' ORDER BY hook"),
+		'status',
+		'hook'
+	),
+	'realms'  => array_column(
+		db_fetch_assoc("SELECT file, display FROM plugin_realms WHERE plugin = 'cloud' ORDER BY file"),
+		'display',
+		'file'
+	),
+	'admin'   => (int) db_fetch_cell(
+		"SELECT COUNT(*) FROM user_auth_realm AS uar INNER JOIN plugin_realms AS pr ON pr.id + 100 = uar.realm_id WHERE " .
+			"pr.plugin = 'cloud' AND uar.user_id = 1"
+	),
+	'tracked' => array_column(
+		db_fetch_assoc("SELECT `table` FROM plugin_db_changes WHERE plugin = 'cloud' AND method = 'create' ORDER BY `table`"),
+		'table'
+	),
 	'tables'  => $tables,
 ), JSON_PRETTY_PRINT) . PHP_EOL;

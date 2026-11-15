@@ -55,7 +55,10 @@ final readonly class Settings {
 		return new self(
 			vaultKeyFile: $keyFile === '' ? self::DEFAULT_KEY_FILE : $keyFile,
 			collectorBudget: min(Row::int($row, 'cloud_collector_budget', self::DEFAULT_BUDGET, 10), 3600),
-			keepTablesOnUninstall: array_key_exists('cloud_uninstall_keep_tables', $row) ? Row::bool($row, 'cloud_uninstall_keep_tables') : true,
+			keepTablesOnUninstall: array_key_exists('cloud_uninstall_keep_tables', $row) ? Row::bool(
+				$row,
+				'cloud_uninstall_keep_tables'
+			) : true,
 		);
 	}
 
@@ -76,7 +79,10 @@ final readonly class Settings {
 			],
 			'cloud_vault_key_file' => [
 				'friendly_name' => __('Vault Key File', 'cloud'),
-				'description'   => __('Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again.', 'cloud'),
+				'description'   => __(
+					'Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again.',
+					'cloud'
+				),
 				'method'        => 'textbox',
 				'default'       => self::DEFAULT_KEY_FILE,
 				'max_length'    => '255',
@@ -88,7 +94,10 @@ final readonly class Settings {
 			],
 			'cloud_collector_budget' => [
 				'friendly_name' => __('Collector Time Budget', 'cloud'),
-				'description'   => __('Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run.', 'cloud'),
+				'description'   => __(
+					'Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run.',
+					'cloud'
+				),
 				'method'        => 'textbox',
 				'default'       => (string) self::DEFAULT_BUDGET,
 				'filter'        => FILTER_VALIDATE_INT,
@@ -102,7 +111,10 @@ final readonly class Settings {
 			],
 			'cloud_uninstall_keep_tables' => [
 				'friendly_name' => __('Keep Plugin Tables on Uninstall', 'cloud'),
-				'description'   => __('When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way.', 'cloud'),
+				'description'   => __(
+					'When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way.',
+					'cloud'
+				),
 				'method'        => 'checkbox',
 				'default'       => 'on',
 			],

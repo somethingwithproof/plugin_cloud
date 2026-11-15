@@ -45,7 +45,11 @@ foreach (array_slice($_SERVER['argv'], 1) as $cloud_arg) {
 	} elseif ($cloud_arg === '--debug') {
 		$debug = true;
 	} else {
-		fwrite(STDERR, 'ERROR: Unknown argument ' . $cloud_arg . PHP_EOL . 'usage: poller_cloud.php [--poller=N] [--force] [--debug]' . PHP_EOL);
+		fwrite(
+			STDERR,
+			'ERROR: Unknown argument ' . $cloud_arg . PHP_EOL
+				. 'usage: poller_cloud.php [--poller=N] [--force] [--debug]' . PHP_EOL
+		);
 		exit(1);
 	}
 }
@@ -65,14 +69,24 @@ if ($cloud_poller < 1) {
 }
 
 if (!(new \Somethingwithproof\Cloud\Schema(false))->isCurrent()) {
-	cacti_log('ERROR: The cloud collector did not run because the plugin schema is not current; open the Plugins page to finish the upgrade', false, 'CLOUD');
+	cacti_log(
+		'ERROR: The cloud collector did not run because the plugin schema is not current; '
+			. 'open the Plugins page to finish the upgrade',
+		false,
+		'CLOUD'
+	);
 	exit(1);
 }
 
 $cloud_budget = cloud_settings()->collectorBudget;
 
 if (!register_process_start('cloud', 'collector', $cloud_poller, $cloud_budget + 120)) {
-	cacti_log('NOTE: A cloud collector is already running on poller ' . $cloud_poller, false, 'CLOUD', POLLER_VERBOSITY_MEDIUM);
+	cacti_log(
+		'NOTE: A cloud collector is already running on poller ' . $cloud_poller,
+		false,
+		'CLOUD',
+		POLLER_VERBOSITY_MEDIUM
+	);
 	exit(0);
 }
 
@@ -82,6 +96,17 @@ try {
 	unregister_process('cloud', 'collector', $cloud_poller);
 }
 
-cacti_log(sprintf('STATS: Poller:%d Accounts:%d Skipped:%d StoppedEarly:%s', $cloud_poller, $cloud_result['accounts'], $cloud_result['skipped'], $cloud_result['stopped_early'] ? 'yes' : 'no'), false, 'CLOUD', POLLER_VERBOSITY_MEDIUM);
+cacti_log(
+	sprintf(
+		'STATS: Poller:%d Accounts:%d Skipped:%d StoppedEarly:%s',
+		$cloud_poller,
+		$cloud_result['accounts'],
+		$cloud_result['skipped'],
+		$cloud_result['stopped_early'] ? 'yes' : 'no'
+	),
+	false,
+	'CLOUD',
+	POLLER_VERBOSITY_MEDIUM
+);
 
 exit(0);

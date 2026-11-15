@@ -45,7 +45,12 @@ preg_match('/\{"kty":"RSA",(.*?)\n\s*\}/s', $a2, $m);
 $jwk = json_decode('{"kty":"RSA",' . joined($m[1]) . '}', true, 4, JSON_THROW_ON_ERROR);
 preg_match('/(eyJhbGciOiJSUzI1NiJ9\s+\.\s+eyJ[\w\s-]+?)\n\n/s', $a2, $m);
 $signingInput = joined($m[1]);
-preg_match('/BASE64URL\(JWS Signature\) produces this\s+value \(with line breaks for display purposes only\):\s+([\w\s-]+?)\n\n/s', $a2, $m);
+preg_match(
+	'/BASE64URL\(JWS Signature\) produces this\s+value \(with line breaks for display purposes ' .
+		'only\):\s+([\w\s-]+?)\n\n/s',
+	$a2,
+	$m
+);
 $expected = joined($m[1]);
 
 $b64 = static fn (string $s): string => base64_decode(strtr($s, '-_', '+/'), true);
@@ -71,13 +76,28 @@ $public = openssl_pkey_get_public(openssl_pkey_get_details($key)['key']);
 
 $checks = array(
 	'signature equals RFC 7515 A.2'   => $b64url($sig) === $expected,
-	'openssl_verify accepts RFC value' => openssl_verify($signingInput, $b64($expected), $public, OPENSSL_ALGO_SHA256) === 1,
-	'openssl_verify rejects a changed input' => openssl_verify($signingInput . 'x', $b64($expected), $public, OPENSSL_ALGO_SHA256) === 0,
+	'openssl_verify accepts RFC value' => openssl_verify(
+		$signingInput,
+		$b64($expected),
+		$public,
+		OPENSSL_ALGO_SHA256
+	) === 1,
+	'openssl_verify rejects a changed input' => openssl_verify(
+		$signingInput . 'x',
+		$b64($expected),
+		$public,
+		OPENSSL_ALGO_SHA256
+	) === 0,
 );
 $fail = 0;
 foreach ($checks as $name => $ok) {
 	echo ($ok ? 'pass ' : 'FAIL ') . $name . "\n";
 	$fail += $ok ? 0 : 1;
 }
-printf("signing input %d bytes, key %d bits, OpenSSL %s\n", strlen($signingInput), openssl_pkey_get_details($key)['bits'], OPENSSL_VERSION_TEXT);
+printf(
+	"signing input %d bytes, key %d bits, OpenSSL %s\n",
+	strlen($signingInput),
+	openssl_pkey_get_details($key)['bits'],
+	OPENSSL_VERSION_TEXT
+);
 exit($fail === 0 ? 0 : 1);

@@ -68,7 +68,11 @@ final readonly class AccountInput {
 			$value = strtolower(str_replace(' ', '', Row::string($input, 'scope_' . $field)));
 
 			if (!self::scopeValueValid($value, $rule)) {
-				$errors['scope_' . $field] = __('%s: the value does not have the form this provider uses.', self::scopeLabel($field), 'cloud');
+				$errors['scope_' . $field] = __(
+					'%s: the value does not have the form this provider uses.',
+					self::scopeLabel($field),
+					'cloud'
+				);
 			} else {
 				$scope[$field] = $value;
 			}
@@ -83,18 +87,33 @@ final readonly class AccountInput {
 		$file = Row::string($input, 'credential_file');
 
 		if ($source === CredentialSource::File && !CredentialFile::pathAcceptable($file)) {
-			$errors['credential_file'] = __('Credential File: enter an absolute path without control characters, at most 512 characters.', 'cloud');
+			$errors['credential_file'] = __(
+				'Credential File: enter an absolute path without control characters, at most 512 characters.',
+				'cloud'
+			);
 		}
 
 		$collect  = Row::int($input, 'collect_interval', 0);
 		$discover = Row::int($input, 'discover_interval', 0);
 
 		if ($collect < self::MIN_COLLECT || $collect > self::MAX_INTERVAL) {
-			$errors['collect_interval'] = __('%s: enter whole seconds from %d to %d.', __('Collection Interval', 'cloud'), self::MIN_COLLECT, self::MAX_INTERVAL, 'cloud');
+			$errors['collect_interval'] = __(
+				'%s: enter whole seconds from %d to %d.',
+				__('Collection Interval', 'cloud'),
+				self::MIN_COLLECT,
+				self::MAX_INTERVAL,
+				'cloud'
+			);
 		}
 
 		if ($discover < self::MIN_DISCOVER || $discover > self::MAX_INTERVAL) {
-			$errors['discover_interval'] = __('%s: enter whole seconds from %d to %d.', __('Discovery Interval', 'cloud'), self::MIN_DISCOVER, self::MAX_INTERVAL, 'cloud');
+			$errors['discover_interval'] = __(
+				'%s: enter whole seconds from %d to %d.',
+				__('Discovery Interval', 'cloud'),
+				self::MIN_DISCOVER,
+				self::MAX_INTERVAL,
+				'cloud'
+			);
 		}
 		$share    = Row::int($input, 'request_share', 0);
 
@@ -108,7 +127,10 @@ final readonly class AccountInput {
 			$ceiling = Row::float($input, 'monthly_ceiling');
 
 			if ($ceiling === null || $ceiling < 0) {
-				$errors['monthly_ceiling'] = __('Monthly Ceiling: enter an amount of zero or more, or leave it blank for none.', 'cloud');
+				$errors['monthly_ceiling'] = __(
+					'Monthly Ceiling: enter an amount of zero or more, or leave it blank for none.',
+					'cloud'
+				);
 			}
 		}
 

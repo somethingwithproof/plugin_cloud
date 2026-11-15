@@ -29,20 +29,51 @@ final class SecretRepository {
 	}
 
 	public function load(int $accountId, string $purpose): ?VaultEntry {
-		$row = db_fetch_row_prepared('SELECT nonce, ciphertext, tag, key_id, expires_at FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?', [$accountId, $purpose], true, $this->connection);
+		$row = db_fetch_row_prepared(
+			'SELECT nonce, ciphertext, tag, key_id, expires_at FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
+			[$accountId, $purpose],
+			true,
+			$this->connection
+		);
 
 		return is_array($row) ? VaultEntry::fromRow($row) : null;
 	}
 
 	public function store(int $accountId, string $purpose, VaultEntry $entry): bool {
-		return (bool) db_execute_prepared('REPLACE INTO plugin_cloud_secret (account_id, purpose, nonce, ciphertext, tag, key_id, expires_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$accountId, $purpose, $entry->nonce, $entry->ciphertext, $entry->tag, $entry->keyId, $entry->expiresAt, $this->clock->now()], true, $this->connection);
+		return (bool) db_execute_prepared(
+			'REPLACE INTO plugin_cloud_secret (account_id, purpose, nonce, ciphertext, tag, key_id, expires_at, updated_at)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+			[
+				$accountId,
+				$purpose,
+				$entry->nonce,
+				$entry->ciphertext,
+				$entry->tag,
+				$entry->keyId,
+				$entry->expiresAt,
+				$this->clock->now()
+			],
+			true,
+			$this->connection
+		);
 	}
 
 	public function has(int $accountId, string $purpose): bool {
-		return (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?', [$accountId, $purpose], '', true, $this->connection) > 0;
+		return (int) db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
+			[$accountId, $purpose],
+			'',
+			true,
+			$this->connection
+		) > 0;
 	}
 
 	public function delete(int $accountId, string $purpose): void {
-		db_execute_prepared('DELETE FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?', [$accountId, $purpose], true, $this->connection);
+		db_execute_prepared(
+			'DELETE FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
+			[$accountId, $purpose],
+			true,
+			$this->connection
+		);
 	}
 }

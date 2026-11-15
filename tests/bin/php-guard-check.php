@@ -54,7 +54,10 @@ function guard_state() {
 		'status' => db_fetch_cell("SELECT status FROM plugin_config WHERE directory = 'cloud'"),
 		'hooks'  => (int) db_fetch_cell("SELECT COUNT(*) FROM plugin_hooks WHERE name = 'cloud'"),
 		'realms' => (int) db_fetch_cell("SELECT COUNT(*) FROM plugin_realms WHERE plugin = 'cloud'"),
-		'tables' => (int) db_fetch_cell("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'plugin\\_cloud\\_%'"),
+		'tables' => (int) db_fetch_cell(
+			"SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() "
+				. "AND TABLE_NAME LIKE 'plugin\\_cloud\\_%'"
+		),
 	);
 }
 
@@ -81,13 +84,19 @@ function guard_call_shims() {
 	api_plugin_hook('poller_bottom');
 	// Core's own entries (plugins.php) are added by the dispatch; none of ours may be.
 	$dispatched = api_plugin_hook_function('draw_navigation_text', $nav);
-	guard_expect(is_array($dispatched) && preg_grep('/^cloud/', array_keys($dispatched)) === array(), 'core dispatch of draw_navigation_text adds no cloud entry');
+	guard_expect(
+		is_array($dispatched) && preg_grep('/^cloud/', array_keys($dispatched)) === array(),
+		'core dispatch of draw_navigation_text adds no cloud entry'
+	);
 }
 
 $supported   = version_compare(PHP_VERSION, '8.2.0', '>=');
 $preexisting = guard_state();
 
-print 'PHP ' . PHP_VERSION . ', Cacti ' . CACTI_VERSION . ', status ' . var_export($preexisting['status'], true) . ', hooks already registered: ' . $preexisting['hooks'] . PHP_EOL;
+print 'PHP ' . PHP_VERSION . ', Cacti ' . CACTI_VERSION . ', status ' . var_export(
+	$preexisting['status'],
+	true
+) . ', hooks already registered: ' . $preexisting['hooks'] . PHP_EOL;
 
 if (!$supported && ($preexisting['status'] == 1 || $preexisting['hooks'] > 0)) {
 	// Enabled under a supported PHP, then PHP was downgraded. Cacti
@@ -111,11 +120,20 @@ if (!$supported && ($preexisting['status'] == 1 || $preexisting['hooks'] > 0)) {
 		guard_expect($state['tables'] === 8, 'all eight plugin tables exist (' . $state['tables'] . ')');
 		guard_expect($state['hooks'] >= 3 && $state['realms'] === 2, 'hooks and realms are registered');
 	} else {
-		guard_expect($state['status'] == 2, 'plugin is left as needing configuration, not enabled (status ' . $state['status'] . ')');
-		guard_expect($state['tables'] === 0 && $state['hooks'] === 0 && $state['realms'] === 0, 'no tables, hooks, or realms were created');
+		guard_expect(
+			$state['status'] == 2,
+			'plugin is left as needing configuration, not enabled (status ' . $state['status'] . ')'
+		);
+		guard_expect(
+			$state['tables'] === 0 && $state['hooks'] === 0 && $state['realms'] === 0,
+			'no tables, hooks, or realms were created'
+		);
 		guard_expect(!class_exists('Somethingwithproof\\Cloud\\Log', false), 'no plugin class was loaded');
 
-		$logged = (int) shell_exec('grep -c ' . escapeshellarg('CLOUD ERROR: The Cloud plugin requires PHP 8.2.0 or later') . ' ' . escapeshellarg(cacti_log_file()));
+		$logged = (int) shell_exec(
+			'grep -c ' . escapeshellarg('CLOUD ERROR: The Cloud plugin requires PHP 8.2.0 or later')
+				. ' ' . escapeshellarg(cacti_log_file())
+		);
 		guard_expect($logged > 0, 'the refusal naming PHP 8.2.0 was logged');
 
 		guard_call_shims();

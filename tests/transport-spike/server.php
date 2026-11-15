@@ -34,7 +34,13 @@ $deadline = time() + 300;
 if ($mode === 'noread') {
 	// Completes the TLS handshake, then never reads the request.
 	$ctx = stream_context_create(array('ssl' => array('local_cert' => $argv[3] ?? '')));
-	$server = stream_socket_server('ssl://127.0.0.1:' . $port, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $ctx);
+	$server = stream_socket_server(
+		'ssl://127.0.0.1:' . $port,
+		$errno,
+		$errstr,
+		STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+		$ctx
+	);
 	$held = array();
 	while (time() < $deadline) {
 		$conn = @stream_socket_accept($server, 1);
@@ -58,7 +64,13 @@ if ($mode === 'silent') {
 }
 
 $ctx = stream_context_create(array('ssl' => array('local_cert' => $argv[3] ?? '')));
-$server = stream_socket_server('ssl://127.0.0.1:' . $port, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $ctx);
+$server = stream_socket_server(
+	'ssl://127.0.0.1:' . $port,
+	$errno,
+	$errstr,
+	STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+	$ctx
+);
 if ($server === false) {
 	fwrite(STDERR, "listen failed: $errstr\n");
 	exit(1);
@@ -126,7 +138,11 @@ while (time() < $deadline) {
 	switch ($path) {
 		case '/ok':
 			$b = '{"ok":true}';
-			send($conn, $ok . "Content-Type: application/json\r\nX-Spike: one\r\nRatelimit-Remaining: 4999\r\nContent-Length: " . strlen($b) . "\r\n\r\n" . $b);
+			send(
+				$conn,
+				$ok . "Content-Type: application/json\r\nX-Spike: one\r\nRatelimit-Remaining: 4999\r\n"
+					. "Content-Length: " . strlen($b) . "\r\n\r\n" . $b
+			);
 			break;
 		case '/head':
 			// Headers only, with a length the body never sends: correct for
@@ -146,7 +162,12 @@ while (time() < $deadline) {
 			send($conn, $ok . 'Content-Length: ' . strlen($b) . "\r\n\r\n" . $b);
 			break;
 		case '/redirect':
-			send($conn, "HTTP/1.1 302 Found\r\nLocation: https://127.0.0.1:$port/redirect-target\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+			send(
+				$conn,
+				"HTTP/1.1 302 Found\r\n"
+					. "Location: https://127.0.0.1:$port/redirect-target\r\n"
+					. "Content-Length: 0\r\nConnection: close\r\n\r\n"
+			);
 			break;
 		case '/redirect-target':
 			send($conn, $ok . "Content-Length: 6\r\n\r\nfollow");
@@ -185,7 +206,10 @@ while (time() < $deadline) {
 			break;
 		case '/huge-header':
 			$n = (int) ($query['n'] ?? 0);
-			send($conn, "HTTP/1.1 200 OK\r\nConnection: close\r\nX-Huge: " . str_repeat('h', $n) . "\r\nContent-Length: 2\r\n\r\nok");
+			send(
+				$conn,
+				"HTTP/1.1 200 OK\r\nConnection: close\r\nX-Huge: " . str_repeat('h', $n) . "\r\nContent-Length: 2\r\n\r\nok"
+			);
 			break;
 		case '/many-headers':
 			$n = (int) ($query['n'] ?? 0);
@@ -202,7 +226,10 @@ while (time() < $deadline) {
 			}
 			break;
 		case '/early-hints':
-			send($conn, "HTTP/1.1 103 Early Hints\r\nLink: </style.css>; rel=preload\r\n\r\n" . $ok . "Content-Length: 5\r\n\r\nfinal");
+			send(
+				$conn,
+				"HTTP/1.1 103 Early Hints\r\nLink: </style.css>; rel=preload\r\n\r\n" . $ok . "Content-Length: 5\r\n\r\nfinal"
+			);
 			break;
 		case '/bad-terminator':
 			// Last chunk without the empty line that ends the trailer section.
@@ -212,7 +239,10 @@ while (time() < $deadline) {
 			send($conn, $ok . "Transfer-Encoding: chunked\r\n\r\nzz\r\nhello\r\n0\r\n\r\n");
 			break;
 		case '/dup-length':
-			send($conn, "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 2\r\nContent-Length: 40\r\n\r\nok" . str_repeat('x', 38));
+			send(
+				$conn,
+				"HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 2\r\nContent-Length: 40\r\n\r\nok" . str_repeat('x', 38)
+			);
 			break;
 		case '/header-flood':
 			// 64 MiB of header lines, sent as fast as the client reads.

@@ -134,7 +134,14 @@ if (!function_exists('db_begin_transaction')) {
 }
 
 if (!function_exists('db_fetch_cell_prepared')) {
-	function db_fetch_cell_prepared($sql, $params = [], $col_name = '', $log = true, $db_conn = false, $log_function = null) {
+	function db_fetch_cell_prepared(
+		$sql,
+		$params = [],
+		$col_name = '',
+		$log = true,
+		$db_conn = false,
+		$log_function = null
+	) {
 		if (str_contains($sql, '@@in_transaction')) {
 			return $GLOBALS['__cloud_in_tx'] === [] ? 1 : array_shift($GLOBALS['__cloud_in_tx']);
 		}

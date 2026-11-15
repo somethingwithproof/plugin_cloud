@@ -95,7 +95,9 @@ it('detects a tampered ciphertext or tag', function () {
 it('reports a replaced key as such, not as corruption', function () {
 	$entry = (new Vault(VaultKey::fromBytes(random_bytes(32))))->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
 
-	expect(cloud_refusal(fn () => (new Vault(VaultKey::fromBytes(random_bytes(32))))->decrypt($entry, 5, 'credential')))->toContain('different vault key');
+	expect(
+		cloud_refusal(fn () => (new Vault(VaultKey::fromBytes(random_bytes(32))))->decrypt($entry, 5, 'credential'))
+	)->toContain('different vault key');
 });
 
 it('reads a key file of 32 raw bytes or 64 hex characters', function () {
@@ -112,8 +114,16 @@ it('refuses key files that fail a check, naming the check', function (string $ca
 	$path = match ($case) {
 		'relative'   => 'etc/cloud.key',
 		'missing'    => $dir . '/missing.key',
-		'symlink'    => (function () use ($dir) { symlink(cloud_file($dir, 'target', bin2hex(random_bytes(32))), $dir . '/link'); return $dir . '/link'; })(),
-		'directory'  => (function () use ($dir) { mkdir($dir . '/sub', 0700); return $dir . '/sub'; })(),
+		'symlink'    => (function () use ($dir) {
+			symlink(cloud_file($dir, 'target', bin2hex(random_bytes(32))), $dir . '/link');
+
+			return $dir . '/link';
+		})(),
+		'directory'  => (function () use ($dir) {
+			mkdir($dir . '/sub', 0700);
+
+			return $dir . '/sub';
+		})(),
 		'world-read' => cloud_file($dir, 'wr', bin2hex(random_bytes(32)), 0604),
 		'world-write'=> cloud_file($dir, 'ww', bin2hex(random_bytes(32)), 0602),
 		'short'      => cloud_file($dir, 'short', random_bytes(31)),
@@ -144,9 +154,13 @@ it('refuses credential files that fail a check', function () {
 		->and(cloud_refusal(fn () => CredentialFile::read('token')))->toContain('absolute path')
 		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/link')))->toContain('symbolic link')
 		->and(cloud_refusal(fn () => CredentialFile::read($dir)))->toContain('not a regular file')
-		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'open', CLOUD_TEST_SECRET, 0644))))->toContain('other users')
+		->and(
+			cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'open', CLOUD_TEST_SECRET, 0644)))
+		)->toContain('other users')
 		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'empty', "\n"))))->toContain('empty')
-		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'big', str_repeat('a', CredentialFile::MAX_BYTES + 1)))))->toContain('larger than allowed');
+		->and(
+			cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'big', str_repeat('a', CredentialFile::MAX_BYTES + 1))))
+		)->toContain('larger than allowed');
 });
 
 it('never puts secret material in a refusal message', function () {
@@ -203,7 +217,18 @@ it('redacts known secrets in every encoding and authorization material by patter
 
 	$clean = $redactor->clean($text);
 
-	foreach (['p@ss/word+with spaces', rawurlencode('p@ss/word+with spaces'), urlencode('p@ss/word+with spaces'), CLOUD_TEST_SECRET, 'abc123', 'eyJhbGciOi', 'deadbeef', 'AKID%2F2026', 'ya29.a0Af', 'MIIEv'] as $leak) {
+	foreach ([
+		'p@ss/word+with spaces',
+		rawurlencode('p@ss/word+with spaces'),
+		urlencode('p@ss/word+with spaces'),
+		CLOUD_TEST_SECRET,
+		'abc123',
+		'eyJhbGciOi',
+		'deadbeef',
+		'AKID%2F2026',
+		'ya29.a0Af',
+		'MIIEv'
+	] as $leak) {
 		expect($clean)->not->toContain($leak);
 	}
 
@@ -252,7 +277,9 @@ it('keeps secrets out of var_export, including inside a vault key', function () 
 it('refuses a FIFO before opening it, which would block', function () {
 	$fifo = $this->dir . '/fifo';
 
-	$made = function_exists('posix_mkfifo') ? posix_mkfifo($fifo, 0600) : (exec('mkfifo -m 600 ' . escapeshellarg($fifo) . ' 2>/dev/null', $out, $rc) !== false && $rc === 0);
+	$made = function_exists('posix_mkfifo') ? posix_mkfifo($fifo, 0600) : (
+		exec('mkfifo -m 600 ' . escapeshellarg($fifo) . ' 2>/dev/null', $out, $rc) !== false && $rc === 0
+	);
 
 	if (!$made) {
 		$this->markTestSkipped('posix_mkfifo is not available');
@@ -266,10 +293,20 @@ it('refuses a FIFO before opening it, which would block', function () {
 });
 
 it('pins vault rows with missing, wrongly sized, and malformed fields', function () {
-	$row = ['nonce' => str_repeat('n', 12), 'ciphertext' => 'c', 'tag' => str_repeat('t', 16), 'key_id' => 'k1', 'expires_at' => '1800000000'];
+	$row = [
+		'nonce' => str_repeat('n', 12),
+		'ciphertext' => 'c',
+		'tag' => str_repeat('t', 16),
+		'key_id' => 'k1',
+		'expires_at' => '1800000000'
+	];
 
-	expect(VaultEntry::fromRow($row))->toEqual(new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), 'k1', 1800000000))
-		->and(VaultEntry::fromRow(['expires_at' => 'x', 'key_id' => null] + $row))->toEqual(new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), '', 0))
+	expect(VaultEntry::fromRow($row))->toEqual(
+		new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), 'k1', 1800000000)
+	)
+		->and(VaultEntry::fromRow(['expires_at' => 'x', 'key_id' => null] + $row))->toEqual(
+			new VaultEntry(str_repeat('n', 12), 'c', str_repeat('t', 16), '', 0)
+		)
 		->and(VaultEntry::fromRow(['nonce' => str_repeat('n', 11)] + $row))->toBeNull()
 		->and(VaultEntry::fromRow(['tag' => str_repeat('t', 15)] + $row))->toBeNull()
 		->and(VaultEntry::fromRow(['ciphertext' => null] + $row))->toBeNull()

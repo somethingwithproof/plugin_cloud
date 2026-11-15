@@ -63,7 +63,9 @@ final class FakeDriver implements ProviderDriver {
 
 	public function verify(Account $account, Secret $credential): VerifyStatus {
 		try {
-			$status = $this->http->send(new HttpRequest('GET', 'https://api.example.com/v2/account', ['Authorization' => 'Bearer ' . $credential->reveal()]))->status;
+			$status = $this->http->send(
+				new HttpRequest('GET', 'https://api.example.com/v2/account', ['Authorization' => 'Bearer ' . $credential->reveal()])
+			)->status;
 		} catch (TransportError $e) {
 			throw DriverError::fromTransport($e);
 		}
@@ -118,12 +120,23 @@ function cloud_verify_with(?int $status, string $source = 'file'): VerifyStatus 
 	file_put_contents($dir . '/token', 'dop_v1_' . str_repeat('a', 64));
 	chmod($dir . '/token', 0600);
 
-	$account = Account::fromRow(['id' => 9, 'provider' => 'digitalocean', 'name' => 'T', 'credential_source' => $source, 'credential_file' => $dir . '/token', 'admin_state' => 'enabled']);
+	$account = Account::fromRow([
+		'id' => 9,
+		'provider' => 'digitalocean',
+		'name' => 'T',
+		'credential_source' => $source,
+		'credential_file' => $dir . '/token',
+		'admin_state' => 'enabled'
+	]);
 	$drivers = new Drivers(cloud_canned($status));
 	$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => new FakeDriver($http));
 
 	$clock    = new FixedClock(1_800_000_000);
-	$verifier = new Verifier($drivers, new CredentialStore(new SecretRepository(false, $clock), $dir . '/missing.key'), new AccountRepository(false, $clock));
+	$verifier = new Verifier(
+		$drivers,
+		new CredentialStore(new SecretRepository(false, $clock), $dir . '/missing.key'),
+		new AccountRepository(false, $clock)
+	);
 	$result   = $verifier->verify($account, 1);
 
 	unlink($dir . '/token');
@@ -136,7 +149,10 @@ beforeEach(function () {
 	$GLOBALS['__cloud_db_exec'] = [];
 });
 
-it('records a fixed status for valid, expired, under-scoped, and unreachable credentials', function (?int $status, VerifyStatus $expected) {
+it('records a fixed status for valid, expired, under-scoped, and unreachable credentials', function (
+	?int $status,
+	VerifyStatus $expected
+) {
 	expect(cloud_verify_with($status))->toBe($expected);
 
 	$update = $GLOBALS['__cloud_db_exec'][0];
@@ -157,7 +173,11 @@ it('reports a configuration status when the credential cannot be read', function
 it('reports a configuration status for a provider without a driver', function () {
 	$account  = Account::fromRow(['id' => 9, 'provider' => 'digitalocean', 'credential_source' => 'vault']);
 	$clock    = new FixedClock(1);
-	$verifier = new Verifier(new Drivers(cloud_canned(200)), new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'), new AccountRepository(false, $clock));
+	$verifier = new Verifier(
+		new Drivers(cloud_canned(200)),
+		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'),
+		new AccountRepository(false, $clock)
+	);
 
 	expect($verifier->verify($account, 1))->toBe(VerifyStatus::Config);
 });
@@ -166,9 +186,16 @@ it('reports a configuration status, and no exception text, when a driver fails u
 	$GLOBALS['__cloud_log'] = [];
 	$account = Account::fromRow(['id' => 9, 'provider' => 'digitalocean', 'credential_source' => 'vault']);
 	$drivers = new Drivers(cloud_canned(200));
-	$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => throw new RuntimeException('provider said sk-live-123'));
+	$drivers->register(
+		Provider::DigitalOcean,
+		static fn (HttpTransport $http): ProviderDriver => throw new RuntimeException('provider said sk-live-123')
+	);
 	$clock    = new FixedClock(1);
-	$verifier = new Verifier($drivers, new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'), new AccountRepository(false, $clock));
+	$verifier = new Verifier(
+		$drivers,
+		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'),
+		new AccountRepository(false, $clock)
+	);
 
 	expect($verifier->verify($account, 1))->toBe(VerifyStatus::Config)
 		->and(implode("\n", array_column($GLOBALS['__cloud_log'], 'message')))->not->toContain('sk-live-123');
@@ -179,8 +206,12 @@ it('refuses resource identities that do not fit or hold control characters, and 
 
 	expect(mb_strlen($long->name))->toBe(255)
 		->and(mb_strlen($long->region))->toBe(64)
-		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', str_repeat('i', 256), 'x'))->toThrow(DriverError::class)
-		->and(fn () => new \Somethingwithproof\Cloud\CloudResource(str_repeat('t', 65), 'd1', 'x'))->toThrow(DriverError::class)
+		->and(
+			fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', str_repeat('i', 256), 'x')
+		)->toThrow(DriverError::class)
+		->and(
+			fn () => new \Somethingwithproof\Cloud\CloudResource(str_repeat('t', 65), 'd1', 'x')
+		)->toThrow(DriverError::class)
 		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', "d1\nd2", 'x'))->toThrow(DriverError::class)
 		->and(fn () => new \Somethingwithproof\Cloud\CloudResource('droplet', '', 'x'))->toThrow(DriverError::class);
 });
@@ -200,7 +231,9 @@ it('lists only read operations for every registered driver', function () {
 	$drivers = Drivers::production();
 
 	foreach (Provider::cases() as $provider) {
-		$driver = $drivers->for(Account::fromRow(['id' => 1, 'provider' => $provider->value, 'credential_source' => 'vault']));
+		$driver = $drivers->for(
+			Account::fromRow(['id' => 1, 'provider' => $provider->value, 'credential_source' => 'vault'])
+		);
 
 		foreach ($driver?->operations() ?? [] as $operation) {
 			expect($operation->method === 'GET' || $operation->bodyPattern !== null)->toBeTrue($operation->name);
@@ -211,7 +244,16 @@ it('lists only read operations for every registered driver', function () {
 });
 
 it('maps every transport failure to an error class', function () {
-	foreach (['url_rejected', 'host_refused', 'operation_refused', 'tls_verify', 'malformed', 'too_large', 'total_timeout', 'connect_refused'] as $kind) {
+	foreach ([
+		'url_rejected',
+		'host_refused',
+		'operation_refused',
+		'tls_verify',
+		'malformed',
+		'too_large',
+		'total_timeout',
+		'connect_refused'
+	] as $kind) {
 		expect((new TransportError($kind))->errorClass())->toBeInstanceOf(ErrorClass::class);
 	}
 

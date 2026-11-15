@@ -47,7 +47,11 @@ function cloud_free_port(): int {
 function cloud_server(array $args): int {
 	$port = cloud_free_port();
 
-	$GLOBALS['__cloud_servers'][] = proc_open(array_merge([PHP_BINARY, CLOUD_SPIKE . '/server.php', $args[0], (string) $port], array_slice($args, 1)), [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+	$GLOBALS['__cloud_servers'][] = proc_open(
+		array_merge([PHP_BINARY, CLOUD_SPIKE . '/server.php', $args[0], (string) $port], array_slice($args, 1)),
+		[0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+		$pipes
+	);
 
 	// A refused probe raises a warning, which the suite treats as a failure.
 	set_error_handler(static fn (): bool => true);
@@ -72,7 +76,13 @@ function cloud_server(array $args): int {
 }
 
 function cloud_transport(int $port, float $total = 4.0, int $max = 1048576): SocketTransport {
-	return new SocketTransport(new OutboundPolicy(['127.0.0.1'], [$port]), 2.0, $total, $max, $GLOBALS['__cloud_certs'] . '/ca.pem');
+	return new SocketTransport(
+		new OutboundPolicy(['127.0.0.1'], [$port]),
+		2.0,
+		$total,
+		$max,
+		$GLOBALS['__cloud_certs'] . '/ca.pem'
+	);
 }
 
 function cloud_kind(callable $call): string {
@@ -89,7 +99,13 @@ beforeAll(function () {
 	$GLOBALS['__cloud_servers'] = [];
 	$GLOBALS['__cloud_certs']   = sys_get_temp_dir() . '/cloud-certs-' . getmypid();
 	@mkdir($GLOBALS['__cloud_certs'], 0700);
-	exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(CLOUD_SPIKE . '/make-certs.php') . ' ' . escapeshellarg($GLOBALS['__cloud_certs']), $out, $rc);
+	exec(
+		escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(
+			CLOUD_SPIKE . '/make-certs.php'
+		) . ' ' . escapeshellarg($GLOBALS['__cloud_certs']),
+		$out,
+		$rc
+	);
 
 	if ($rc !== 0) {
 		throw new RuntimeException('make-certs failed');
@@ -104,7 +120,9 @@ afterAll(function () {
 
 it('returns status, headers, and body from a trusted server', function () {
 	$port = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
-	$r    = cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/ok", ['Accept' => 'application/json']));
+	$r    = cloud_transport($port)->send(
+		new HttpRequest('GET', "https://127.0.0.1:$port/ok", ['Accept' => 'application/json'])
+	);
 
 	expect($r->status)->toBe(200)
 		->and($r->body)->toBe('{"ok":true}')
@@ -116,7 +134,9 @@ it('ends HEAD and 204 responses at their headers whatever Content-Length says', 
 
 	expect(cloud_transport($port)->send(new HttpRequest('HEAD', "https://127.0.0.1:$port/head"))->body)->toBe('')
 		->and(cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/no-content"))->status)->toBe(204)
-		->and(cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/head"))))->toBe('malformed');
+		->and(
+			cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/head")))
+		)->toBe('malformed');
 });
 
 it('decodes chunked bodies, skips 1xx responses, and returns error bodies', function () {
@@ -133,15 +153,23 @@ it('refuses untrusted certificates, wrong names, and redirects', function () {
 	$wrong = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/wrongname.pem']);
 	$good  = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
 
-	expect(cloud_kind(fn () => cloud_transport($self)->send(new HttpRequest('GET', "https://127.0.0.1:$self/ok"))))->toBe('tls_verify')
-		->and(cloud_kind(fn () => cloud_transport($wrong)->send(new HttpRequest('GET', "https://127.0.0.1:$wrong/ok"))))->toBe('tls_name')
-		->and(cloud_kind(fn () => cloud_transport($good)->send(new HttpRequest('GET', "https://127.0.0.1:$good/redirect"))))->toBe('redirect_refused');
+	expect(
+		cloud_kind(fn () => cloud_transport($self)->send(new HttpRequest('GET', "https://127.0.0.1:$self/ok")))
+	)->toBe('tls_verify')
+		->and(
+			cloud_kind(fn () => cloud_transport($wrong)->send(new HttpRequest('GET', "https://127.0.0.1:$wrong/ok")))
+		)->toBe('tls_name')
+		->and(
+			cloud_kind(fn () => cloud_transport($good)->send(new HttpRequest('GET', "https://127.0.0.1:$good/redirect")))
+		)->toBe('redirect_refused');
 });
 
 it('refuses malformed framing', function (string $path, string $kind) {
 	$port = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
 
-	expect(cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port$path"))))->toBe($kind);
+	expect(
+		cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port$path")))
+	)->toBe($kind);
 })->with([
 	['/bad-terminator', 'malformed'],
 	['/bad-chunk', 'malformed'],
@@ -156,7 +184,9 @@ it('stops slow and stalled responses at the total timeout', function (string $pa
 	$port  = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
 	$start = microtime(true);
 
-	expect(cloud_kind(fn () => cloud_transport($port, 2.0)->send(new HttpRequest('GET', "https://127.0.0.1:$port$path"))))->toBe('total_timeout')
+	expect(
+		cloud_kind(fn () => cloud_transport($port, 2.0)->send(new HttpRequest('GET', "https://127.0.0.1:$port$path")))
+	)->toBe('total_timeout')
 		->and(microtime(true) - $start)->toBeLessThan(3.5);
 })->with(['/stall', '/slow-body', '/slow-headers']);
 
@@ -164,14 +194,22 @@ it('stops a TLS handshake that is never answered within the deadline', function 
 	$port  = cloud_server(['silent']);
 	$start = microtime(true);
 
-	expect(cloud_kind(fn () => cloud_transport($port, 1.5)->send(new HttpRequest('GET', "https://127.0.0.1:$port/ok"))))->toBeIn(['connect_timeout', 'total_timeout', 'open_failed'])
+	expect(
+		cloud_kind(fn () => cloud_transport($port, 1.5)->send(new HttpRequest('GET', "https://127.0.0.1:$port/ok")))
+	)->toBeIn(['connect_timeout', 'total_timeout', 'open_failed'])
 		->and(microtime(true) - $start)->toBeLessThan(3.0);
 });
 
 it('refuses header injection before sending', function () {
 	$port = cloud_server(['tls', $GLOBALS['__cloud_certs'] . '/good.pem']);
 
-	expect(cloud_kind(fn () => cloud_transport($port)->send(new HttpRequest('GET', "https://127.0.0.1:$port/echo", ['X-Test' => "a\r\nX-Injected: 1"]))))->toBe('header_rejected');
+	expect(
+		cloud_kind(
+			fn () => cloud_transport($port)->send(
+				new HttpRequest('GET', "https://127.0.0.1:$port/echo", ['X-Test' => "a\r\nX-Injected: 1"])
+			)
+		)
+	)->toBe('header_rejected');
 });
 
 it('refuses URLs outside the policy without opening a socket', function (string $url, string $kind) {
@@ -220,17 +258,82 @@ it('refuses operations that are not on the driver list before they are sent', fu
 	$guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Version=2010-08-01'));
 	$guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=2&per_page=200'));
 
-	expect(cloud_kind(fn () => $guard->send(new HttpRequest('DELETE', 'https://api.example.com/v2/droplets'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets/1/actions'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', [], 'Action=PutMetricAlarm'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets', [], 'x'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', ['CONTENT-TYPE' => 'Application/X-WWW-Form-Urlencoded; charset=utf-8'], 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form + ['CONTENT-TYPE' => 'text/plain'], 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form + ['content-type' => 'application/x-www-form-urlencoded'], 'Action=GetMetricData'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&action=DeleteAlarms'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/?Action=PutMetricAlarm', $form, 'Action=GetMetricData'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=1&page=2&per_page=1'))))->toBe('operation_refused')
-		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?tag_name=x'))))->toBe('operation_refused')
+	expect(
+		cloud_kind(fn () => $guard->send(new HttpRequest('DELETE', 'https://api.example.com/v2/droplets')))
+	)->toBe('operation_refused')
+		->and(
+			cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets/1/actions')))
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', [], 'Action=PutMetricAlarm')))
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets', [], 'x')))
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Action=PutMetricAlarm')
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest(
+						'POST',
+						'https://api.example.com/',
+						['CONTENT-TYPE' => 'Application/X-WWW-Form-Urlencoded; charset=utf-8'],
+						'Action=GetMetricData&Action=PutMetricAlarm'
+					)
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest(
+						'POST',
+						'https://api.example.com/',
+						$form + ['CONTENT-TYPE' => 'text/plain'],
+						'Action=GetMetricData&Action=PutMetricAlarm'
+					)
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest(
+						'POST',
+						'https://api.example.com/',
+						$form + ['content-type' => 'application/x-www-form-urlencoded'],
+						'Action=GetMetricData'
+					)
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&action=DeleteAlarms')
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(
+					new HttpRequest('POST', 'https://api.example.com/?Action=PutMetricAlarm', $form, 'Action=GetMetricData')
+				)
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(
+				fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=1&page=2&per_page=1'))
+			)
+		)->toBe('operation_refused')
+		->and(
+			cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?tag_name=x')))
+		)->toBe('operation_refused')
 		->and($sent->calls)->toBe(3);
 });

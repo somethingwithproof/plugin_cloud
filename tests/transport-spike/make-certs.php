@@ -54,7 +54,14 @@ $keyOpts = array('private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' =
 function issue(array $dn, string $section, $signKey, $signCert, string $conf, array $keyOpts): array {
 	$key = openssl_pkey_new($keyOpts);
 	$csr = openssl_csr_new($dn, $key, array('digest_alg' => 'sha256', 'config' => $conf));
-	$cert = openssl_csr_sign($csr, $signCert, $signKey ?? $key, 30, array('digest_alg' => 'sha256', 'config' => $conf, 'x509_extensions' => $section), random_int(1, PHP_INT_MAX));
+	$cert = openssl_csr_sign(
+		$csr,
+		$signCert,
+		$signKey ?? $key,
+		30,
+		array('digest_alg' => 'sha256', 'config' => $conf, 'x509_extensions' => $section),
+		random_int(1, PHP_INT_MAX)
+	);
 	openssl_x509_export($cert, $certPem);
 	openssl_pkey_export($key, $keyPem, null, array('config' => $conf));
 

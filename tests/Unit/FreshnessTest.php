@@ -22,7 +22,10 @@ use Somethingwithproof\Cloud\Freshness;
 use Somethingwithproof\Cloud\FreshnessEvaluator;
 use Somethingwithproof\Cloud\Observation;
 
-it('classifies datapoints by their provider time against period, delay, and interval', function (int $age, Freshness $expected) {
+it('classifies datapoints by their provider time against period, delay, and interval', function (
+	int $age,
+	Freshness $expected
+) {
 	$now   = 1_800_000_000;
 	$fresh = new FreshnessEvaluator(new FixedClock($now));
 
@@ -41,7 +44,14 @@ it('classifies datapoints by their provider time against period, delay, and inte
 it('never counts the fetch time as a measurement', function () {
 	$now = 1_800_000_000;
 
-	expect((new FreshnessEvaluator(new FixedClock($now)))->evaluate(new Observation(1, 'cpu', 1.0, $now - 86400, $now), 60, 0, 300))->toBe(Freshness::Stale);
+	expect(
+		(new FreshnessEvaluator(new FixedClock($now)))->evaluate(
+			new Observation(1, 'cpu', 1.0, $now - 86400, $now),
+			60,
+			0,
+			300
+		)
+	)->toBe(Freshness::Stale);
 });
 
 it('reports never-observed series as never, and only current or delayed as usable', function () {
@@ -53,16 +63,33 @@ it('reports never-observed series as never, and only current or delayed as usabl
 });
 
 it('pins observation rows with NULL, empty, and malformed values', function () {
-	expect(Observation::fromRow(['resource_id' => '3', 'metric' => 'cpu', 'value' => null, 'observed_at' => '', 'fetched_at' => 'x']))
+	expect(
+		Observation::fromRow([
+			'resource_id' => '3',
+			'metric' => 'cpu',
+			'value' => null,
+			'observed_at' => '',
+			'fetched_at' => 'x'
+		])
+	)
 		->toEqual(new Observation(3, 'cpu', null, 0, 0))
-		->and(Observation::fromRow(['resource_id' => '3', 'metric' => 'cpu', 'value' => 'U']))->toEqual(new Observation(3, 'cpu', null, 0, 0))
-		->and(Observation::fromRow(['resource_id' => '3', 'metric' => 'cpu', 'value' => '0']))->toEqual(new Observation(3, 'cpu', 0.0, 0, 0))
+		->and(
+			Observation::fromRow(['resource_id' => '3', 'metric' => 'cpu', 'value' => 'U'])
+		)->toEqual(new Observation(3, 'cpu', null, 0, 0))
+		->and(
+			Observation::fromRow(['resource_id' => '3', 'metric' => 'cpu', 'value' => '0'])
+		)->toEqual(new Observation(3, 'cpu', 0.0, 0, 0))
 		->and(Observation::fromRow(['resource_id' => '0', 'metric' => 'cpu']))->toBeNull()
 		->and(Observation::fromRow(['resource_id' => '3', 'metric' => '']))->toBeNull();
 });
 
 it('pins health rows with unknown states', function () {
-	$health = \Somethingwithproof\Cloud\AccountHealth::fromRow(['account_id' => '2', 'collection' => 'weird', 'error_class' => 'nope', 'run_duration' => '-1']);
+	$health = \Somethingwithproof\Cloud\AccountHealth::fromRow([
+		'account_id' => '2',
+		'collection' => 'weird',
+		'error_class' => 'nope',
+		'run_duration' => '-1'
+	]);
 
 	expect($health->collection)->toBe(\Somethingwithproof\Cloud\CollectionState::Never)
 		->and($health->error)->toBeNull()

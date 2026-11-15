@@ -44,7 +44,10 @@ final readonly class CloudResource {
 	 */
 	private static function identity(string $value, int $length, string $what): string {
 		if ($value === '' || mb_strlen($value) > $length || preg_match('/[\x00-\x1f\x7f]/', $value) === 1) {
-			throw new DriverError(ErrorClass::Malformed, 'resource ' . $what . ' is empty, longer than ' . $length . ' characters, or holds control characters');
+			throw new DriverError(
+				ErrorClass::Malformed,
+				'resource ' . $what . ' is empty, longer than ' . $length . ' characters, or holds control characters'
+			);
 		}
 
 		return $value;

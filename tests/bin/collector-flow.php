@@ -87,7 +87,10 @@ final class FlowDriver implements ProviderDriver {
 		self::$order[] = $account->name;
 		self::$clock?->advance(self::$tick);
 
-		return new Inventory(array_map(fn (string $id) => new CloudResource('droplet', $id, 'Droplet ' . $id, 'nyc3'), self::$present), 1);
+		return new Inventory(
+			array_map(fn (string $id) => new CloudResource('droplet', $id, 'Droplet ' . $id, 'nyc3'), self::$present),
+			1
+		);
 	}
 
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
@@ -95,7 +98,13 @@ final class FlowDriver implements ProviderDriver {
 
 		foreach ($requests as $request) {
 			self::$collected[] = $request->providerId . '/' . $request->metric;
-			$out[]             = new Observation($request->resourceId, $request->metric, 42.5, self::$observedAt, self::$observedAt + 30);
+			$out[]             = new Observation(
+				$request->resourceId,
+				$request->metric,
+				42.5,
+				self::$observedAt,
+				self::$observedAt + 30
+			);
 		}
 
 		return new CollectResult($out, count($requests));
@@ -116,13 +125,19 @@ $flow_clock = new FixedClock(1800000000);
 function flow_account($name, $poller, $state) {
 	global $flow_dir;
 
-	db_execute_prepared("INSERT INTO plugin_cloud_account (provider, name, poller_id, credential_source, credential_file, collect_interval, discover_interval, admin_state) VALUES ('digitalocean', ?, ?, 'file', ?, 300, 3600, ?)", array($name, $poller, $flow_dir . '/token', $state));
+	db_execute_prepared(
+		"INSERT INTO plugin_cloud_account (provider, name, poller_id, credential_source, credential_file, " .
+			"collect_interval, discover_interval, admin_state) VALUES ('digitalocean', ?, ?, 'file', ?, 300, 3600, ?)",
+		array($name, $poller, $flow_dir . '/token', $state)
+	);
 
 	return (int) db_fetch_insert_id();
 }
 
 function flow_collector($clock, $holder) {
-	$drivers = new Drivers(static fn (OutboundPolicy $p): HttpTransport => new \Somethingwithproof\Cloud\RefusingTransport());
+	$drivers = new Drivers(
+		static fn (OutboundPolicy $p): HttpTransport => new \Somethingwithproof\Cloud\RefusingTransport()
+	);
 	$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => new FlowDriver($http));
 
 	return new Collector(
@@ -142,15 +157,34 @@ $result   = array();
 FlowDriver::$observedAt = 1800000000 - 120;
 $result['run1']        = flow_collector($flow_clock, 'h1')->run(1, 240);
 $result['discoveries'] = FlowDriver::$discoveries;
-$result['resources']   = (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_resource WHERE account_id = ?', array($main));
-$result['others']      = (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_resource WHERE account_id IN (?, ?)', array($remote, $disabled));
+$result['resources']   = (int) db_fetch_cell_prepared(
+	'SELECT COUNT(*) FROM plugin_cloud_resource WHERE account_id = ?',
+	array($main)
+);
+$result['others']      = (int) db_fetch_cell_prepared(
+	'SELECT COUNT(*) FROM plugin_cloud_resource WHERE account_id IN (?, ?)',
+	array($remote, $disabled)
+);
 
 // Map d1/cpu to an active data source, d2/cpu to an inactive one, and
 // d1/load to a data source that does not exist.
-$d1 = (int) db_fetch_cell_prepared("SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'd1'", array($main));
-$d2 = (int) db_fetch_cell_prepared("SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'd2'", array($main));
-db_execute("INSERT INTO data_template_data (local_data_id, data_template_id, name, active) VALUES (900001, 0, 'flow on', 'on'), (900002, 0, 'flow off', '')");
-db_execute_prepared('INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric) VALUES (900001, ?, ?, ?), (900002, ?, ?, ?), (900003, ?, ?, ?)', array($main, $d1, 'cpu', $main, $d2, 'cpu', $main, $d1, 'load'));
+$d1 = (int) db_fetch_cell_prepared(
+	"SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'd1'",
+	array($main)
+);
+$d2 = (int) db_fetch_cell_prepared(
+	"SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'd2'",
+	array($main)
+);
+db_execute(
+	"INSERT INTO data_template_data (local_data_id, data_template_id, name, active) VALUES (900001, 0, 'flow on', " .
+		"'on'), (900002, 0, 'flow off', '')"
+);
+db_execute_prepared(
+	'INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric) VALUES (900001, ?, ?, ?), ' .
+		'(900002, ?, ?, ?), (900003, ?, ?, ?)',
+	array($main, $d1, 'cpu', $main, $d2, 'cpu', $main, $d1, 'load')
+);
 
 // Run 2 within the interval does nothing; run 3 after it collects.
 $flow_clock->advance(60);
@@ -171,15 +205,29 @@ $flow_clock->advance(96);
 flow_collector($flow_clock, 'h3b')->run(1, 240);
 $result['collected_at_296'] = count(FlowDriver::$collected);
 $result['discoveries_after'] = FlowDriver::$discoveries;
-$result['observation'] = db_fetch_row_prepared('SELECT value, observed_at, status FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?', array($d1, 'cpu'));
-$result['health'] = db_fetch_row_prepared('SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?', array($main));
+$result['observation'] = db_fetch_row_prepared(
+	'SELECT value, observed_at, status FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?',
+	array($d1, 'cpu')
+);
+$result['health'] = db_fetch_row_prepared(
+	'SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?',
+	array($main)
+);
 
 // A writer without the lease, and an older datapoint, change nothing.
 $observations = new ObservationRepository(false);
-$observations->write($main, 'stranger', $flow_clock->now(), new Observation($d1, 'cpu', 1.0, $flow_clock->now(), $flow_clock->now()));
+$observations->write(
+	$main,
+	'stranger',
+	$flow_clock->now(),
+	new Observation($d1, 'cpu', 1.0, $flow_clock->now(), $flow_clock->now())
+);
 (new LeaseRepository(false, $flow_clock))->acquire($main, 'h4', 3600);
 $observations->write($main, 'h4', $flow_clock->now(), new Observation($d1, 'cpu', 2.0, 1, $flow_clock->now()));
-$result['after_foreign_writes'] = db_fetch_row_prepared('SELECT value, observed_at FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?', array($d1, 'cpu'));
+$result['after_foreign_writes'] = db_fetch_row_prepared(
+	'SELECT value, observed_at FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?',
+	array($d1, 'cpu')
+);
 
 // A lease held by another live run makes this run skip the account.
 $flow_clock->advance(400);
@@ -194,13 +242,23 @@ FlowDriver::$present = array('d1');
 for ($i = 0; $i < 3; $i++) {
 	$flow_clock->advance(3700);
 	flow_collector($flow_clock, 'h7')->run(1, 240);
-	$result['d2_lifecycle'][] = db_fetch_cell_prepared('SELECT lifecycle FROM plugin_cloud_resource WHERE id = ?', array($d2));
+	$result['d2_lifecycle'][] = db_fetch_cell_prepared(
+		'SELECT lifecycle FROM plugin_cloud_resource WHERE id = ?',
+		array($d2)
+	);
 }
 
 // A writer without the lease cannot replace health either.
 $health_before = db_fetch_row_prepared('SELECT * FROM plugin_cloud_health WHERE account_id = ?', array($main));
-(new HealthRepository(false))->save(new \Somethingwithproof\Cloud\AccountHealth($main, 1, 1, 0.0, \Somethingwithproof\Cloud\CollectionState::Failed), 'stranger', $flow_clock->now());
-$result['health_unchanged'] = db_fetch_row_prepared('SELECT * FROM plugin_cloud_health WHERE account_id = ?', array($main)) == $health_before;
+(new HealthRepository(false))->save(
+	new \Somethingwithproof\Cloud\AccountHealth($main, 1, 1, 0.0, \Somethingwithproof\Cloud\CollectionState::Failed),
+	'stranger',
+	$flow_clock->now()
+);
+$result['health_unchanged'] = db_fetch_row_prepared(
+	'SELECT * FROM plugin_cloud_health WHERE account_id = ?',
+	array($main)
+) == $health_before;
 
 // Each discovery takes 300 s against a 100 s budget, so a run reaches one
 // account. The never-run account goes first, then the least recent.

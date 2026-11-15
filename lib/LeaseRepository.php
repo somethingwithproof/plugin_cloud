@@ -31,14 +31,31 @@ final class LeaseRepository {
 	public function acquire(int $accountId, string $holder, int $seconds): bool {
 		$now = $this->clock->now();
 
-		db_execute_prepared('INSERT IGNORE INTO plugin_cloud_lease (account_id, holder, acquired_at, expires_at) VALUES (?, ?, 0, 0)', [$accountId, ''], true, $this->connection);
-		db_execute_prepared('UPDATE plugin_cloud_lease SET holder = ?, acquired_at = ?, expires_at = ? WHERE account_id = ? AND (holder = ? OR expires_at < ?)', [$holder, $now, $now + $seconds, $accountId, $holder, $now], true, $this->connection);
+		db_execute_prepared(
+			'INSERT IGNORE INTO plugin_cloud_lease (account_id, holder, acquired_at, expires_at) VALUES (?, ?, 0, 0)',
+			[$accountId, ''],
+			true,
+			$this->connection
+		);
+		db_execute_prepared(
+			'UPDATE plugin_cloud_lease SET holder = ?, acquired_at = ?, expires_at = ?
+				WHERE account_id = ? AND (holder = ? OR expires_at < ?)',
+			[$holder, $now, $now + $seconds, $accountId, $holder, $now],
+			true,
+			$this->connection
+		);
 
 		return $this->holds($accountId, $holder);
 	}
 
 	public function holds(int $accountId, string $holder): bool {
-		return (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_lease WHERE account_id = ? AND holder = ? AND expires_at >= ?', [$accountId, $holder, $this->clock->now()], '', true, $this->connection) === 1;
+		return (int) db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM plugin_cloud_lease WHERE account_id = ? AND holder = ? AND expires_at >= ?',
+			[$accountId, $holder, $this->clock->now()],
+			'',
+			true,
+			$this->connection
+		) === 1;
 	}
 
 	/**
@@ -47,10 +64,21 @@ final class LeaseRepository {
 	 * were never written.
 	 */
 	public function lastAcquired(int $accountId): int {
-		return (int) db_fetch_cell_prepared('SELECT acquired_at FROM plugin_cloud_lease WHERE account_id = ?', [$accountId], '', true, $this->connection);
+		return (int) db_fetch_cell_prepared(
+			'SELECT acquired_at FROM plugin_cloud_lease WHERE account_id = ?',
+			[$accountId],
+			'',
+			true,
+			$this->connection
+		);
 	}
 
 	public function release(int $accountId, string $holder): void {
-		db_execute_prepared('UPDATE plugin_cloud_lease SET expires_at = 0 WHERE account_id = ? AND holder = ?', [$accountId, $holder], true, $this->connection);
+		db_execute_prepared(
+			'UPDATE plugin_cloud_lease SET expires_at = 0 WHERE account_id = ? AND holder = ?',
+			[$accountId, $holder],
+			true,
+			$this->connection
+		);
 	}
 }

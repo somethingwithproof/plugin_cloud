@@ -41,7 +41,12 @@ final class SeriesRepository {
 			ORDER BY s.resource_id, s.metric", [$accountId, Lifecycle::Active->value], true, $this->connection);
 
 		foreach (Row::rows($rows) as $row) {
-			$requests[] = new MetricRequest(Row::int($row, 'resource_id'), Row::string($row, 'type'), Row::string($row, 'provider_id'), Row::string($row, 'metric'));
+			$requests[] = new MetricRequest(
+				Row::int($row, 'resource_id'),
+				Row::string($row, 'type'),
+				Row::string($row, 'provider_id'),
+				Row::string($row, 'metric')
+			);
 		}
 
 		return $requests;

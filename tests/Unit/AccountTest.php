@@ -61,8 +61,16 @@ it('refuses each invalid field with a message naming it', function (array $overr
 	'remote poller'     => [['poller_id' => '2'], 'poller_id', 'Poller'],
 	'unknown source'    => [['credential_source' => 'env'], 'credential_source', 'Credential Source'],
 	'instance on DO'    => [['credential_source' => 'instance'], 'credential_source', 'Credential Source'],
-	'relative file'     => [['credential_source' => 'file', 'credential_file' => 'etc/token'], 'credential_file', 'Credential File'],
-	'traversal file'    => [['credential_source' => 'file', 'credential_file' => '/etc/../token'], 'credential_file', 'Credential File'],
+	'relative file'     => [
+		['credential_source' => 'file', 'credential_file' => 'etc/token'],
+		'credential_file',
+		'Credential File'
+	],
+	'traversal file'    => [
+		['credential_source' => 'file', 'credential_file' => '/etc/../token'],
+		'credential_file',
+		'Credential File'
+	],
 	'short collect'     => [['collect_interval' => '30'], 'collect_interval', 'Collection Interval'],
 	'text discover'     => [['discover_interval' => 'hourly'], 'discover_interval', 'Discovery Interval'],
 	'zero share'        => [['request_share' => '0'], 'request_share', 'Request Share'],
@@ -72,16 +80,29 @@ it('refuses each invalid field with a message naming it', function (array $overr
 
 it('refuses providers that are not released for new accounts', function () {
 	foreach ([0, -1] as $id) {
-		expect(AccountInput::parse(cloud_account_input(['provider' => 'aws']), $id, Provider::released())->errors)->toHaveKey('provider');
+		expect(
+			AccountInput::parse(cloud_account_input(['provider' => 'aws']), $id, Provider::released())->errors
+		)->toHaveKey('provider');
 	}
 });
 
-it('validates every provider scope field against its strict pattern', function (string $provider, string $field, string $good, string $bad) {
+it('validates every provider scope field against its strict pattern', function (
+	string $provider,
+	string $field,
+	string $good,
+	string $bad
+) {
 	$offered = Provider::cases();
 	$fields  = [];
 
 	foreach (Provider::from($provider)->scopeFields() as $name => $rule) {
-		$fields['scope_' . $name] = ['account_id' => '123456789012', 'regions' => $provider === 'aws' ? 'us-east-1,eu-west-2' : 'eastus', 'project' => 'my-project-1', 'tenant' => '0f8fad5b-d9cb-469f-a165-70867728950e', 'subscription' => '7c9e6679-7425-40de-944b-e07fc1f90ae7'][$name];
+		$fields['scope_' . $name] = [
+			'account_id' => '123456789012',
+			'regions' => $provider === 'aws' ? 'us-east-1,eu-west-2' : 'eastus',
+			'project' => 'my-project-1',
+			'tenant' => '0f8fad5b-d9cb-469f-a165-70867728950e',
+			'subscription' => '7c9e6679-7425-40de-944b-e07fc1f90ae7'
+		][$name];
 	}
 
 	$good_input = cloud_account_input(['provider' => $provider, 'scope_' . $field => $good] + $fields);
@@ -89,7 +110,9 @@ it('validates every provider scope field against its strict pattern', function (
 
 	expect(AccountInput::parse($good_input, 0, $offered)->errors)->toBe([])
 		->and(AccountInput::parse($bad_input, 0, $offered)->errors)->toHaveKey('scope_' . $field)
-		->and(AccountInput::parse($bad_input, 0, $offered)->errors['scope_' . $field])->toStartWith(AccountInput::scopeLabel($field) . ':');
+		->and(
+			AccountInput::parse($bad_input, 0, $offered)->errors['scope_' . $field]
+		)->toStartWith(AccountInput::scopeLabel($field) . ':');
 })->with([
 	['aws', 'account_id', '123456789012', '12345678901/'],
 	['aws', 'regions', 'us-east-1, us-gov-west-1', 'us-east-1,evil.example.com'],
@@ -144,7 +167,12 @@ it('rejects rows that cannot be accounts', function (array $row) {
 ]);
 
 it('drops stored scope values that no longer match their pattern', function () {
-	$account = Account::fromRow(['id' => 1, 'provider' => 'aws', 'credential_source' => 'vault', 'scope' => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1/../x', 'extra' => 'y'])]);
+	$account = Account::fromRow([
+		'id' => 1,
+		'provider' => 'aws',
+		'credential_source' => 'vault',
+		'scope' => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1/../x', 'extra' => 'y'])
+	]);
 
 	expect($account?->scope)->toBe(['account_id' => '123456789012']);
 });
@@ -158,7 +186,11 @@ it('round-trips through toRow and fromRow', function () {
 
 it('names only the changed columns for the audit log', function () {
 	$before = AccountInput::parse(cloud_account_input(), 4, Provider::released())->account;
-	$after  = AccountInput::parse(cloud_account_input(['name' => 'Renamed', 'collect_interval' => '600']), 4, Provider::released())->account;
+	$after  = AccountInput::parse(
+		cloud_account_input(['name' => 'Renamed', 'collect_interval' => '600']),
+		4,
+		Provider::released()
+	)->account;
 
 	expect($after->changedFields($before))->toBe(['name', 'collect_interval'])
 		->and($before->changedFields(null))->toBe(array_keys($before->toRow()));
@@ -179,11 +211,22 @@ it('maps every error class to a fixed verify message', function () {
 
 function cloud_delete_with(array $inTransaction): array {
 	$GLOBALS['__cloud_db_exec'] = [];
-	$GLOBALS['__cloud_db_rows'] = ['FROM plugin_cloud_account WHERE id' => [['id' => 7, 'provider' => 'digitalocean', 'name' => 'Ops', 'credential_source' => 'vault']]];
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM plugin_cloud_account WHERE id' => [
+			['id' => 7, 'provider' => 'digitalocean', 'name' => 'Ops', 'credential_source' => 'vault']
+		]
+	];
 	$GLOBALS['__cloud_in_tx']   = $inTransaction;
 
-	$deleted = (new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\FixedClock(1)))->delete(7, 1);
-	$log     = array_map(fn (array $e) => preg_match('/^(BEGIN|COMMIT|ROLLBACK)$/', $e['sql']) ? $e['sql'] : (preg_match('/(?:DELETE \w* ?FROM|INSERT INTO) (plugin_cloud_\w+)/', $e['sql'], $m) ? $m[1] : $e['sql']), $GLOBALS['__cloud_db_exec']);
+	$deleted = (
+		new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\FixedClock(1))
+	)->delete(7, 1);
+	$log     = array_map(
+		fn (array $e) => preg_match('/^(BEGIN|COMMIT|ROLLBACK)$/', $e['sql']) ? $e['sql'] : (
+			preg_match('/(?:DELETE \w* ?FROM|INSERT INTO) (plugin_cloud_\w+)/', $e['sql'], $m) ? $m[1] : $e['sql']
+		),
+		$GLOBALS['__cloud_db_exec']
+	);
 
 	$GLOBALS['__cloud_db_rows'] = [];
 	$GLOBALS['__cloud_in_tx']   = [];
@@ -195,7 +238,18 @@ it('deletes an account and its data in one transaction, then audits it', functio
 	[$deleted, $log] = cloud_delete_with([]);
 
 	expect($deleted)->toBeTrue()
-		->and($log)->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease', 'plugin_cloud_health', 'plugin_cloud_observation', 'plugin_cloud_resource', 'plugin_cloud_account', 'COMMIT', 'plugin_cloud_audit']);
+		->and($log)->toBe([
+			'BEGIN',
+			'plugin_cloud_secret',
+			'plugin_cloud_series',
+			'plugin_cloud_lease',
+			'plugin_cloud_health',
+			'plugin_cloud_observation',
+			'plugin_cloud_resource',
+			'plugin_cloud_account',
+			'COMMIT',
+			'plugin_cloud_audit'
+		]);
 });
 
 it('reruns the whole delete when InnoDB ends the transaction partway', function () {
@@ -204,7 +258,18 @@ it('reruns the whole delete when InnoDB ends the transaction partway', function 
 
 	expect($deleted)->toBeTrue()
 		->and(array_slice($log, 0, 4))->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease'])
-		->and(array_slice($log, 4))->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease', 'plugin_cloud_health', 'plugin_cloud_observation', 'plugin_cloud_resource', 'plugin_cloud_account', 'COMMIT', 'plugin_cloud_audit']);
+		->and(array_slice($log, 4))->toBe([
+			'BEGIN',
+			'plugin_cloud_secret',
+			'plugin_cloud_series',
+			'plugin_cloud_lease',
+			'plugin_cloud_health',
+			'plugin_cloud_observation',
+			'plugin_cloud_resource',
+			'plugin_cloud_account',
+			'COMMIT',
+			'plugin_cloud_audit'
+		]);
 });
 
 it('gives up without auditing when every attempt loses its transaction', function () {
