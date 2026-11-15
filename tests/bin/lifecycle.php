@@ -186,6 +186,12 @@ switch ($action) {
 		db_execute("REPLACE INTO settings (name, value) VALUES ('admin_user', '1')");
 
 		break;
+	case 'collector_second':
+	case 'collector_victim':
+	case 'collector_kill':
+		include($config['base_path'] . '/plugins/cloud/tests/bin/collector-restart.php');
+
+		break;
 	case 'state':
 		break;
 	default:

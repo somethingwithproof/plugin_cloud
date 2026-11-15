@@ -233,3 +233,31 @@ it('grants realms on install but never on a repair a viewer triggers', function 
 	expect($repair['realms'])->toHaveCount(2)
 		->and($repair['result'])->toBe(['viewer_realms' => 0]);
 });
+
+it('exits at once when a collector already runs on the poller', function () {
+	lifecycle('install');
+	lifecycle('enable');
+
+	$r = lifecycle('collector_second')['result'];
+
+	expect($r['rc'])->toBe(0)
+		->and($r['seconds'])->toBeLessThan(5.0)
+		->and($r['leases'])->toBe(0)
+		->and($r['leases_when_free'])->toBe(1);
+});
+
+it('leaves no partial result when a run is killed mid-account, and the next run continues', function () {
+	lifecycle('install');
+
+	$r = lifecycle('collector_kill')['result'];
+
+	expect($r['victim_rc'])->not->toBe(0)
+		// The dead run still holds its lease, and wrote no health or value.
+		->and($r['after_kill']['lease']['holder'])->toBe('victim')
+		->and($r['after_kill']['health'])->toBeEmpty()
+		->and($r['after_kill']['observations'])->toBe([])
+		->and($r['while_leased'])->toBe(['accounts' => 0, 'skipped' => 1, 'stopped_early' => false])
+		->and($r['after_expiry'])->toBe(['accounts' => 1, 'skipped' => 0, 'stopped_early' => false])
+		->and($r['final']['health'])->toEqual(['run_started' => '1800000420', 'collection' => 'ok', 'series_read' => '1'])
+		->and($r['final']['observations'])->toEqual([['metric' => 'cpu', 'value' => '7', 'observed_at' => '1799999940', 'status' => 'ok']]);
+});
