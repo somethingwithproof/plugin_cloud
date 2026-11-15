@@ -218,6 +218,14 @@ it('masks every accepted credential, however short', function () {
 	expect($redactor->clean('credential rejected: s3cr3t!'))->toBe('credential rejected: [redacted]');
 });
 
+it('masks header values even when a known secret is part of the header name', function () {
+	$redactor = new Redactor();
+	$redactor->add(new Secret('auth'));
+
+	expect($redactor->clean('authorization: fresh-secret-123'))->not->toContain('fresh-secret-123')
+		->and($redactor->clean('token auth failed'))->toBe('token [redacted] failed');
+});
+
 it('keeps secrets out of var_export, including inside a vault key', function () {
 	$secret = new Secret('example-token-value');
 	$key    = VaultKey::fromBytes(str_repeat('k', 32));

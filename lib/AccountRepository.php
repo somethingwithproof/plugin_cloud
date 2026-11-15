@@ -91,17 +91,20 @@ final class AccountRepository {
 	 * Remove the account and everything collected for it. Its Cacti devices
 	 * and graphs are left to the administrator.
 	 */
+	private const DELETE_ATTEMPTS = 3;
+
 	public function delete(int $id, int $userId): bool {
 		if ($this->find($id) === null) {
 			return false;
 		}
 
 		// All or nothing: an account must not lose its credential or data
-		// while its row stays.
-		if (!db_begin_transaction($this->connection)) {
-			return false;
-		}
-
+		// while its row stays. InnoDB rolls back the whole transaction on a
+		// deadlock, and Cacti then retries the failed statement on its own,
+		// outside any transaction. So the transaction is checked after every
+		// statement, and if it has ended the whole delete runs again. Every
+		// statement is idempotent, and the account row goes last, so an
+		// interrupted attempt leaves an account that can be deleted again.
 		$statements = [
 			['DELETE FROM plugin_cloud_secret WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_series WHERE account_id = ?', [$id]],
@@ -112,17 +115,33 @@ final class AccountRepository {
 			['DELETE FROM plugin_cloud_account WHERE id = ?', [$id]],
 		];
 
-		foreach ($statements as [$sql, $params]) {
-			if (!db_execute_prepared($sql, $params, true, $this->connection)) {
-				db_rollback_transaction($this->connection);
-
+		for ($attempt = 0; $attempt < self::DELETE_ATTEMPTS; $attempt++) {
+			if (!db_begin_transaction($this->connection)) {
 				return false;
+			}
+
+			$intact = true;
+
+			foreach ($statements as [$sql, $params]) {
+				if (!db_execute_prepared($sql, $params, true, $this->connection) || !$this->inTransaction()) {
+					$intact = false;
+
+					break;
+				}
+			}
+
+			if ($intact && db_commit_transaction($this->connection)) {
+				$this->audit($id, $userId, 'delete', []);
+
+				return true;
+			}
+
+			if ($this->inTransaction()) {
+				db_rollback_transaction($this->connection);
 			}
 		}
 
-		$this->audit($id, $userId, 'delete', []);
-
-		return (bool) db_commit_transaction($this->connection);
+		return false;
 	}
 
 	public function recordVerify(int $id, VerifyStatus $status, int $userId): void {
@@ -157,6 +176,10 @@ final class AccountRepository {
 		}
 
 		return $entries;
+	}
+
+	private function inTransaction(): bool {
+		return (int) db_fetch_cell_prepared('SELECT @@in_transaction', [], '', true, $this->connection) === 1;
 	}
 
 	/**

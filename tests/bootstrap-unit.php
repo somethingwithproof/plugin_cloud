@@ -108,8 +108,37 @@ if (!function_exists('db_fetch_row_prepared')) {
 	}
 }
 
+// Transactions are recorded as BEGIN, COMMIT, and ROLLBACK statements.
+// @@in_transaction answers from $GLOBALS['__cloud_in_tx'] in order, then 1,
+// so a test can play InnoDB ending a transaction on a deadlock.
+$GLOBALS['__cloud_in_tx'] = [];
+
+if (!function_exists('db_begin_transaction')) {
+	function db_begin_transaction($db_conn = false) {
+		$GLOBALS['__cloud_db_exec'][] = ['sql' => 'BEGIN', 'params' => []];
+
+		return true;
+	}
+
+	function db_commit_transaction($db_conn = false) {
+		$GLOBALS['__cloud_db_exec'][] = ['sql' => 'COMMIT', 'params' => []];
+
+		return true;
+	}
+
+	function db_rollback_transaction($db_conn = false) {
+		$GLOBALS['__cloud_db_exec'][] = ['sql' => 'ROLLBACK', 'params' => []];
+
+		return true;
+	}
+}
+
 if (!function_exists('db_fetch_cell_prepared')) {
 	function db_fetch_cell_prepared($sql, $params = [], $col_name = '', $log = true, $db_conn = false, $log_function = null) {
+		if (str_contains($sql, '@@in_transaction')) {
+			return $GLOBALS['__cloud_in_tx'] === [] ? 1 : array_shift($GLOBALS['__cloud_in_tx']);
+		}
+
 		$rows = cloud_test_rows($sql);
 
 		return is_array($rows) && isset($rows[0]) ? reset($rows[0]) : 0;

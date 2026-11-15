@@ -176,3 +176,42 @@ it('maps every error class to a fixed verify message', function () {
 		->and(VerifyStatus::fromError(\Somethingwithproof\Cloud\ErrorClass::Permission))->toBe(VerifyStatus::Permission)
 		->and(VerifyStatus::fromError(\Somethingwithproof\Cloud\ErrorClass::Transient))->toBe(VerifyStatus::Unreachable);
 });
+
+function cloud_delete_with(array $inTransaction): array {
+	$GLOBALS['__cloud_db_exec'] = [];
+	$GLOBALS['__cloud_db_rows'] = ['FROM plugin_cloud_account WHERE id' => [['id' => 7, 'provider' => 'digitalocean', 'name' => 'Ops', 'credential_source' => 'vault']]];
+	$GLOBALS['__cloud_in_tx']   = $inTransaction;
+
+	$deleted = (new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\FixedClock(1)))->delete(7, 1);
+	$log     = array_map(fn (array $e) => preg_match('/^(BEGIN|COMMIT|ROLLBACK)$/', $e['sql']) ? $e['sql'] : (preg_match('/(?:DELETE \w* ?FROM|INSERT INTO) (plugin_cloud_\w+)/', $e['sql'], $m) ? $m[1] : $e['sql']), $GLOBALS['__cloud_db_exec']);
+
+	$GLOBALS['__cloud_db_rows'] = [];
+	$GLOBALS['__cloud_in_tx']   = [];
+
+	return [$deleted, $log];
+}
+
+it('deletes an account and its data in one transaction, then audits it', function () {
+	[$deleted, $log] = cloud_delete_with([]);
+
+	expect($deleted)->toBeTrue()
+		->and($log)->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease', 'plugin_cloud_health', 'plugin_cloud_observation', 'plugin_cloud_resource', 'plugin_cloud_account', 'COMMIT', 'plugin_cloud_audit']);
+});
+
+it('reruns the whole delete when InnoDB ends the transaction partway', function () {
+	// The third statement's transaction is gone, as after a deadlock.
+	[$deleted, $log] = cloud_delete_with([1, 1, 0, 0]);
+
+	expect($deleted)->toBeTrue()
+		->and(array_slice($log, 0, 4))->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease'])
+		->and(array_slice($log, 4))->toBe(['BEGIN', 'plugin_cloud_secret', 'plugin_cloud_series', 'plugin_cloud_lease', 'plugin_cloud_health', 'plugin_cloud_observation', 'plugin_cloud_resource', 'plugin_cloud_account', 'COMMIT', 'plugin_cloud_audit']);
+});
+
+it('gives up without auditing when every attempt loses its transaction', function () {
+	[$deleted, $log] = cloud_delete_with(array_fill(0, 12, 0));
+
+	expect($deleted)->toBeFalse()
+		->and($log)->not->toContain('COMMIT')
+		->and($log)->not->toContain('plugin_cloud_audit')
+		->and(array_count_values($log)['BEGIN'])->toBe(3);
+});

@@ -155,32 +155,43 @@ file_put_contents($keyFile, bin2hex(random_bytes(32)));
 chmod($keyFile, 0600);
 db_execute_prepared("REPLACE INTO settings (name, value) VALUES ('cloud_vault_key_file', ?)", array($keyFile));
 
-$secret    = 'dop_v1_' . bin2hex(random_bytes(32));
+$secret = 'dop_v1_' . bin2hex(random_bytes(32));
+$probeName = 'Secret probe ' . bin2hex(random_bytes(3));
+
+// Each response counts as evidence only if the request did what it should:
+// [label, HTTP code, body, text the page must show].
 $responses = array();
 
-list(, $form) = perm_http($base . 'cloud_accounts.php?action=edit', $jar);
-$responses[]  = $form;
-list(, $saved) = perm_http($base . 'cloud_accounts.php', $jar, array(
-	'__csrf_magic' => perm_token($form), 'action' => 'save', 'id' => 0, 'provider' => 'digitalocean', 'name' => 'Secret probe', 'poller_id' => 1,
+list($code, $form) = perm_http($base . 'cloud_accounts.php?action=edit', $jar);
+$responses[] = array('form', $code, $form, 'name="credential"');
+list($code, $saved) = perm_http($base . 'cloud_accounts.php', $jar, array(
+	'__csrf_magic' => perm_token($form), 'action' => 'save', 'id' => 0, 'provider' => 'digitalocean', 'name' => $probeName, 'poller_id' => 1,
 	'credential_source' => 'vault', 'credential' => $secret, 'collect_interval' => 300, 'discover_interval' => 3600, 'request_share' => 50, 'enabled' => 'on',
 ));
-$responses[] = $saved;
+$responses[] = array('save', $code, $saved, 'The account was saved.');
 
-$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Secret probe'");
+$account = (int) db_fetch_cell_prepared('SELECT id FROM plugin_cloud_account WHERE name = ?', array($probeName));
 perm_expect($account > 0 && (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ?', array($account)) === 1, 'an account saved through the form stores its credential in the vault');
 
-foreach (array('cloud_accounts.php', 'cloud_accounts.php?action=edit&id=' . $account, 'cloud_health.php') as $page) {
-	list(, $responses[]) = perm_http($base . $page, $jar);
+foreach (array('list' => array('cloud_accounts.php', 'Stored in the vault'), 'edit' => array('cloud_accounts.php?action=edit&id=' . $account, 'A credential is stored.'), 'health' => array('cloud_health.php', $probeName)) as $label => $page) {
+	list($code, $body) = perm_http($base . $page[0], $jar);
+	$responses[] = array($label, $code, $body, $page[1]);
 }
 
-list(, $verified) = perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token(end($responses)), 'action' => 'verify', 'id' => $account));
-$responses[] = $verified;
+// No driver ships yet, so Verify records the configuration status.
+list($code, $verified) = perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token($body), 'action' => 'verify', 'id' => $account));
+$responses[] = array('verify', $code, $verified, 'The account or its credential is not configured correctly.');
+
+foreach ($responses as $response) {
+	list($label, $code, $body, $marker) = $response;
+	perm_expect($code === 200 && strpos($body, $marker) !== false, "the $label request succeeded (HTTP $code) and its page shows what it should");
+}
 
 $leaks = array();
 
-foreach ($responses as $i => $body) {
-	if (strpos($body, $secret) !== false) {
-		$leaks[] = 'response ' . $i;
+foreach ($responses as $response) {
+	if (strpos($response[2], $secret) !== false) {
+		$leaks[] = $response[0] . ' response';
 	}
 }
 

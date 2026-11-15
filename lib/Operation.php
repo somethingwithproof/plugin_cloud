@@ -63,13 +63,21 @@ final readonly class Operation {
 			return $body === '';
 		}
 
-		$type = '';
+		$types = [];
 
 		foreach ($request->headers as $name => $value) {
 			if (strcasecmp((string) $name, 'Content-Type') === 0) {
-				$type = strtolower(trim($value));
+				$types[] = strtolower(trim($value));
 			}
 		}
+
+		// Content-Type is a single field (RFC 9110 section 8.3); two copies
+		// leave it open which one the provider reads.
+		if (count($types) > 1) {
+			return false;
+		}
+
+		$type = $types[0] ?? '';
 
 		$form = str_starts_with($type, 'application/x-www-form-urlencoded');
 

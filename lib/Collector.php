@@ -32,6 +32,14 @@ namespace Somethingwithproof\Cloud;
 final class Collector {
 	public const DUE_SLACK = 30;
 
+	/**
+	 * Seconds after a run's start when the account is due again: its
+	 * interval less a slack of a tenth of it, at most DUE_SLACK.
+	 */
+	public static function dueAfter(int $collectInterval): int {
+		return $collectInterval - min(self::DUE_SLACK, intdiv($collectInterval, 10));
+	}
+
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly Drivers $drivers,
@@ -101,9 +109,7 @@ final class Collector {
 		// since the last start drifts around the interval. Without slack, an
 		// interval equal to the poller interval would often read as not yet
 		// due and collect only every other cycle.
-		$slack = min(self::DUE_SLACK, intdiv($account->collectInterval, 10));
-
-		if ($previous->runStarted > 0 && $now - $previous->runStarted < $account->collectInterval - $slack) {
+		if ($previous->runStarted > 0 && $now - $previous->runStarted < self::dueAfter($account->collectInterval)) {
 			return;
 		}
 

@@ -106,6 +106,8 @@ it('warns when the poller interval cannot honour the collection interval', funct
 	[60, 60, null],
 	[120, 300, 'is shorter than the poller interval of 300 seconds, so it is collected every 300 seconds.'],
 	[450, 300, 'is not a multiple of the poller interval of 300 seconds, so it is collected every 600 seconds.'],
+	// Within the collector's slack of a poller cycle, so due on that cycle.
+	[310, 300, 'is not a multiple of the poller interval of 300 seconds, so it is collected every 300 seconds.'],
 ]);
 
 it('skips disabled accounts', function () {

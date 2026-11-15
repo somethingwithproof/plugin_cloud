@@ -53,10 +53,6 @@ final class Redactor {
 	}
 
 	public function clean(string $text): string {
-		if ($this->known !== []) {
-			$text = str_replace($this->known, self::MASK, $text);
-		}
-
 		$patterns = [
 			'/\b(authorization|proxy-authorization|x-amz-security-token|x-goog-iam-authorization-token|cookie|set-cookie)\s*:\s*[^\r\n]*/i' => '$1: ' . self::MASK,
 			'/\b(bearer|basic)\s+[A-Za-z0-9._~+\/=-]+/i'                                                                                   => '$1 ' . self::MASK,
@@ -65,6 +61,11 @@ final class Redactor {
 			'/-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(-----END [A-Z ]*PRIVATE KEY-----|$)/s'                                               => self::MASK,
 		];
 
-		return (string) preg_replace(array_keys($patterns), array_values($patterns), $text);
+		// Patterns first: a known secret that is part of a header name or
+		// keyword, such as "auth", would otherwise rewrite the name and hide
+		// the value from its pattern.
+		$text = (string) preg_replace(array_keys($patterns), array_values($patterns), $text);
+
+		return $this->known === [] ? $text : str_replace($this->known, self::MASK, $text);
 	}
 }

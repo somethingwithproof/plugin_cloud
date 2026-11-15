@@ -89,14 +89,19 @@ final class HealthWarnings {
 
 	/**
 	 * The collector runs once per poller cycle, so it collects an account
-	 * every whole number of poller intervals at or above its own.
+	 * at the first whole number of poller intervals that reaches the
+	 * collector's due threshold for it (Collector::dueAfter()).
 	 */
 	private function intervalWarning(Account $account, int $pollerInterval): ?string {
-		if ($pollerInterval < 1 || $account->collectInterval % $pollerInterval === 0) {
+		if ($pollerInterval < 1) {
 			return null;
 		}
 
-		$effective = (int) ceil($account->collectInterval / $pollerInterval) * $pollerInterval;
+		$effective = max(1, (int) ceil(Collector::dueAfter($account->collectInterval) / $pollerInterval)) * $pollerInterval;
+
+		if ($effective === $account->collectInterval) {
+			return null;
+		}
 
 		return $account->collectInterval < $pollerInterval
 			? __('%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds.', $account->name, $account->collectInterval, $pollerInterval, $effective, 'cloud')
