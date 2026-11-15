@@ -226,6 +226,18 @@ it('masks header values even when a known secret is part of the header name', fu
 		->and($redactor->clean('token auth failed'))->toBe('token [redacted] failed');
 });
 
+it('masks a known secret whole when a pattern covers only part of it', function () {
+	$redactor = new Redactor();
+	$redactor->add(new Secret('first-half second-half'));
+
+	$clean = $redactor->clean("Bearer first-half second-half\naccess_token=first-half second-half&x=1\nsignature=&y=2");
+
+	expect($clean)->not->toContain('first-half')
+		->and($clean)->not->toContain('second-half')
+		->and($clean)->toContain('signature=[redacted]&y=2')
+		->and($clean)->toContain('&x=1');
+});
+
 it('keeps secrets out of var_export, including inside a vault key', function () {
 	$secret = new Secret('example-token-value');
 	$key    = VaultKey::fromBytes(str_repeat('k', 32));

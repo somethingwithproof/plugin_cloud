@@ -52,20 +52,70 @@ final class Redactor {
 		usort($this->known, static fn (string $a, string $b): int => strlen($b) <=> strlen($a));
 	}
 
+	/**
+	 * Each pattern masks its named group "v", or the whole match without one.
+	 */
+	private const PATTERNS = [
+		'/\b(?:authorization|proxy-authorization|x-amz-security-token|x-goog-iam-authorization-token|cookie|set-cookie)\s*:\s*(?<v>[^\r\n]*)/i',
+		'/\b(?:bearer|basic)\s+(?<v>[A-Za-z0-9._~+\/=-]+)/i',
+		'/\b(?:X-Amz-Signature|X-Amz-Credential|X-Amz-Security-Token|signature|access_token|refresh_token|client_secret|assertion)=(?<v>[^&\s"]*)/i',
+		'/"(?:access_token|refresh_token|id_token|client_secret|private_key|secret_access_key|session_token)"\s*:\s*"(?<v>(?:[^"\\\\]|\\\\.)*)"/i',
+		'/-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/s',
+	];
+
 	public function clean(string $text): string {
-		$patterns = [
-			'/\b(authorization|proxy-authorization|x-amz-security-token|x-goog-iam-authorization-token|cookie|set-cookie)\s*:\s*[^\r\n]*/i' => '$1: ' . self::MASK,
-			'/\b(bearer|basic)\s+[A-Za-z0-9._~+\/=-]+/i'                                                                                   => '$1 ' . self::MASK,
-			'/\b(X-Amz-Signature|X-Amz-Credential|X-Amz-Security-Token|signature|access_token|refresh_token|client_secret|assertion)=[^&\s"]*/i' => '$1=' . self::MASK,
-			'/"(access_token|refresh_token|id_token|client_secret|private_key|secret_access_key|session_token)"\s*:\s*"(?:[^"\\\\]|\\\\.)*"/i' => '"$1":"' . self::MASK . '"',
-			'/-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(-----END [A-Z ]*PRIVATE KEY-----|$)/s'                                               => self::MASK,
-		];
+		// Every span is found in the original text and masked once at the
+		// end. Applied one after another, a pass could hide material from
+		// the next: a known secret inside a header name would stop the
+		// header pattern matching, and a pattern masking part of a known
+		// secret would stop that secret matching whole.
+		$spans = [];
 
-		// Patterns first: a known secret that is part of a header name or
-		// keyword, such as "auth", would otherwise rewrite the name and hide
-		// the value from its pattern.
-		$text = (string) preg_replace(array_keys($patterns), array_values($patterns), $text);
+		foreach (self::PATTERNS as $pattern) {
+			if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE) === false) {
+				return self::MASK;
+			}
 
-		return $this->known === [] ? $text : str_replace($this->known, self::MASK, $text);
+			foreach ($matches as $match) {
+				// An unmatched optional group reports offset -1.
+				$found   = isset($match['v']) && $match['v'][1] >= 0 ? $match['v'] : $match[0];
+				$spans[] = [$found[1], $found[1] + strlen($found[0])];
+			}
+		}
+
+		foreach ($this->known as $form) {
+			for ($at = strpos($text, $form); $at !== false; $at = strpos($text, $form, $at + 1)) {
+				$spans[] = [$at, $at + strlen($form)];
+			}
+		}
+
+		if ($spans === []) {
+			return $text;
+		}
+
+		sort($spans);
+
+		/** @var list<array{int, int}> $merged */
+		$merged = [];
+
+		foreach ($spans as [$start, $stop]) {
+			$last = count($merged) - 1;
+
+			if ($last >= 0 && $start <= $merged[$last][1]) {
+				$merged[$last] = [$merged[$last][0], max($merged[$last][1], $stop)];
+			} else {
+				$merged[] = [$start, $stop];
+			}
+		}
+
+		$clean = '';
+		$from  = 0;
+
+		foreach ($merged as [$start, $stop]) {
+			$clean .= substr($text, $from, $start - $from) . self::MASK;
+			$from   = $stop;
+		}
+
+		return $clean . substr($text, $from);
 	}
 }
