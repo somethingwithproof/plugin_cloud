@@ -43,207 +43,54 @@ final class DigitalOceanCatalog {
 	public const LOAD_BALANCER = 'load_balancer';
 
 	/**
-	 * @var array<string, array{type: string, path: string, query: array<string, string>, convert: string, agent: bool}>
+	 * Each row is [type, path, query, convert, agent]; metric() names the fields.
+	 *
+	 * @var array<string, array{0: string, 1: string, 2: array<string, string>, 3: string, 4: bool}>
 	 */
 	private const METRICS = [
-		'do_cpu_pct'    => ['type' => self::DROPLET, 'path' => 'cpu', 'query' => [], 'convert' => 'cpu', 'agent' => false],
-		'do_bw_pub_in'  => [
-			'type'    => self::DROPLET,
-			'path'    => 'bandwidth',
-			'query'   => ['interface' => 'public', 'direction' => 'inbound'],
-			'convert' => 'mbps',
-			'agent'   => false,
+		'do_cpu_pct'      => [self::DROPLET, 'cpu', [], 'cpu', false],
+		'do_bw_pub_in'    => [self::DROPLET, 'bandwidth', ['interface' => 'public', 'direction' => 'inbound'], 'mbps', false],
+		'do_bw_pub_out'   => [
+			self::DROPLET, 'bandwidth', ['interface' => 'public', 'direction' => 'outbound'], 'mbps', false,
 		],
-		'do_bw_pub_out' => [
-			'type'    => self::DROPLET,
-			'path'    => 'bandwidth',
-			'query'   => ['interface' => 'public', 'direction' => 'outbound'],
-			'convert' => 'mbps',
-			'agent'   => false,
+		'do_bw_prv_in'    => [
+			self::DROPLET, 'bandwidth', ['interface' => 'private', 'direction' => 'inbound'], 'mbps', false,
 		],
-		'do_bw_prv_in'  => [
-			'type'    => self::DROPLET,
-			'path'    => 'bandwidth',
-			'query'   => ['interface' => 'private', 'direction' => 'inbound'],
-			'convert' => 'mbps',
-			'agent'   => false,
+		'do_bw_prv_out'   => [
+			self::DROPLET, 'bandwidth', ['interface' => 'private', 'direction' => 'outbound'], 'mbps', false,
 		],
-		'do_bw_prv_out' => [
-			'type'    => self::DROPLET,
-			'path'    => 'bandwidth',
-			'query'   => ['interface' => 'private', 'direction' => 'outbound'],
-			'convert' => 'mbps',
-			'agent'   => false,
-		],
-		'do_load_1'     => [
-			'type'    => self::DROPLET,
-			'path'    => 'load_1',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_load_5'     => [
-			'type'    => self::DROPLET,
-			'path'    => 'load_5',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_load_15'    => [
-			'type'    => self::DROPLET,
-			'path'    => 'load_15',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_mem_total'  => [
-			'type'    => self::DROPLET,
-			'path'    => 'memory_total',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_mem_avail'  => [
-			'type'    => self::DROPLET,
-			'path'    => 'memory_available',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_mem_free'   => [
-			'type'    => self::DROPLET,
-			'path'    => 'memory_free',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-		'do_mem_cached' => [
-			'type'    => self::DROPLET,
-			'path'    => 'memory_cached',
-			'query'   => [],
-			'convert' => 'value',
-			'agent'   => true,
-		],
-
-		'dolb_conn_cur'   => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_connections_current',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_conn_lim'   => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_connections_limit',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_cpu_pct'    => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_cpu_utilization',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_http_rps'   => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_http_requests_per_second',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_http_resp'  => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_http_responses',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_http_Bps'   => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_network_throughput_http',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_tcp_Bps'    => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_network_throughput_tcp',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_udp_Bps'    => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_network_throughput_udp',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_nlbtcp_Bps' => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_nlb_tcp_network_throughput',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_nlbudp_Bps' => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'frontend_nlb_udp_network_throughput',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_hc_status'  => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_health_checks',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_downtime'   => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_downtime',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_resp_avg_s' => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_http_response_time_avg',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_resp_p95_s' => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_http_response_time_95p',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_back_conn'  => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_connections',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
-		'dolb_queue'      => [
-			'type'    => self::LOAD_BALANCER,
-			'path'    => 'droplets_queue_size',
-			'query'   => [],
-			'convert' => 'single',
-			'agent'   => false,
-		],
+		'do_load_1'       => [self::DROPLET, 'load_1', [], 'value', true],
+		'do_load_5'       => [self::DROPLET, 'load_5', [], 'value', true],
+		'do_load_15'      => [self::DROPLET, 'load_15', [], 'value', true],
+		'do_mem_total'    => [self::DROPLET, 'memory_total', [], 'value', true],
+		'do_mem_avail'    => [self::DROPLET, 'memory_available', [], 'value', true],
+		'do_mem_free'     => [self::DROPLET, 'memory_free', [], 'value', true],
+		'do_mem_cached'   => [self::DROPLET, 'memory_cached', [], 'value', true],
+		'dolb_conn_cur'   => [self::LOAD_BALANCER, 'frontend_connections_current', [], 'single', false],
+		'dolb_conn_lim'   => [self::LOAD_BALANCER, 'frontend_connections_limit', [], 'single', false],
+		'dolb_cpu_pct'    => [self::LOAD_BALANCER, 'frontend_cpu_utilization', [], 'single', false],
+		'dolb_http_rps'   => [self::LOAD_BALANCER, 'frontend_http_requests_per_second', [], 'single', false],
+		'dolb_http_resp'  => [self::LOAD_BALANCER, 'frontend_http_responses', [], 'single', false],
+		'dolb_http_Bps'   => [self::LOAD_BALANCER, 'frontend_network_throughput_http', [], 'single', false],
+		'dolb_tcp_Bps'    => [self::LOAD_BALANCER, 'frontend_network_throughput_tcp', [], 'single', false],
+		'dolb_udp_Bps'    => [self::LOAD_BALANCER, 'frontend_network_throughput_udp', [], 'single', false],
+		'dolb_nlbtcp_Bps' => [self::LOAD_BALANCER, 'frontend_nlb_tcp_network_throughput', [], 'single', false],
+		'dolb_nlbudp_Bps' => [self::LOAD_BALANCER, 'frontend_nlb_udp_network_throughput', [], 'single', false],
+		'dolb_hc_status'  => [self::LOAD_BALANCER, 'droplets_health_checks', [], 'single', false],
+		'dolb_downtime'   => [self::LOAD_BALANCER, 'droplets_downtime', [], 'single', false],
+		'dolb_resp_avg_s' => [self::LOAD_BALANCER, 'droplets_http_response_time_avg', [], 'single', false],
+		'dolb_resp_p95_s' => [self::LOAD_BALANCER, 'droplets_http_response_time_95p', [], 'single', false],
+		'dolb_back_conn'  => [self::LOAD_BALANCER, 'droplets_connections', [], 'single', false],
+		'dolb_queue'      => [self::LOAD_BALANCER, 'droplets_queue_size', [], 'single', false],
 	];
+
+	private const FIELDS = ['type', 'path', 'query', 'convert', 'agent'];
 
 	/**
 	 * @return array{type: string, path: string, query: array<string, string>, convert: string, agent: bool}|null
 	 */
 	public static function metric(string $name): ?array {
-		return self::METRICS[$name] ?? null;
+		return isset(self::METRICS[$name]) ? self::named(self::METRICS[$name]) : null;
 	}
 
 	/**
@@ -252,7 +99,7 @@ final class DigitalOceanCatalog {
 	 * @return list<string>
 	 */
 	public static function defaults(string $type): array {
-		return array_keys(array_filter(self::METRICS, static fn (array $m): bool => $m['type'] === $type && !$m['agent']));
+		return array_keys(array_filter(self::all(), static fn (array $m): bool => $m['type'] === $type && !$m['agent']));
 	}
 
 	/**
@@ -264,10 +111,26 @@ final class DigitalOceanCatalog {
 		return array_values(
 			array_unique(
 				array_column(
-					array_filter(self::METRICS, static fn (array $m): bool => $m['type'] === $type),
+					array_filter(self::all(), static fn (array $m): bool => $m['type'] === $type),
 					'path'
 				)
 			)
 		);
+	}
+
+	/**
+	 * @return array<string, array{type: string, path: string, query: array<string, string>, convert: string, agent: bool}>
+	 */
+	private static function all(): array {
+		return array_map(self::named(...), self::METRICS);
+	}
+
+	/**
+	 * @param array{0: string, 1: string, 2: array<string, string>, 3: string, 4: bool} $row
+	 * @return array{type: string, path: string, query: array<string, string>, convert: string, agent: bool}
+	 */
+	private static function named(array $row): array {
+		/** @var array{type: string, path: string, query: array<string, string>, convert: string, agent: bool} */
+		return array_combine(self::FIELDS, $row);
 	}
 }
