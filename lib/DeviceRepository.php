@@ -104,12 +104,11 @@ final class DeviceRepository {
 	 * The reindex method of each data query on a live scope device; empty
 	 * for any other device.
 	 *
-	 * @return array<int, int> data query id => reindex method
+	 * @return array<int, int>|null data query id => reindex method; null
+	 *                              when they could not be read
 	 */
-	public function reindexMethods(int $hostId): array {
-		$methods = [];
-
-		foreach (Row::rows(db_fetch_assoc_prepared(
+	public function reindexMethods(int $hostId): ?array {
+		$rows = db_fetch_assoc_prepared(
 			'SELECT q.snmp_query_id, q.reindex_method FROM host_snmp_query q
 				INNER JOIN plugin_cloud_device d ON d.host_id = q.host_id
 				INNER JOIN host h ON h.id = d.host_id AND h.external_id = CONCAT(?, d.account_id)
@@ -117,7 +116,15 @@ final class DeviceRepository {
 			[self::EXTERNAL_PREFIX, $hostId],
 			true,
 			$this->connection
-		)) as $row) {
+		);
+
+		if (!is_array($rows)) {
+			return null;
+		}
+
+		$methods = [];
+
+		foreach (Row::rows($rows) as $row) {
 			$methods[Row::int($row, 'snmp_query_id')] = Row::int($row, 'reindex_method');
 		}
 

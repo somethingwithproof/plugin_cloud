@@ -28,9 +28,10 @@ use Somethingwithproof\Cloud\ScopeReindex;
  */
 
 /**
- * @param list<array<string, mixed>> $queries host_snmp_query rows of host 7
+ * @param list<array<string, mixed>>|false $queries host_snmp_query rows of
+ *        host 7, or false for a failed query
  */
-function cloud_reindex_queries(array $queries): void {
+function cloud_reindex_queries(array|false $queries): void {
 	$GLOBALS['__cloud_db_rows'] = ['FROM host_snmp_query' => $queries];
 }
 
@@ -83,4 +84,21 @@ it('leaves a device alone that is no scope device, or that was just created', fu
 	$keeper->restore(9);
 
 	expect($changes->getArrayCopy())->toBe([]);
+});
+
+it('gives a scope device the default reindex method when its methods were unreadable before the save', function () {
+	[$keeper, $changes] = cloud_reindex_keeper();
+	$GLOBALS['__cloud_log'] = [];
+
+	cloud_reindex_queries(false);
+	$keeper->remember(7);
+
+	cloud_reindex_queries([
+		['snmp_query_id' => 9, 'reindex_method' => 0],
+		['snmp_query_id' => 10, 'reindex_method' => 3],
+	]);
+	$keeper->restore(7);
+
+	expect($changes->getArrayCopy())->toBe([[7, 9, 2]])
+		->and(implode("\n", array_column($GLOBALS['__cloud_log'], 'message')))->toContain('WARNING: Device 7');
 });

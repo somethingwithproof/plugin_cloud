@@ -27,9 +27,14 @@ namespace Somethingwithproof\Cloud;
  * methods before the save; the api_device_new hook, which runs after
  * every successful save, puts back any the save changed through
  * api_device_dq_change(), which also rebuilds the reindex checks.
+ *
+ * A hook cannot stop the save, so when the methods could not be read
+ * before it, each data query the save left at None gets the method scope
+ * devices are created with, and a warning says so: the device keeps
+ * reindexing, though a different method an administrator chose is lost.
  */
 final class ScopeReindex {
-	/** @var array<int, array<int, int>> host => data query => reindex method */
+	/** @var array<int, array<int, int>|null> host => data query => reindex method, or null when unread */
 	private array $saved = [];
 
 	/**
@@ -48,14 +53,31 @@ final class ScopeReindex {
 	}
 
 	public function restore(int $hostId): void {
-		$saved = $this->saved[$hostId] ?? [];
-		unset($this->saved[$hostId]);
-
-		if ($saved === []) {
+		if (!array_key_exists($hostId, $this->saved)) {
 			return;
 		}
 
+		$saved = $this->saved[$hostId];
+		unset($this->saved[$hostId]);
+
 		$current = $this->devices->reindexMethods($hostId);
+
+		if ($current === null) {
+			Log::error(sprintf('Device %d: reindex methods unreadable after the save; check its data queries', $hostId));
+
+			return;
+		}
+
+		if ($saved === null) {
+			if ($current !== []) {
+				Log::warning(sprintf('Device %d: reindex methods were unreadable before the save; reset ones get the default', $hostId));
+			}
+
+			$saved = array_map(
+				static fn (int $method): int => $method === 0 ? ScopeDevices::REINDEX_METHOD : $method,
+				$current
+			);
+		}
 
 		foreach ($saved as $query => $method) {
 			if (isset($current[$query]) && $current[$query] !== $method) {
