@@ -352,6 +352,28 @@ jobs:
         php poller.php --poller=1 --force --debug
         grep -q "SYSTEM STATS" log/cacti.log
 
+    # Every page includes each enabled plugin's setup.php and runs its
+    # hooks, so the core pages must keep loading, and the plugin's own pages
+    # must show the refusal instead of failing.
+    - name: Core pages still load on PHP 8.1
+      working-directory: cacti
+      env:
+        CLOUD_TEST_DATABASE: disposable
+        CLOUD_EXPECT_REFUSAL: '1'
+      run: |
+        php -S 127.0.0.1:8080 -t "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/php-server.log" 2>&1 &
+        for _ in 1 2 3 4 5 6 7 8 9 10; do
+          curl -fsS -o /dev/null http://127.0.0.1:8080/cacti/index.php && break
+          sleep 1
+        done
+        php plugins/cloud/tests/bin/page-check.php http://127.0.0.1:8080/cacti/ \
+          index.php host.php graph_view.php graphs.php data_sources.php plugins.php \
+          settings.php utilities.php user_admin.php \
+          plugins/cloud/cloud_health.php plugins/cloud/cloud_accounts.php
+        if grep -E "Fatal error|Parse error|Uncaught" "$RUNNER_TEMP/php-server.log"; then
+          exit 1
+        fi
+
   workflow-lint:
     name: Workflow lint
     runs-on: ubuntu-latest
