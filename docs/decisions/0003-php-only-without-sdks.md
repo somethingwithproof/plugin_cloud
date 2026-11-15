@@ -18,7 +18,7 @@ The protocols the plugin needs are documented and small:
 - Everything the plugin ships and runs is PHP. No Perl, Python, shell helpers, or provider CLIs run in production.
 - The plugin has no Composer runtime dependencies and ships no vendored libraries. Development tools (PHPStan, Pest, php-cs-fixer) are not part of the release archive.
 - Signing uses `hash_hmac()`, `hash()`, and `openssl_sign()`. JSON uses `json_decode()` with depth limits and `JSON_THROW_ON_ERROR`. XML responses are parsed with `ext-dom` with network access and entity loading disabled.
-- The plugin requires no PHP extension beyond what Cacti 1.2.31 requires. The HTTP transport choice is tracked as an open decision because `ext-curl` is not among them.
+- The plugin requires no PHP extension beyond what Cacti 1.2.31 requires. `ext-curl` is not among them; the transport is decided in [ADR 0009](0009-http-transport.md).
 - Each signer is tested against the provider's published examples or test vectors, and against the live provider before its phase is released.
 
 ## Consequences

@@ -12,5 +12,6 @@ Each record captures one architecture decision: its context, the decision, its c
 | [0006](0006-alert-through-cacti-data-sources.md) | Alert through polled Cacti data sources, not a plugin alert engine | Accepted |
 | [0007](0007-credentials-outside-the-database-in-the-clear.md) | Never store a cloud credential in the clear in the Cacti database | Accepted |
 | [0008](0008-providers-in-releasing-phases.md) | Ship providers in phases that each release, DigitalOcean first | Accepted |
+| [0009](0009-http-transport.md) | Use a minimal socket client for HTTPS | Accepted |
 
 Open decisions are tracked as issues labelled `type: decision`.
