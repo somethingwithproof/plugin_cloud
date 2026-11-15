@@ -14,6 +14,7 @@ path = [
     ".gitattributes",
     "REUSE.toml",
     "phpunit.xml",
+    "phpunit-integration.xml",
     "locales/po/**",
     "locales/LC_MESSAGES/**",
 ]

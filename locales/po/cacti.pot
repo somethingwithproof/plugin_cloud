@@ -16,6 +16,58 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Accounts"
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user; the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr ""
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr ""
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr ""
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr ""
+
 #: setup.php
 #, php-format
 msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
@@ -24,4 +76,12 @@ msgstr ""
 #: setup.php
 #, php-format
 msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr ""
+
+#: setup.php
+msgid "Management"
+msgstr ""
+
+#: setup.php
+msgid "Cloud"
 msgstr ""

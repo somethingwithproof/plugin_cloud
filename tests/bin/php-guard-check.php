@@ -79,7 +79,9 @@ function guard_call_shims() {
 	api_plugin_hook('config_arrays');
 	api_plugin_hook('config_settings');
 	api_plugin_hook('poller_bottom');
-	guard_expect(api_plugin_hook_function('draw_navigation_text', $nav) === $nav, 'core dispatch of draw_navigation_text is unchanged');
+	// Core's own entries (plugins.php) are added by the dispatch; none of ours may be.
+	$dispatched = api_plugin_hook_function('draw_navigation_text', $nav);
+	guard_expect(is_array($dispatched) && preg_grep('/^cloud/', array_keys($dispatched)) === array(), 'core dispatch of draw_navigation_text adds no cloud entry');
 }
 
 $supported   = version_compare(PHP_VERSION, '8.2.0', '>=');
@@ -106,6 +108,8 @@ if (!$supported && ($preexisting['status'] == 1 || $preexisting['hooks'] > 0)) {
 
 	if ($supported) {
 		guard_expect($state['status'] == 1, 'install and enable succeed (status ' . $state['status'] . ')');
+		guard_expect($state['tables'] === 8, 'all eight plugin tables exist (' . $state['tables'] . ')');
+		guard_expect($state['hooks'] >= 3 && $state['realms'] === 2, 'hooks and realms are registered');
 	} else {
 		guard_expect($state['status'] == 2, 'plugin is left as needing configuration, not enabled (status ' . $state['status'] . ')');
 		guard_expect($state['tables'] === 0 && $state['hooks'] === 0 && $state['realms'] === 0, 'no tables, hooks, or realms were created');

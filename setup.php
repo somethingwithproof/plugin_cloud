@@ -128,21 +128,123 @@ function plugin_cloud_check_config(): bool {
 	return plugin_cloud_upgrade();
 }
 
+function cloud_settings(): \Somethingwithproof\Cloud\Settings {
+	return (new \Somethingwithproof\Cloud\SettingsRepository(false))->load();
+}
+
 /**
  * Bring the schema, hooks, and realms up to the code's version.
  *
- * Fresh installs take the same path as upgrades.
+ * Cacti 1.2.31 never calls this itself; check_config and the config_arrays
+ * hook do. Fresh installs take the same path as upgrades. The version stored
+ * in plugin_config changes only after every migration has succeeded, so an
+ * interrupted run is finished by the next one.
  */
 function plugin_cloud_upgrade(): bool {
 	if (!cloud_boot()) {
 		return false;
 	}
 
+	$info   = plugin_cloud_version();
+	$schema = new \Somethingwithproof\Cloud\Schema(false);
+
+	if ($schema->isCurrent() && $schema->recordedPluginVersion() === $info['version'] && $schema->hooksRegistered()) {
+		return true;
+	}
+
+	if (!$schema->migrate()) {
+		return false;
+	}
+
+	$schema->trackTables();
+
+	cloud_setup_hooks();
+
+	$schema->recordPluginVersion($info['version'], $info['author'], $info['homepage']);
+
 	return true;
 }
 
+/**
+ * Register hooks and realms.
+ *
+ * Kept procedural and named *_setup_* because api_plugin_register_hook() and
+ * api_plugin_register_realm() refuse callers whose function name does not
+ * contain install, upgrade, or setup.
+ */
+function cloud_setup_hooks(): void {
+	global $config;
+
+	// Registering a hook replicates plugin config, which needs core lib/poller.php.
+	if (!function_exists('replicate_out')) {
+		include_once($config['library_path'] . '/poller.php');
+	}
+
+	foreach (\Somethingwithproof\Cloud\Schema::HOOKS as $hook => $function) {
+		api_plugin_register_hook('cloud', $hook, $function, 'setup.php');
+	}
+
+	foreach (\Somethingwithproof\Cloud\Pages::realms() as $realm) {
+		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], true);
+	}
+}
+
+/**
+ * Uninstall never touches cloud resources or provider accounts. Core drops
+ * the tracked plugin tables afterwards unless the administrator left "Keep
+ * Plugin Tables on Uninstall" checked, which is the default.
+ */
 function plugin_cloud_uninstall(): void {
 	if (!cloud_boot()) {
 		return;
 	}
+
+	$schema = new \Somethingwithproof\Cloud\Schema(false);
+
+	if (cloud_settings()->keepTablesOnUninstall) {
+		$schema->untrackTables();
+
+		\Somethingwithproof\Cloud\Log::info('Uninstall kept the plugin tables as configured');
+	} else {
+		$schema->forgetVersion();
+	}
+}
+
+function cloud_config_arrays(): void {
+	global $menu;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	foreach (\Somethingwithproof\Cloud\Pages::menu() as $file => $title) {
+		$menu[__('Management')]['plugins/cloud/' . $file] = $title;
+	}
+
+	if (in_array(get_current_page(), \Somethingwithproof\Cloud\Pages::upgradeTriggers(), true)) {
+		plugin_cloud_upgrade();
+	}
+}
+
+function cloud_config_settings(): void {
+	global $tabs, $settings;
+
+	if (!cloud_boot()) {
+		return;
+	}
+
+	$tabs['cloud']     = __('Cloud', 'cloud');
+	$settings['cloud'] = \Somethingwithproof\Cloud\Settings::form();
+}
+
+/**
+ * @param array<string, mixed> $nav
+ * @return array<string, mixed>
+ */
+function cloud_draw_navigation_text($nav) {
+	if (!cloud_boot()) {
+		return $nav;
+	}
+
+	return array_merge($nav, \Somethingwithproof\Cloud\Pages::navigation());
 }

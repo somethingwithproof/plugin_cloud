@@ -170,6 +170,25 @@ jobs:
       working-directory: cacti/plugins/cloud
       run: '"$CACTI_PEST_BIN" --configuration=phpunit.xml'
 
+    # Installs, upgrades, and uninstalls the plugin through Cacti's own
+    # plugin API, so it runs before the plugin is installed for the poller.
+    - name: Run lifecycle integration tests
+      working-directory: cacti/plugins/cloud
+      env:
+        CACTI_PATH: ${{ github.workspace }}/cacti
+        CLOUD_TEST_DATABASE: disposable
+      run: '"$CACTI_PEST_BIN" --configuration=phpunit-integration.xml'
+
+    # The integration tests provoke refusals that the plugin logs as errors,
+    # such as a schema downgrade. Keep their log apart so the error check
+    # below covers the install and the poller run.
+    - name: Set the integration tests' log aside
+      if: always()
+      run: |
+        if [ -f cacti/log/cacti.log ]; then
+          mv cacti/log/cacti.log cacti/log/integration.log
+        fi
+
     - name: Install and enable the plugin
       working-directory: cacti
       run: php plugins/cloud/tests/bin/php-guard-check.php
@@ -197,7 +216,12 @@ jobs:
     - name: Check Cacti log for errors
       if: always()
       run: |
+        if [ -f cacti/log/integration.log ]; then
+          echo "== integration tests (not checked)"
+          cat cacti/log/integration.log
+        fi
         if [ -f cacti/log/cacti.log ]; then
+          echo "== install and poller run"
           cat cacti/log/cacti.log
           if grep -E "FATAL:|ERROR:|WARNING:" cacti/log/cacti.log; then
             exit 1
