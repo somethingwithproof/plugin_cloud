@@ -103,7 +103,7 @@ function perm_login($user) {
 }
 
 // Markers that only the rendered plugin page contains.
-$pages = array('cloud_accounts.php' => 'name="action" value="save"|No cloud accounts yet|linkEditMain', 'cloud_health.php' => 'Credential Vault');
+$pages = array('cloud_accounts.php' => 'name="action" value="save"|No cloud accounts yet|linkEditMain', 'cloud_health.php' => 'Cloud Warnings');
 
 db_execute_prepared("INSERT INTO plugin_cloud_account (provider, name, credential_source, admin_state) VALUES ('digitalocean', ?, 'vault', 'disabled')", array('<b id="cloudprobe">Probe</b>'));
 $probe = (int) db_fetch_insert_id();
@@ -116,6 +116,12 @@ foreach (array('admin' => array('cloud_accounts.php' => true, 'cloud_health.php'
 		$shown = preg_match('/' . $pages[$page] . '/', $body) === 1;
 
 		perm_expect($shown === $allowed && preg_match('/(Fatal error|Parse error|Warning:|Uncaught)/', $body) !== 1, "$user " . ($allowed ? 'sees' : 'is denied') . " $page (HTTP $code)");
+
+		// Credential state is an account detail for Cloud Admin only.
+		if ($page === 'cloud_health.php' && $allowed) {
+			$credential = strpos($body, '<th>Credential</th>') !== false;
+			perm_expect($credential === ($user === 'admin'), "$user " . ($user === 'admin' ? 'sees' : 'does not see') . ' credential state on cloud_health.php');
+		}
 	}
 
 	unlink($jar);

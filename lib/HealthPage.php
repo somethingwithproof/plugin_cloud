@@ -37,27 +37,57 @@ final class HealthPage {
 		private readonly ResourceRepository $resources,
 		private readonly ObservationRepository $observations,
 		private readonly FreshnessEvaluator $freshness,
+		private readonly HealthWarnings $warnings,
 		private readonly Clock $clock,
 	) {
 	}
 
-	public function render(Settings $settings): void {
-		$this->renderVault($settings);
+	/**
+	 * @param bool $admin whether the viewer has Cloud Admin, which alone sees
+	 *                    credential state and credential warnings
+	 */
+	public function render(Settings $settings, bool $admin, int $pollerInterval): void {
+		$accounts = $this->accounts->all();
+
+		html_start_box(__('Cloud Warnings', 'cloud'), '100%', '', '3', 'center', '');
+
+		$shown = 0;
+
+		foreach ($this->warnings->for($settings, $accounts, $pollerInterval) as $warning) {
+			if ($warning['admin'] && !$admin) {
+				continue;
+			}
+
+			print '<tr><td class="textError">' . html_escape($warning['message']) . '</td></tr>';
+			$shown++;
+		}
+
+		if ($shown === 0) {
+			print '<tr><td>' . html_escape(__('No warnings.', 'cloud')) . '</td></tr>';
+		}
+
+		html_end_box();
 
 		html_start_box(__('Cloud Collection', 'cloud'), '100%', '', '3', 'center', '');
 
-		print '<tr class="tableHeader"><th>' . implode('</th><th>', array_map('html_escape', [
-			__('Account', 'cloud'), __('Collection', 'cloud'), __('Last Run', 'cloud'), __('Series Read', 'cloud'), __('Requests', 'cloud'), __('Discovery', 'cloud'), __('Resources', 'cloud'), __('Data', 'cloud'),
-		])) . '</th></tr>';
+		$headers = [__('Account', 'cloud'), __('Collection', 'cloud'), __('Last Run', 'cloud'), __('Series Read', 'cloud'), __('Requests', 'cloud'), __('Discovery', 'cloud'), __('Resources', 'cloud'), __('Data', 'cloud')];
 
-		$accounts = $this->accounts->all();
+		if ($admin) {
+			array_splice($headers, 1, 0, [__('Credential', 'cloud')]);
+		}
+
+		print '<tr class="tableHeader"><th>' . implode('</th><th>', array_map('html_escape', $headers)) . '</th></tr>';
 
 		if ($accounts === []) {
-			print '<tr><td colspan="8"><em>' . html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
+			print '<tr><td colspan="' . count($headers) . '"><em>' . html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
 		}
 
 		foreach ($accounts as $account) {
 			$row = $this->row($account);
+
+			if ($admin) {
+				array_splice($row, 1, 0, [$account->verifyStatus->message()]);
+			}
 
 			print '<tr class="tableRow"><td>' . implode('</td><td>', array_map('html_escape', $row)) . '</td></tr>';
 		}
@@ -115,22 +145,5 @@ final class HealthPage {
 			$seconds < 172800 => __('%d hours ago', intdiv($seconds, 3600), 'cloud'),
 			default          => __('%d days ago', intdiv($seconds, 86400), 'cloud'),
 		};
-	}
-
-	/**
-	 * Checked on the server rendering the page. A collector on another poller
-	 * reads its own copy of the key file.
-	 */
-	private function renderVault(Settings $settings): void {
-		try {
-			VaultKey::fromFile($settings->vaultKeyFile);
-			$message = __('The vault key file is present and passes its checks.', 'cloud');
-		} catch (CredentialError $e) {
-			$message = __('The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here.', $e->getMessage(), 'cloud');
-		}
-
-		html_start_box(__('Credential Vault', 'cloud'), '100%', '', '3', 'center', '');
-		print '<tr><td>' . html_escape($message) . '</td></tr>';
-		html_end_box();
 	}
 }

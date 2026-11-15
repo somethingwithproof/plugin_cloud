@@ -37,9 +37,10 @@ $cloud_page  = new \Somethingwithproof\Cloud\HealthPage(
 	new \Somethingwithproof\Cloud\ResourceRepository(false, $cloud_clock),
 	new \Somethingwithproof\Cloud\ObservationRepository(false),
 	new \Somethingwithproof\Cloud\FreshnessEvaluator($cloud_clock),
+	\Somethingwithproof\Cloud\HealthWarnings::production(),
 	$cloud_clock
 );
 
 top_header();
-$cloud_page->render(cloud_settings());
+$cloud_page->render(cloud_settings(), api_user_realm_auth('cloud_accounts.php'), (int) read_config_option('poller_interval'));
 bottom_footer();

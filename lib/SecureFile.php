@@ -35,6 +35,37 @@ final class SecureFile {
 	 * @throws CredentialError
 	 */
 	public static function read(string $path, int $maxBytes): string {
+		$handle = self::open($path, $maxBytes);
+
+		try {
+			$content = stream_get_contents($handle, $maxBytes + 1);
+		} finally {
+			fclose($handle);
+		}
+
+		if (!is_string($content) || strlen($content) > $maxBytes) {
+			throw CredentialError::because('the file is larger than allowed');
+		}
+
+		return $content;
+	}
+
+	/**
+	 * The same checks as read(), without reading the content, for the
+	 * health page.
+	 *
+	 * @throws CredentialError
+	 */
+	public static function check(string $path, int $maxBytes): void {
+		fclose(self::open($path, $maxBytes));
+	}
+
+	/**
+	 * @return resource an open handle that passed every check
+	 *
+	 * @throws CredentialError
+	 */
+	private static function open(string $path, int $maxBytes) {
 		if (!self::pathAcceptable($path)) {
 			throw CredentialError::because('the path is not an absolute path');
 		}
@@ -81,16 +112,12 @@ final class SecureFile {
 			if ($stat['size'] > $maxBytes) {
 				throw CredentialError::because('the file is larger than allowed');
 			}
-
-			$content = stream_get_contents($handle, $maxBytes + 1);
-		} finally {
+		} catch (CredentialError $e) {
 			fclose($handle);
+
+			throw $e;
 		}
 
-		if (!is_string($content) || strlen($content) > $maxBytes) {
-			throw CredentialError::because('the file is larger than allowed');
-		}
-
-		return $content;
+		return $handle;
 	}
 }
