@@ -134,7 +134,7 @@ function cloud_verify_with(?int $status, string $source = 'file'): VerifyStatus 
 	$clock    = new FixedClock(1_800_000_000);
 	$verifier = new Verifier(
 		$drivers,
-		new CredentialStore(new SecretRepository(false, $clock), $dir . '/missing.key'),
+		new CredentialStore(new SecretRepository(false, $clock), $dir . '/missing.key', $dir),
 		new AccountRepository(false, $clock)
 	);
 	$result   = $verifier->verify($account, 1);
@@ -175,7 +175,7 @@ it('reports a configuration status for a provider without a driver', function ()
 	$clock    = new FixedClock(1);
 	$verifier = new Verifier(
 		new Drivers(cloud_canned(200)),
-		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'),
+		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent', ''),
 		new AccountRepository(false, $clock)
 	);
 
@@ -193,7 +193,7 @@ it('reports a configuration status, and no exception text, when a driver fails u
 	$clock    = new FixedClock(1);
 	$verifier = new Verifier(
 		$drivers,
-		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent'),
+		new CredentialStore(new SecretRepository(false, $clock), '/nonexistent', ''),
 		new AccountRepository(false, $clock)
 	);
 

@@ -31,7 +31,8 @@ namespace Somethingwithproof\Cloud;
 final class HealthWarnings {
 	/**
 	 * @param \Closure(string): void $keyCheck  throws CredentialError for an unusable key file
-	 * @param \Closure(string): void $fileCheck throws CredentialError for an unusable credential file
+	 * @param \Closure(string, string): void $fileCheck throws CredentialError for an unusable credential
+	 *        file, given its path and the credential directory
 	 */
 	public function __construct(
 		private readonly \Closure $keyCheck,
@@ -44,8 +45,8 @@ final class HealthWarnings {
 			static function (string $path): void {
 				VaultKey::fromFile($path);
 			},
-			static function (string $path): void {
-				SecureFile::check($path, CredentialFile::MAX_BYTES);
+			static function (string $path, string $directory): void {
+				CredentialFile::check($path, $directory);
 			},
 		);
 	}
@@ -78,7 +79,7 @@ final class HealthWarnings {
 
 			if ($account->credentialSource === CredentialSource::File) {
 				try {
-					($this->fileCheck)($account->credentialFile);
+					($this->fileCheck)($account->credentialFile, $settings->credentialDir);
 				} catch (CredentialError $e) {
 					$warnings[] = [
 						'message' => __('%s: the credential file cannot be used: %s.', $account->name, $e->getMessage(), 'cloud'),

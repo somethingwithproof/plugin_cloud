@@ -59,7 +59,10 @@ function cloud_warn_account(array $row = []): Account {
 }
 
 function cloud_warnings(string $key, array $accounts, int $poller = 300): array {
-	return HealthWarnings::production()->for(Settings::fromRow(['cloud_vault_key_file' => $key]), $accounts, $poller);
+	// Credential files live beside the key in these fixtures.
+	$settings = Settings::fromRow(['cloud_vault_key_file' => $key, 'cloud_credential_dir' => dirname($key)]);
+
+	return HealthWarnings::production()->for($settings, $accounts, $poller);
 }
 
 it('has no warnings for a usable key, safe files, and matching intervals', function () {

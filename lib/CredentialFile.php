@@ -30,9 +30,39 @@ final class CredentialFile {
 	}
 
 	/**
+	 * Whether $path names a file inside $directory, the credential directory a
+	 * full administrator set on Cacti's Settings page. Cloud Admin chooses an
+	 * account's file, so without this it could name any file the Cacti user
+	 * can read and have it sent to the provider. An empty or root directory
+	 * allows nothing. Only directories are resolved; the file itself is not
+	 * touched, and SecureFile refuses a link at the last component.
+	 */
+	public static function within(string $path, string $directory): bool {
+		if (!SecureFile::pathAcceptable($path) || !SecureFile::pathAcceptable($directory)) {
+			return false;
+		}
+
+		$root   = realpath($directory);
+		$parent = realpath(dirname($path));
+
+		return $root !== false && $root !== '/' && $parent !== false
+			&& str_starts_with($parent . '/', rtrim($root, '/') . '/');
+	}
+
+	/**
 	 * @throws CredentialError
 	 */
-	public static function read(string $path): Secret {
+	public static function check(string $path, string $directory): void {
+		self::guard($path, $directory);
+		SecureFile::check($path, self::MAX_BYTES);
+	}
+
+	/**
+	 * @throws CredentialError
+	 */
+	public static function read(string $path, string $directory): Secret {
+		self::guard($path, $directory);
+
 		$content = trim(SecureFile::read($path, self::MAX_BYTES));
 
 		if ($content === '') {
@@ -40,5 +70,17 @@ final class CredentialFile {
 		}
 
 		return new Secret($content);
+	}
+
+	/**
+	 * Refuse a path outside the directory before opening it, so the reason
+	 * says nothing about files there.
+	 *
+	 * @throws CredentialError
+	 */
+	private static function guard(string $path, string $directory): void {
+		if (!self::within($path, $directory)) {
+			throw CredentialError::because('the file is not in the credential directory set in the Cloud settings');
+		}
 	}
 }

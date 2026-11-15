@@ -381,7 +381,8 @@ switch ($action) {
 		$accounts = new \Somethingwithproof\Cloud\AccountRepository(false, $clock);
 		$store    = new \Somethingwithproof\Cloud\CredentialStore(
 			new \Somethingwithproof\Cloud\SecretRepository(false, $clock),
-			$keyFile
+			$keyFile,
+			''
 		);
 		$input    = array(
 			'provider' => 'digitalocean',

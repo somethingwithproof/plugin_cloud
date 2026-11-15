@@ -17,10 +17,14 @@
  * more details.
  */
 
+use Somethingwithproof\Cloud\Account;
 use Somethingwithproof\Cloud\CredentialError;
 use Somethingwithproof\Cloud\CredentialFile;
+use Somethingwithproof\Cloud\CredentialStore;
+use Somethingwithproof\Cloud\FixedClock;
 use Somethingwithproof\Cloud\Redactor;
 use Somethingwithproof\Cloud\Secret;
+use Somethingwithproof\Cloud\SecretRepository;
 use Somethingwithproof\Cloud\Vault;
 use Somethingwithproof\Cloud\VaultEntry;
 use Somethingwithproof\Cloud\VaultKey;
@@ -149,18 +153,70 @@ it('refuses key files that fail a check, naming the check', function (string $ca
 it('refuses credential files that fail a check', function () {
 	$dir = $this->dir;
 	symlink(cloud_file($dir, 'real', CLOUD_TEST_SECRET), $dir . '/link');
+	mkdir($dir . '/sub');
+	$read = fn (string $path): Secret => CredentialFile::read($path, $dir);
 
-	expect(CredentialFile::read(cloud_file($dir, 'ok', CLOUD_TEST_SECRET . "\n"))->reveal())->toBe(CLOUD_TEST_SECRET)
-		->and(cloud_refusal(fn () => CredentialFile::read('token')))->toContain('absolute path')
-		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/link')))->toContain('symbolic link')
-		->and(cloud_refusal(fn () => CredentialFile::read($dir)))->toContain('not a regular file')
+	expect($read(cloud_file($dir, 'ok', CLOUD_TEST_SECRET . "\n"))->reveal())->toBe(CLOUD_TEST_SECRET)
+		->and(cloud_refusal(fn () => $read('token')))->toContain('credential directory')
+		->and(cloud_refusal(fn () => $read($dir . '/link')))->toContain('symbolic link')
+		->and(cloud_refusal(fn () => $read($dir . '/sub')))->toContain('not a regular file')
+		->and(cloud_refusal(fn () => $read(cloud_file($dir, 'open', CLOUD_TEST_SECRET, 0644))))->toContain('other users')
+		->and(cloud_refusal(fn () => $read(cloud_file($dir, 'empty', "\n"))))->toContain('empty')
 		->and(
-			cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'open', CLOUD_TEST_SECRET, 0644)))
-		)->toContain('other users')
-		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'empty', "\n"))))->toContain('empty')
-		->and(
-			cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'big', str_repeat('a', CredentialFile::MAX_BYTES + 1))))
+			cloud_refusal(fn () => $read(cloud_file($dir, 'big', str_repeat('a', CredentialFile::MAX_BYTES + 1))))
 		)->toContain('larger than allowed');
+
+	rmdir($dir . '/sub');
+});
+
+it('reads credential files only inside the directory a full administrator set', function () {
+	$dir   = $this->dir;
+	$token = cloud_file($dir, 'token', CLOUD_TEST_SECRET);
+	mkdir($dir . '/nested');
+	$deep  = cloud_file($dir . '/nested', 'token', CLOUD_TEST_SECRET);
+	mkdir($dir . '/other');
+	$other = cloud_file($dir . '/other', 'token', CLOUD_TEST_SECRET);
+	symlink($dir . '/other', $dir . '/nested/escape');
+
+	$reason = 'the file is not in the credential directory set in the Cloud settings';
+
+	expect(CredentialFile::read($token, $dir)->reveal())->toBe(CLOUD_TEST_SECRET)
+		->and(CredentialFile::read($deep, $dir)->reveal())->toBe(CLOUD_TEST_SECRET)
+		->and(CredentialFile::read($deep, $dir . '/nested/')->reveal())->toBe(CLOUD_TEST_SECRET)
+		// No directory set, the root, a sibling, or a link out of it: refused.
+		->and(cloud_refusal(fn () => CredentialFile::read($token, '')))->toBe($reason)
+		->and(cloud_refusal(fn () => CredentialFile::read($token, '/')))->toBe($reason)
+		->and(cloud_refusal(fn () => CredentialFile::read($other, $dir . '/nested')))->toBe($reason)
+		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/nested/escape/token', $dir . '/nested')))->toBe($reason)
+		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/nestedx/token', $dir . '/nested')))->toBe($reason)
+		// Outside, a missing file and an unsafe one are refused alike.
+		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/other/none', $dir . '/nested')))->toBe($reason)
+		->and(cloud_refusal(fn () => CredentialFile::check($other, $dir . '/nested')))->toBe($reason);
+
+	foreach (['nested/escape', 'nested/token', 'other/token'] as $file) {
+		unlink($dir . '/' . $file);
+	}
+
+	rmdir($dir . '/nested');
+	rmdir($dir . '/other');
+});
+
+it('never uses the vault key file as a credential', function () {
+	$key   = cloud_file($this->dir, 'vault.key', bin2hex(random_bytes(32)));
+	$store = new CredentialStore(new SecretRepository(false, new FixedClock(1)), $key, $this->dir);
+	$row   = [
+		'id'                => 4,
+		'provider'          => 'digitalocean',
+		'name'              => 'Ops',
+		'credential_source' => 'file',
+		'credential_file'   => $key,
+		'admin_state'       => 'enabled',
+	];
+
+	expect(cloud_refusal(fn () => $store->credentialFor(Account::fromRow($row))))->toBe('the file is the vault key file')
+		->and($store->credentialFor(
+			Account::fromRow(['credential_file' => cloud_file($this->dir, 'tok', CLOUD_TEST_SECRET)] + $row)
+		)->reveal())->toBe(CLOUD_TEST_SECRET);
 });
 
 it('never puts secret material in a refusal message', function () {
