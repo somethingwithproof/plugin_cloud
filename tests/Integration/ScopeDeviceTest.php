@@ -90,3 +90,17 @@ it('ignores a link whose device went while the plugin was disabled, and replaces
 		->and($second['devices'])->toHaveCount(1)
 		->and($second['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2']);
 });
+
+it('collects exactly the metrics graphed on the scope device, and stops when a graph goes', function () {
+	lifecycle('scope_device');
+	$cpu = lifecycle('graph', 'do_cpu 101')['result'];
+	lifecycle('graph', 'do_load 102');
+	lifecycle('graph', 'do_age 102');
+
+	expect($cpu)->toBeGreaterThan(0)
+		->and(lifecycle('sync')['series'])->toBe(['101 do_cpu_pct', '102 do_load_1', '102 do_load_15', '102 do_load_5']);
+
+	lifecycle('remove_graph', (string) $cpu);
+
+	expect(lifecycle('sync')['series'])->toBe(['102 do_load_1', '102 do_load_15', '102 do_load_5']);
+});

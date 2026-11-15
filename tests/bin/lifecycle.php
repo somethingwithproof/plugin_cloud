@@ -224,6 +224,59 @@ switch ($action) {
 		$result = (string) call_user_func_array('ss_cloud', explode(' ', $argument));
 
 		break;
+	case 'graph':
+		// Create one plugin graph on the scope device, as New Graphs does: "<graph key> <provider id>".
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		include_once($config['base_path'] . '/lib/api_data_source.php');
+		include_once($config['base_path'] . '/lib/api_graph.php');
+		include_once($config['base_path'] . '/lib/data_query.php');
+		include_once($config['base_path'] . '/lib/template.php');
+		include_once($config['base_path'] . '/lib/utility.php');
+		cloud_boot();
+		list($key, $provider_id) = explode(' ', $argument, 2);
+		$type      = \Somethingwithproof\Cloud\DigitalOceanCatalog::GRAPHS[$key][0];
+		$templates = new \Somethingwithproof\Cloud\TemplateRepository(false);
+		$query     = $templates->id('snmp_query', 'data_query/' . $type);
+		$host      = (int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device');
+		$suggested = array();
+		$created   = create_complete_graph_from_template(
+			$templates->id('graph_templates', 'graph_template/' . $key),
+			$host,
+			array(
+				'snmp_query_id'       => $query,
+				'snmp_index_on'       => get_best_data_query_index_type($host, $query),
+				'snmp_query_graph_id' => $templates->id('snmp_query_graph', 'data_query_graph/' . $key),
+				'snmp_index'          => $provider_id,
+			),
+			$suggested
+		);
+		$result    = (int) $created['local_graph_id'];
+
+		break;
+	case 'remove_graph':
+		// Delete a graph and its data sources, as the Graphs page does.
+		include_once($config['base_path'] . '/lib/api_data_source.php');
+		include_once($config['base_path'] . '/lib/api_graph.php');
+		$sources = array_column(
+			db_fetch_assoc_prepared(
+				'SELECT DISTINCT dtr.local_data_id FROM graph_templates_item gti
+					INNER JOIN data_template_rrd dtr ON dtr.id = gti.task_item_id WHERE gti.local_graph_id = ?',
+				array((int) $argument)
+			),
+			'local_data_id'
+		);
+		api_data_source_remove_multi($sources);
+		api_graph_remove((int) $argument);
+
+		break;
+	case 'sync':
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$result = (new \Somethingwithproof\Cloud\SeriesRepository(false))->sync(
+			(int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'")
+		);
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
@@ -371,7 +424,12 @@ foreach (db_fetch_assoc(
 }
 
 // The device state, only while the plugin's device table exists.
-$device_state = array('devices' => array(), 'device_queries' => array(), 'device_index' => array());
+$device_state = array(
+	'devices'        => array(),
+	'device_queries' => array(),
+	'device_index'   => array(),
+	'series'         => array(),
+);
 
 if (isset($tables['plugin_cloud_device'])) {
 	$device_state = array(
@@ -386,6 +444,15 @@ if (isset($tables['plugin_cloud_device'])) {
 					INNER JOIN plugin_cloud_device d ON d.host_id = hsq.host_id ORDER BY sq.name'
 			),
 			'name'
+		),
+		'series' => array_map(
+			function ($row) {
+				return $row['provider_id'] . ' ' . $row['metric'];
+			},
+			db_fetch_assoc(
+				'SELECT r.provider_id, s.metric FROM plugin_cloud_series s
+					INNER JOIN plugin_cloud_resource r ON r.id = s.resource_id ORDER BY r.provider_id, s.metric'
+			)
 		),
 		'device_index' => array_column(
 			db_fetch_assoc(
@@ -456,6 +523,7 @@ print json_encode(array(
 	'devices' => $device_state['devices'],
 	'device_queries' => $device_state['device_queries'],
 	'device_index' => $device_state['device_index'],
+	'series' => $device_state['series'],
 	'hosts' => (int) db_fetch_cell('SELECT COUNT(*) FROM host'),
 	'templates_sha' => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_templates_sha256'"),
 	'resource_files' => array_map(

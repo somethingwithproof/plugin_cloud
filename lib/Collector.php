@@ -190,6 +190,7 @@ final class Collector {
 			}
 		}
 
+		$this->series->sync($account->id);
 		$wanted       = $this->series->enabledFor($account->id);
 		[$fit, $left] = RequestBudget::split($account, $driver, $wanted, $requests);
 
