@@ -27,6 +27,9 @@
  *
  * Then shows that a delete sent as GET, or as POST without the csrf-magic
  * token, has no effect, and that the same delete as a proper POST works.
+ * Last, it saves an account with a vault credential through the form and
+ * searches every response, the Cacti log, and every plugin table for the
+ * credential (#32).
  * Disposable databases only: it resets the admin password and adds users.
  * Must parse on PHP 8.0.
  *
@@ -139,6 +142,60 @@ list(, $list) = perm_http($base . 'cloud_accounts.php', $jar);
 perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token($list), 'action' => 'delete', 'id' => $probe));
 perm_expect(!$exists(), 'the same delete as a POST with the token removes the account');
 
+// A credential saved through the form must come back in no response, no
+// log line, and no plugin table.
+$keyFile = sys_get_temp_dir() . '/cloud-perm-' . bin2hex(random_bytes(4)) . '.key';
+file_put_contents($keyFile, bin2hex(random_bytes(32)));
+chmod($keyFile, 0600);
+db_execute_prepared("REPLACE INTO settings (name, value) VALUES ('cloud_vault_key_file', ?)", array($keyFile));
+
+$secret    = 'dop_v1_' . bin2hex(random_bytes(32));
+$responses = array();
+
+list(, $form) = perm_http($base . 'cloud_accounts.php?action=edit', $jar);
+$responses[]  = $form;
+list(, $saved) = perm_http($base . 'cloud_accounts.php', $jar, array(
+	'__csrf_magic' => perm_token($form), 'action' => 'save', 'id' => 0, 'provider' => 'digitalocean', 'name' => 'Secret probe', 'poller_id' => 1,
+	'credential_source' => 'vault', 'credential' => $secret, 'collect_interval' => 300, 'discover_interval' => 3600, 'request_share' => 50, 'enabled' => 'on',
+));
+$responses[] = $saved;
+
+$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Secret probe'");
+perm_expect($account > 0 && (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ?', array($account)) === 1, 'an account saved through the form stores its credential in the vault');
+
+foreach (array('cloud_accounts.php', 'cloud_accounts.php?action=edit&id=' . $account, 'cloud_health.php') as $page) {
+	list(, $responses[]) = perm_http($base . $page, $jar);
+}
+
+list(, $verified) = perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token(end($responses)), 'action' => 'verify', 'id' => $account));
+$responses[] = $verified;
+
+$leaks = array();
+
+foreach ($responses as $i => $body) {
+	if (strpos($body, $secret) !== false) {
+		$leaks[] = 'response ' . $i;
+	}
+}
+
+$log = (string) @file_get_contents($config['base_path'] . '/log/cacti.log');
+
+if (strpos($log, $secret) !== false) {
+	$leaks[] = 'cacti.log';
+}
+
+foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND (TABLE_NAME LIKE 'plugin\\_cloud\\_%' OR TABLE_NAME = 'settings')") as $table) {
+	foreach (db_fetch_assoc('SELECT * FROM `' . $table['t'] . '`') as $row) {
+		if (strpos(implode("\0", array_map('strval', $row)), $secret) !== false) {
+			$leaks[] = $table['t'];
+		}
+	}
+}
+
+perm_expect(count($responses) === 6 && $leaks === array(), 'the credential appears in no response, log, or table' . ($leaks === array() ? '' : ': ' . implode(', ', array_unique($leaks))));
+
+db_execute("DELETE FROM settings WHERE name = 'cloud_vault_key_file'");
+unlink($keyFile);
 unlink($jar);
 
 exit($failures > 0 ? 1 : 0);
