@@ -17,6 +17,7 @@ path = [
     "phpunit-integration.xml",
     "locales/po/**",
     "locales/LC_MESSAGES/**",
+    "templates/**",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Thomas Vincent <thomasvincent@gmail.com>"

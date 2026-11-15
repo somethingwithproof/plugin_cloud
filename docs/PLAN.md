@@ -220,13 +220,13 @@ The mapping, decided in [ADR 0010](decisions/0010-scope-devices-with-resource-da
 
 | Object | Created from | Notes |
 |---|---|---|
-| Scope device | "Cloud Scope" device template; each device created with availability method None (`AVAIL_NONE`, 0) and the account's poller, because a Cacti 1.2 device template has no availability field | One per account and scope: a DigitalOcean team, an AWS account and region, a Google Cloud project, an Azure subscription and region |
+| Scope device | A device template per provider, for example "Cloud: DigitalOcean Scope", carrying that provider's data queries; each device created with availability method None (`AVAIL_NONE`, 0) and the account's poller, because a Cacti 1.2 device template has no availability field | One per account and scope: a DigitalOcean team, an AWS account and region, a Google Cloud project, an Azure subscription and region |
 | Resource data query | Script server data query per resource type, for example "Cloud: DigitalOcean Droplets" | Indexes are provider resource IDs; descriptions are resource names; reindexing follows Cacti's normal behavior |
-| Data sources and graphs | Data and graph templates per resource type, generated from the metric catalog | Polled through the script server; reach Thold through `poller_output` |
+| Data sources and graphs | A data template and a graph template per catalog graph, generated from the metric catalog | A graph's data source holds only that graph's metrics, so creating a graph collects nothing else ([ADR 0005](decisions/0005-collect-only-what-is-graphed.md)); polled through the script server; reach Thold through `poller_output` |
 
 This follows plugin_cloudflare's pattern of one account device with resources as data query indexes. It keeps device counts proportional to accounts, not to resources, and Cacti's reindexing handles resources that come and go. The cost is that Maint suppresses a whole scope, not one resource, and a virtual machine's cloud graphs do not sit on the Cacti device that polls the same machine over SNMP. Mapping resources onto existing devices is a research issue.
 
-Templates ship as Cacti template XML in the plugin and are imported with `import_xml_data()` at install and upgrade, matched by hash so re-imports update rather than duplicate.
+Templates ship as Cacti template XML in `templates/`, generated from the catalog by `php tests/bin/generate-templates.php templates`; a unit test fails when the shipped files and the catalog disagree. Install and upgrade import them with `import_xml_data()` when the package changed or an object is missing, matched by fixed hashes so re-imports update rather than duplicate. Each data query definition is copied into `<path_cacti>/resource/script_server/`, because Cacti 1.2 refuses a data query file outside `<path_cacti>/resource`; uninstall leaves the templates and those files, because devices and graphs may still use them.
 
 ## Collection and measurement state
 

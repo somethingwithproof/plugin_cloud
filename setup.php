@@ -215,7 +215,12 @@ function plugin_cloud_upgrade(bool $grant = false): bool {
 	$info   = plugin_cloud_version();
 	$schema = new \Somethingwithproof\Cloud\Schema(false);
 
-	if ($schema->isCurrent() && $schema->recordedPluginVersion() === $info['version'] && $schema->hooksRegistered()) {
+	if (
+		$schema->isCurrent()
+		&& $schema->recordedPluginVersion() === $info['version']
+		&& $schema->hooksRegistered()
+		&& cloud_templates()->isCurrent()
+	) {
 		return true;
 	}
 
@@ -226,6 +231,9 @@ function plugin_cloud_upgrade(bool $grant = false): bool {
 	$schema->trackTables();
 
 	cloud_setup_hooks($grant);
+
+	// A failed import is logged and does not hold back the version (see Templates).
+	cloud_setup_templates();
 
 	$schema->recordPluginVersion($info['version'], $info['author'], $info['homepage']);
 
@@ -254,6 +262,74 @@ function cloud_setup_hooks(bool $grant = false): void {
 	foreach (\Somethingwithproof\Cloud\Pages::realms() as $realm) {
 		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], $grant);
 	}
+}
+
+/**
+ * Import the shipped device, data query, data and graph templates.
+ */
+function cloud_setup_templates(int $lockTimeout = 10): bool {
+	global $config;
+
+	// templates_import.php loads the same three: import.php calls
+	// retemplate_graphs() and update_replication_crc() from the other two.
+	$libraries = array(
+		'import_xml_data'        => 'import.php',
+		'retemplate_graphs'      => 'template.php',
+		'update_replication_crc' => 'utility.php',
+	);
+
+	foreach ($libraries as $function => $file) {
+		if (!function_exists($function)) {
+			include_once($config['library_path'] . '/' . $file);
+		}
+	}
+
+	return cloud_templates()->install($lockTimeout);
+}
+
+function cloud_templates(): \Somethingwithproof\Cloud\Templates {
+	global $config;
+
+	return new \Somethingwithproof\Cloud\Templates(
+		new \Somethingwithproof\Cloud\TemplateRepository(false),
+		__DIR__ . '/templates',
+		$config['base_path'] . '/resource/script_server',
+		function (string $xml, int $profile): bool {
+			return cloud_import_templates($xml, $profile);
+		}
+	);
+}
+
+/**
+ * import_xml_data() reports problems three ways, none of them through
+ * is_error_message(): it returns false or an empty array, it queues
+ * messages in the global $import_messages, and it marks an object it could
+ * not save with a result other than 'success'. All three are checked here;
+ * Templates then checks that every object resolves by hash.
+ */
+function cloud_import_templates(string $xml, int $profile): bool {
+	global $import_messages;
+
+	$import_messages = array();
+	$results         = import_xml_data($xml, false, $profile);
+
+	if (!is_array($results) || $results === array() || count($import_messages) > 0) {
+		return false;
+	}
+
+	foreach ($results as $type => $items) {
+		if ($type === 'files' || !is_array($items)) {
+			continue;
+		}
+
+		foreach ($items as $item) {
+			if (!is_array($item) || !isset($item['result']) || $item['result'] !== 'success') {
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 /**
