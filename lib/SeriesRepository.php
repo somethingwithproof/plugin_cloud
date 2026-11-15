@@ -34,9 +34,11 @@ final class SeriesRepository {
 	 * data query index is one of the account's resources. Age fields have
 	 * no row, since they read nothing. Cacti's tables are only read.
 	 *
-	 * An account without a live scope device keeps its rows.
+	 * An account without a live scope device keeps its rows, and so does one
+	 * whose data sources could not be read: a failed query is not an empty
+	 * device.
 	 *
-	 * @return bool whether the account has a scope device to sync from
+	 * @return bool whether the series were rebuilt
 	 */
 	public function sync(int $accountId): bool {
 		$host = (int) db_fetch_cell_prepared(
@@ -69,6 +71,12 @@ final class SeriesRepository {
 				$this->connection
 			);
 
+			if (!is_array($rows)) {
+				Log::warning(sprintf('Account %d: scope device data sources unreadable; series left unchanged', $accountId));
+
+				return false;
+			}
+
 			foreach (Row::rows($rows) as $row) {
 				$metric = Row::string($row, 'metric');
 
@@ -83,13 +91,18 @@ final class SeriesRepository {
 		}
 
 		$existing = [];
-
-		foreach (Row::rows(db_fetch_assoc_prepared(
+		$rows     = db_fetch_assoc_prepared(
 			'SELECT local_data_id, metric FROM plugin_cloud_series WHERE account_id = ?',
 			[$accountId],
 			true,
 			$this->connection
-		)) as $row) {
+		);
+
+		if (!is_array($rows)) {
+			return false;
+		}
+
+		foreach (Row::rows($rows) as $row) {
 			$existing[Row::int($row, 'local_data_id') . '/' . Row::string($row, 'metric')] = [
 				Row::int($row, 'local_data_id'),
 				Row::string($row, 'metric'),
