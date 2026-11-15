@@ -104,3 +104,18 @@ it('collects exactly the metrics graphed on the scope device, and stops when a g
 
 	expect(lifecycle('sync')['series'])->toBe(['102 do_load_1', '102 do_load_15', '102 do_load_5']);
 });
+
+it('leaves the series alone when the collector syncing them no longer holds the lease', function () {
+	lifecycle('scope_device');
+	$cpu = lifecycle('graph', 'do_cpu 101')['result'];
+
+	$stolen = lifecycle('sync', 'stolen');
+	expect($stolen['result'])->toBeFalse()
+		->and($stolen['series'])->toBe([])
+		->and(lifecycle('sync')['series'])->toBe(['101 do_cpu_pct']);
+
+	lifecycle('remove_graph', (string) $cpu);
+
+	expect(lifecycle('sync', 'stolen')['series'])->toBe(['101 do_cpu_pct'])
+		->and(lifecycle('sync')['series'])->toBe([]);
+});

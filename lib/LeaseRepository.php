@@ -59,6 +59,22 @@ final class LeaseRepository {
 	}
 
 	/**
+	 * holds(), as a locking read for use inside a transaction: the lease row
+	 * stays locked until the transaction ends, so no other run can take the
+	 * lease over between this check and the caller's writes. The row is
+	 * selected by its key alone, so it is locked whoever holds it.
+	 */
+	public function holdsForUpdate(int $accountId, string $holder): bool {
+		return (int) db_fetch_cell_prepared(
+			'SELECT holder = ? AND expires_at >= ? FROM plugin_cloud_lease WHERE account_id = ? FOR UPDATE',
+			[$holder, $this->clock->now(), $accountId],
+			'',
+			true,
+			$this->connection
+		) === 1;
+	}
+
+	/**
 	 * When a run last took this account's lease, or 0. Written as an attempt
 	 * starts and kept after release, so it records attempts whose results
 	 * were never written.

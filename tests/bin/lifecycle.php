@@ -270,11 +270,16 @@ switch ($action) {
 
 		break;
 	case 'sync':
+		// Sync the series as a collector holding the lease, or, with
+		// "stolen", as one whose lease another run has taken over.
 		include_once($config['base_path'] . '/plugins/cloud/setup.php');
 		cloud_boot();
-		$result = (new \Somethingwithproof\Cloud\SeriesRepository(false))->sync(
-			(int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'")
-		);
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+		$leases  = new \Somethingwithproof\Cloud\LeaseRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+		$holder  = $argument === 'stolen' ? 'lifecycle-newer' : 'lifecycle';
+		$leases->acquire($account, $holder, 60);
+		$result = (new \Somethingwithproof\Cloud\SeriesRepository(false))->sync($account, $leases, 'lifecycle');
+		$leases->release($account, $holder);
 
 		break;
 	case 'drop_table':

@@ -38,9 +38,13 @@ final class SeriesRepository {
 	 * whose data sources could not be read: a failed query is not an empty
 	 * device.
 	 *
+	 * The rows change in one transaction that first locks the caller's lease
+	 * and checks it is still held, so a run that lost its lease while it read
+	 * cannot replace a newer holder's rows from its older snapshot.
+	 *
 	 * @return bool whether the series were rebuilt
 	 */
-	public function sync(int $accountId): bool {
+	public function sync(int $accountId, LeaseRepository $leases, string $holder): bool {
 		$host = (int) db_fetch_cell_prepared(
 			'SELECT d.host_id FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
 				WHERE d.account_id = ? AND h.external_id = CONCAT(?, d.account_id)',
@@ -90,6 +94,16 @@ final class SeriesRepository {
 			}
 		}
 
+		if (!db_begin_transaction($this->connection)) {
+			return false;
+		}
+
+		if (!$leases->holdsForUpdate($accountId, $holder)) {
+			$this->rollback();
+
+			return false;
+		}
+
 		$existing = [];
 		$rows     = db_fetch_assoc_prepared(
 			'SELECT local_data_id, metric FROM plugin_cloud_series WHERE account_id = ?',
@@ -99,6 +113,8 @@ final class SeriesRepository {
 		);
 
 		if (!is_array($rows)) {
+			$this->rollback();
+
 			return false;
 		}
 
@@ -109,26 +125,44 @@ final class SeriesRepository {
 			];
 		}
 
+		$writes = [];
+
 		foreach (array_diff_key($existing, $wanted) as [$local, $metric]) {
-			db_execute_prepared(
+			$writes[] = [
 				'DELETE FROM plugin_cloud_series WHERE account_id = ? AND local_data_id = ? AND metric = ?',
 				[$accountId, $local, $metric],
-				true,
-				$this->connection
-			);
+			];
 		}
 
 		foreach (array_diff_key($wanted, $existing) as [$local, $metric, $resource]) {
-			db_execute_prepared(
+			$writes[] = [
 				'INSERT IGNORE INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric, created_at)
 					VALUES (?, ?, ?, ?, UNIX_TIMESTAMP())',
 				[$local, $accountId, $resource, $metric],
-				true,
-				$this->connection
-			);
+			];
 		}
 
-		return true;
+		foreach ($writes as [$sql, $params]) {
+			// InnoDB ends the transaction on a deadlock and core retries the
+			// statement on its own, outside the lease's lock.
+			if (db_execute_prepared($sql, $params, true, $this->connection) === false || !$this->inTransaction()) {
+				$this->rollback();
+
+				return false;
+			}
+		}
+
+		return db_commit_transaction($this->connection) === true;
+	}
+
+	private function inTransaction(): bool {
+		return (int) db_fetch_cell_prepared('SELECT @@in_transaction', [], '', true, $this->connection) === 1;
+	}
+
+	private function rollback(): void {
+		if ($this->inTransaction()) {
+			db_rollback_transaction($this->connection);
+		}
 	}
 
 	/**
