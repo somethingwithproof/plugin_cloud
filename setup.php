@@ -478,6 +478,9 @@ function cloud_scope_devices(): \Somethingwithproof\Cloud\ScopeDevices {
 		},
 		function (int $host, int $query): void {
 			run_data_query($host, $query);
+		},
+		function (int $host): void {
+			api_device_remove($host);
 		}
 	);
 }

@@ -38,12 +38,14 @@ final class ScopeDevices {
 	 * @param \Closure(Account, int): int $save    api_device_save() for this account
 	 *        and device template, returning the new device id or 0
 	 * @param \Closure(int, int): void     $reindex run_data_query() for a device and data query
+	 * @param \Closure(int): void          $remove  api_device_remove() for a device
 	 */
 	public function __construct(
 		private readonly DeviceRepository $devices,
 		private readonly TemplateRepository $templates,
 		private readonly \Closure $save,
 		private readonly \Closure $reindex,
+		private readonly \Closure $remove,
 	) {
 	}
 
@@ -75,7 +77,14 @@ final class ScopeDevices {
 			return 0;
 		}
 
-		$this->devices->link($host, $account->id);
+		// An unlinked device would look ready but serve nothing, and a retry
+		// would make another; remove it so the retry starts clean.
+		if (!$this->devices->link($host, $account->id)) {
+			($this->remove)($host);
+			Log::error(sprintf('Account %d: the scope device link was not recorded; removed device %d', $account->id, $host));
+
+			return 0;
+		}
 
 		// Saving applied the template's data queries and indexed them before
 		// the link existed, so they found nothing; index them again now.

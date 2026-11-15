@@ -72,9 +72,12 @@ if (!function_exists('read_config_option')) {
 
 // Repositories in unit tests talk to these stubs. A test reads the
 // statements from $GLOBALS['__cloud_db_exec'] and queues query results in
-// $GLOBALS['__cloud_db_rows'] (keyed by a substring of the SQL).
+// $GLOBALS['__cloud_db_rows'] (keyed by a substring of the SQL). A statement
+// containing a substring listed in $GLOBALS['__cloud_db_fail'] fails, as
+// core's wrapper reports an SQL error, by returning false.
 $GLOBALS['__cloud_db_exec'] = [];
 $GLOBALS['__cloud_db_rows'] = [];
+$GLOBALS['__cloud_db_fail'] = [];
 
 function cloud_test_rows(string $sql): mixed {
 	foreach ($GLOBALS['__cloud_db_rows'] as $needle => $rows) {
@@ -89,6 +92,12 @@ function cloud_test_rows(string $sql): mixed {
 if (!function_exists('db_execute_prepared')) {
 	function db_execute_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
 		$GLOBALS['__cloud_db_exec'][] = ['sql' => $sql, 'params' => $params];
+
+		foreach ($GLOBALS['__cloud_db_fail'] as $needle) {
+			if (str_contains($sql, $needle)) {
+				return false;
+			}
+		}
 
 		return true;
 	}

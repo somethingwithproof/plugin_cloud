@@ -37,18 +37,21 @@ final class DeviceRepository {
 	/**
 	 * Replaces any earlier link of the account, which can only be stale when
 	 * the caller found no live one.
+	 *
+	 * @return bool whether the link was recorded; without it the device
+	 *              serves nothing
 	 */
-	public function link(int $hostId, int $accountId): void {
-		db_execute_prepared('DELETE FROM plugin_cloud_device WHERE account_id = ? OR host_id = ?', [
+	public function link(int $hostId, int $accountId): bool {
+		return db_execute_prepared('DELETE FROM plugin_cloud_device WHERE account_id = ? OR host_id = ?', [
 			$accountId,
 			$hostId,
-		], true, $this->connection);
-		db_execute_prepared(
-			'INSERT INTO plugin_cloud_device (host_id, account_id, created_at) VALUES (?, ?, ?)',
-			[$hostId, $accountId, $this->clock->now()],
-			true,
-			$this->connection
-		);
+		], true, $this->connection) !== false
+			&& db_execute_prepared(
+				'INSERT INTO plugin_cloud_device (host_id, account_id, created_at) VALUES (?, ?, ?)',
+				[$hostId, $accountId, $this->clock->now()],
+				true,
+				$this->connection
+			) !== false;
 	}
 
 	/**
