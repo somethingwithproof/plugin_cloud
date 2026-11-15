@@ -70,7 +70,16 @@ final class HealthPage {
 
 		html_start_box(__('Cloud Collection', 'cloud'), '100%', '', '3', 'center', '');
 
-		$headers = [__('Account', 'cloud'), __('Collection', 'cloud'), __('Last Run', 'cloud'), __('Series Read', 'cloud'), __('Requests', 'cloud'), __('Discovery', 'cloud'), __('Resources', 'cloud'), __('Data', 'cloud')];
+		$headers = [
+			__('Account', 'cloud'),
+			__('Collection', 'cloud'),
+			__('Last Run', 'cloud'),
+			__('Series Read', 'cloud'),
+			__('Requests', 'cloud'),
+			__('Discovery', 'cloud'),
+			__('Resources', 'cloud'),
+			__('Data', 'cloud')
+		];
 
 		if ($admin) {
 			array_splice($headers, 1, 0, [__('Credential', 'cloud')]);
@@ -79,7 +88,8 @@ final class HealthPage {
 		print '<tr class="tableHeader"><th>' . implode('</th><th>', array_map('html_escape', $headers)) . '</th></tr>';
 
 		if ($accounts === []) {
-			print '<tr><td colspan="' . count($headers) . '"><em>' . html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
+			print '<tr><td colspan="' . count($headers) . '"><em>'
+				. html_escape(__('No cloud accounts yet.', 'cloud')) . '</em></td></tr>';
 		}
 
 		foreach ($accounts as $account) {
@@ -111,7 +121,12 @@ final class HealthPage {
 			$state = match (true) {
 				// A recent datapoint without a value is still no measurement.
 				$entry['observation']->value === null => 'unknown',
-				$entry['status'] === 'ok'             => $this->freshness->evaluate($entry['observation'], $account->collectInterval, 0, $account->collectInterval)->value,
+				$entry['status'] === 'ok'             => $this->freshness->evaluate(
+					$entry['observation'],
+					$account->collectInterval,
+					0,
+					$account->collectInterval
+				)->value,
 				default                               => $entry['status'],
 			};
 
@@ -126,14 +141,24 @@ final class HealthPage {
 			$health->runStarted > 0 ? $this->age($health->runStarted) : __('Never', 'cloud'),
 			$health->seriesTotal > 0 ? $health->seriesRead . ' / ' . $health->seriesTotal : '-',
 			(string) $health->requests,
-			$health->discoveredAt > 0 ? $health->discovery->value . ', ' . $this->age($health->discoveredAt) : __('Never', 'cloud'),
-			$counts === [] ? '-' : implode(', ', array_map(static fn (string $state, int $n): string => "$state $n", array_keys($counts), $counts)),
-			$freshness === [] ? '-' : implode(', ', array_map(static fn (string $state, int $n): string => "$state $n", array_keys($freshness), $freshness)),
+			$health->discoveredAt > 0
+				? $health->discovery->value . ', ' . $this->age($health->discoveredAt)
+				: __('Never', 'cloud'),
+			$counts === [] ? '-' : implode(
+				', ',
+				array_map(static fn (string $state, int $n): string => "$state $n", array_keys($counts), $counts)
+			),
+			$freshness === [] ? '-' : implode(
+				', ',
+				array_map(static fn (string $state, int $n): string => "$state $n", array_keys($freshness), $freshness)
+			),
 		];
 	}
 
 	private function collectionLabel(AccountHealth $health): string {
-		return $health->error === null ? $health->collection->value : $health->collection->value . ' (' . $health->error->value . ')';
+		return $health->error === null
+			? $health->collection->value
+			: $health->collection->value . ' (' . $health->error->value . ')';
 	}
 
 	private function age(int $time): string {

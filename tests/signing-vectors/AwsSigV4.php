@@ -26,7 +26,8 @@
 final class AwsSigV4 {
 	/**
 	 * @param list<array{0: string, 1: string}> $headers name and value pairs in request order
-	 * @return array{canonical: string, stringToSign: string, signature: string, authorization: string, addHeaders: array<string, string>}
+	 * @return array{canonical: string, stringToSign: string, signature: string, authorization: string,
+	 *     addHeaders: array<string, string>}
 	 */
 	public static function sign(
 		string $method,
@@ -101,7 +102,8 @@ final class AwsSigV4 {
 			'canonical'     => $canonical,
 			'stringToSign'  => $stringToSign,
 			'signature'     => $signature,
-			'authorization' => "AWS4-HMAC-SHA256 Credential=$accessKey/$scope, SignedHeaders=$signedHeaders, Signature=$signature",
+			'authorization' => "AWS4-HMAC-SHA256 Credential=$accessKey/$scope, "
+				. "SignedHeaders=$signedHeaders, Signature=$signature",
 			'addHeaders'    => $add,
 		);
 	}

@@ -74,7 +74,10 @@ final class Collector {
 			$lastRun[$account->id] = $this->leases->lastAcquired($account->id);
 		}
 
-		usort($accounts, static fn (Account $a, Account $b): int => [$lastRun[$a->id], $a->id] <=> [$lastRun[$b->id], $b->id]);
+		usort(
+			$accounts,
+			static fn (Account $a, Account $b): int => [$lastRun[$a->id], $a->id] <=> [$lastRun[$b->id], $b->id]
+		);
 
 		foreach ($accounts as $account) {
 			if ($this->clock->now() - $started >= $budgetSeconds) {
@@ -116,7 +119,20 @@ final class Collector {
 		$driver = $this->drivers->for($account);
 
 		if ($driver === null) {
-			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery), $this->holder, $this->clock->now());
+			$this->health->save(
+				new AccountHealth(
+					$account->id,
+					$now,
+					$this->clock->now(),
+					microtime(true) - $start,
+					CollectionState::Failed,
+					ErrorClass::Config,
+					discoveredAt: $previous->discoveredAt,
+					discovery: $previous->discovery
+				),
+				$this->holder,
+				$this->clock->now()
+			);
 
 			return;
 		}
@@ -125,7 +141,20 @@ final class Collector {
 			$credential = $this->credentials->credentialFor($account);
 		} catch (CredentialError $e) {
 			Log::warning(sprintf('Account %d: credential unavailable: %s', $account->id, $e->getMessage()));
-			$this->health->save(new AccountHealth($account->id, $now, $this->clock->now(), microtime(true) - $start, CollectionState::Failed, ErrorClass::Config, discoveredAt: $previous->discoveredAt, discovery: $previous->discovery), $this->holder, $this->clock->now());
+			$this->health->save(
+				new AccountHealth(
+					$account->id,
+					$now,
+					$this->clock->now(),
+					microtime(true) - $start,
+					CollectionState::Failed,
+					ErrorClass::Config,
+					discoveredAt: $previous->discoveredAt,
+					discovery: $previous->discovery
+				),
+				$this->holder,
+				$this->clock->now()
+			);
 
 			return;
 		}
@@ -140,7 +169,9 @@ final class Collector {
 			try {
 				$inventory    = $driver->discover($account, $credential);
 				$requests    += $inventory->requests;
-				$discovery    = $this->resources->sync($account->id, $inventory, $this->leases, $this->holder) ? CollectionState::Ok : CollectionState::Partial;
+				$discovery    = $this->resources->sync($account->id, $inventory, $this->leases, $this->holder)
+					? CollectionState::Ok
+					: CollectionState::Partial;
 				$discoveredAt = $now;
 			} catch (DriverError|TransportError $e) {
 				$discovery = CollectionState::Failed;

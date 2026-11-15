@@ -75,9 +75,18 @@ function cloud_boot(): bool {
  */
 function cloud_refuse_unsupported(): bool {
 	if (!cloud_php_supported()) {
-		$message = __('The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled.', '8.2.0', PHP_VERSION, 'cloud');
+		$message = __(
+			'The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled.',
+			'8.2.0',
+			PHP_VERSION,
+			'cloud'
+		);
 	} elseif (cloud_missing_extensions() !== array()) {
-		$message = __('The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled.', implode(', ', cloud_missing_extensions()), 'cloud');
+		$message = __(
+			'The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled.',
+			implode(', ', cloud_missing_extensions()),
+			'cloud'
+		);
 	} else {
 		return false;
 	}
@@ -142,7 +151,11 @@ function cloud_page_start(): bool {
 
 	html_start_box(__('Cloud', 'cloud'), '100%', '', '3', 'center', '');
 
-	print '<tr><td>' . html_escape(cloud_php_supported() ? __('The Cloud plugin is not enabled.', 'cloud') : __('The Cloud plugin requires PHP %s or later.', '8.2.0', 'cloud')) . '</td></tr>';
+	print '<tr><td>' . html_escape(
+		cloud_php_supported()
+			? __('The Cloud plugin is not enabled.', 'cloud')
+			: __('The Cloud plugin requires PHP %s or later.', '8.2.0', 'cloud')
+	) . '</td></tr>';
 
 	html_end_box();
 
@@ -167,7 +180,10 @@ function cloud_require_post(string $page, array $actions): void {
 }
 
 function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
-	return new \Somethingwithproof\Cloud\CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()), cloud_settings()->vaultKeyFile);
+	return new \Somethingwithproof\Cloud\CredentialStore(
+		new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+		cloud_settings()->vaultKeyFile
+	);
 }
 
 function cloud_accounts(): \Somethingwithproof\Cloud\AccountRepository {
@@ -323,7 +339,12 @@ function cloud_poller_bottom(): void {
 	$php = trim((string) read_config_option('path_php_binary'));
 
 	if ($php === '' || !is_file($php) || !is_executable($php)) {
-		cacti_log('ERROR: The cloud collector was not started because the PHP binary path setting is empty or not an executable file', false, 'CLOUD');
+		cacti_log(
+			'ERROR: The cloud collector was not started because the PHP binary path setting is empty '
+				. 'or not an executable file',
+			false,
+			'CLOUD'
+		);
 
 		return;
 	}

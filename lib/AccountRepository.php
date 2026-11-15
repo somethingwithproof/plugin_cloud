@@ -38,7 +38,12 @@ final class AccountRepository {
 	 * @return list<Account>
 	 */
 	public function all(): array {
-		return $this->accounts(Row::rows(db_fetch_assoc_prepared('SELECT * FROM plugin_cloud_account ORDER BY name', [], true, $this->connection)));
+		return $this->accounts(Row::rows(db_fetch_assoc_prepared(
+			'SELECT * FROM plugin_cloud_account ORDER BY name',
+			[],
+			true,
+			$this->connection
+		)));
 	}
 
 	/**
@@ -47,11 +52,22 @@ final class AccountRepository {
 	 * @return list<Account>
 	 */
 	public function enabledForPoller(int $pollerId): array {
-		return $this->accounts(Row::rows(db_fetch_assoc_prepared('SELECT * FROM plugin_cloud_account WHERE poller_id = ? AND admin_state = ? ORDER BY id', [$pollerId, AdminState::Enabled->value], true, $this->connection)));
+		return $this->accounts(Row::rows(db_fetch_assoc_prepared(
+			'SELECT * FROM plugin_cloud_account WHERE poller_id = ? AND admin_state = ? ORDER BY id',
+			[$pollerId, AdminState::Enabled->value],
+			true,
+			$this->connection
+		)));
 	}
 
 	public function nameTaken(string $name, int $exceptId): bool {
-		return (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_account WHERE name = ? AND id != ?', [$name, $exceptId], '', true, $this->connection) > 0;
+		return (int) db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM plugin_cloud_account WHERE name = ? AND id != ?',
+			[$name, $exceptId],
+			'',
+			true,
+			$this->connection
+		) > 0;
 	}
 
 	/**
@@ -68,12 +84,23 @@ final class AccountRepository {
 
 		if ($before === null) {
 			$columns = array_keys($row);
-			$ok      = db_execute_prepared('INSERT INTO plugin_cloud_account (' . implode(', ', $columns) . ', created_at, updated_at) VALUES (' . implode(', ', array_fill(0, count($columns) + 2, '?')) . ')', array_merge(array_values($row), [$now, $now]), true, $this->connection);
+			$ok      = db_execute_prepared(
+				'INSERT INTO plugin_cloud_account (' . implode(', ', $columns) . ', created_at, updated_at) VALUES ('
+					. implode(', ', array_fill(0, count($columns) + 2, '?')) . ')',
+				array_merge(array_values($row), [$now, $now]),
+				true,
+				$this->connection
+			);
 			$id      = $ok ? (int) db_fetch_insert_id($this->connection) : 0;
 			$action  = 'create';
 		} else {
 			$set    = implode(', ', array_map(static fn (string $column): string => "$column = ?", array_keys($row)));
-			$ok     = db_execute_prepared("UPDATE plugin_cloud_account SET $set, updated_at = ? WHERE id = ?", array_merge(array_values($row), [$now, $account->id]), true, $this->connection);
+			$ok     = db_execute_prepared(
+				"UPDATE plugin_cloud_account SET $set, updated_at = ? WHERE id = ?",
+				array_merge(array_values($row), [$now, $account->id]),
+				true,
+				$this->connection
+			);
 			$id     = $ok ? $account->id : 0;
 			$action = 'update';
 		}
@@ -110,7 +137,11 @@ final class AccountRepository {
 			['DELETE FROM plugin_cloud_series WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_lease WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_health WHERE account_id = ?', [$id]],
-			['DELETE o FROM plugin_cloud_observation o INNER JOIN plugin_cloud_resource r ON r.id = o.resource_id WHERE r.account_id = ?', [$id]],
+			[
+				'DELETE o FROM plugin_cloud_observation o INNER JOIN plugin_cloud_resource r ON r.id = o.resource_id
+					WHERE r.account_id = ?',
+				[$id]
+			],
 			['DELETE FROM plugin_cloud_resource WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_account WHERE id = ?', [$id]],
 		];
@@ -145,7 +176,12 @@ final class AccountRepository {
 	}
 
 	public function recordVerify(int $id, VerifyStatus $status, int $userId): void {
-		db_execute_prepared('UPDATE plugin_cloud_account SET verify_status = ?, verified_at = ? WHERE id = ?', [$status->value, $this->clock->now(), $id], true, $this->connection);
+		db_execute_prepared(
+			'UPDATE plugin_cloud_account SET verify_status = ?, verified_at = ? WHERE id = ?',
+			[$status->value, $this->clock->now(), $id],
+			true,
+			$this->connection
+		);
 
 		$this->audit($id, $userId, 'verify', ['verify_status']);
 	}
@@ -163,7 +199,12 @@ final class AccountRepository {
 	public function auditLog(int $accountId, int $limit = 50): array {
 		$entries = [];
 
-		foreach (Row::rows(db_fetch_assoc_prepared('SELECT * FROM plugin_cloud_audit WHERE account_id = ? ORDER BY id DESC LIMIT ' . max(1, $limit), [$accountId], true, $this->connection)) as $row) {
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT * FROM plugin_cloud_audit WHERE account_id = ? ORDER BY id DESC LIMIT ' . max(1, $limit),
+			[$accountId],
+			true,
+			$this->connection
+		)) as $row) {
 			$fields = Row::string($row, 'fields');
 
 			$entries[] = [
@@ -186,7 +227,12 @@ final class AccountRepository {
 	 * @param list<string> $fields
 	 */
 	private function audit(int $accountId, int $userId, string $action, array $fields): void {
-		db_execute_prepared('INSERT INTO plugin_cloud_audit (account_id, user_id, changed_at, action, fields) VALUES (?, ?, ?, ?, ?)', [$accountId, $userId, $this->clock->now(), $action, implode(',', $fields)], true, $this->connection);
+		db_execute_prepared(
+			'INSERT INTO plugin_cloud_audit (account_id, user_id, changed_at, action, fields) VALUES (?, ?, ?, ?, ?)',
+			[$accountId, $userId, $this->clock->now(), $action, implode(',', $fields)],
+			true,
+			$this->connection
+		);
 	}
 
 	/**
@@ -200,7 +246,10 @@ final class AccountRepository {
 			$account = Account::fromRow($row);
 
 			if ($account === null) {
-				Log::warning(sprintf('Account row %d has an unknown provider or credential source and was skipped', Row::int($row, 'id')));
+				Log::warning(sprintf(
+					'Account row %d has an unknown provider or credential source and was skipped',
+					Row::int($row, 'id')
+				));
 
 				continue;
 			}

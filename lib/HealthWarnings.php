@@ -61,7 +61,14 @@ final class HealthWarnings {
 		try {
 			($this->keyCheck)($settings->vaultKeyFile);
 		} catch (CredentialError $e) {
-			$warnings[] = ['message' => __('The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here.', $e->getMessage(), 'cloud'), 'admin' => false];
+			$warnings[] = [
+				'message' => __(
+					'The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here.',
+					$e->getMessage(),
+					'cloud'
+				),
+				'admin' => false
+			];
 		}
 
 		foreach ($accounts as $account) {
@@ -73,7 +80,10 @@ final class HealthWarnings {
 				try {
 					($this->fileCheck)($account->credentialFile);
 				} catch (CredentialError $e) {
-					$warnings[] = ['message' => __('%s: the credential file cannot be used: %s.', $account->name, $e->getMessage(), 'cloud'), 'admin' => true];
+					$warnings[] = [
+						'message' => __('%s: the credential file cannot be used: %s.', $account->name, $e->getMessage(), 'cloud'),
+						'admin' => true
+					];
 				}
 			}
 
@@ -104,7 +114,21 @@ final class HealthWarnings {
 		}
 
 		return $account->collectInterval < $pollerInterval
-			? __('%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds.', $account->name, $account->collectInterval, $pollerInterval, $effective, 'cloud')
-			: __('%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds.', $account->name, $account->collectInterval, $pollerInterval, $effective, 'cloud');
+			? __(
+				'%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds.',
+				$account->name,
+				$account->collectInterval,
+				$pollerInterval,
+				$effective,
+				'cloud'
+			)
+			: __(
+				'%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds.',
+				$account->name,
+				$account->collectInterval,
+				$pollerInterval,
+				$effective,
+				'cloud'
+			);
 	}
 }

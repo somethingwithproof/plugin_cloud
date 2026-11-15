@@ -40,7 +40,16 @@ final class Vault {
 		$nonce = random_bytes(self::NONCE_BYTES);
 		$tag   = '';
 
-		$ciphertext = openssl_encrypt($secret->reveal(), self::CIPHER, $this->key->bytes(), OPENSSL_RAW_DATA, $nonce, $tag, self::additionalData($accountId, $purpose), self::TAG_BYTES);
+		$ciphertext = openssl_encrypt(
+			$secret->reveal(),
+			self::CIPHER,
+			$this->key->bytes(),
+			OPENSSL_RAW_DATA,
+			$nonce,
+			$tag,
+			self::additionalData($accountId, $purpose),
+			self::TAG_BYTES
+		);
 
 		if ($ciphertext === false || strlen($tag) !== self::TAG_BYTES) {
 			throw CredentialError::because('the credential could not be encrypted');
@@ -57,7 +66,15 @@ final class Vault {
 			throw CredentialError::because('the credential was stored with a different vault key; enter it again');
 		}
 
-		$plain = openssl_decrypt($entry->ciphertext, self::CIPHER, $this->key->bytes(), OPENSSL_RAW_DATA, $entry->nonce, $entry->tag, self::additionalData($accountId, $purpose));
+		$plain = openssl_decrypt(
+			$entry->ciphertext,
+			self::CIPHER,
+			$this->key->bytes(),
+			OPENSSL_RAW_DATA,
+			$entry->nonce,
+			$entry->tag,
+			self::additionalData($accountId, $purpose)
+		);
 
 		if ($plain === false) {
 			throw CredentialError::because('the stored credential failed its integrity check');

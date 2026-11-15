@@ -40,7 +40,13 @@ final readonly class VaultEntry {
 		$ciphertext = $row['ciphertext'] ?? null;
 		$tag        = $row['tag'] ?? null;
 
-		if (!is_string($nonce) || strlen($nonce) !== Vault::NONCE_BYTES || !is_string($ciphertext) || !is_string($tag) || strlen($tag) !== Vault::TAG_BYTES) {
+		if (
+			!is_string($nonce)
+			|| strlen($nonce) !== Vault::NONCE_BYTES
+			|| !is_string($ciphertext)
+			|| !is_string($tag)
+			|| strlen($tag) !== Vault::TAG_BYTES
+		) {
 			return null;
 		}
 

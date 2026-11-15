@@ -202,7 +202,10 @@ it('collects only what is due, owned, enabled, mapped, and leased', function () 
 		->and($r['observation']['status'])->toBe('ok')
 		->and($r['health'])->toEqual(['collection' => 'ok', 'series_total' => '1', 'series_read' => '1'])
 		// No lease, or an older datapoint, never overwrites the cache.
-		->and($r['after_foreign_writes'])->toEqual(['value' => $r['observation']['value'], 'observed_at' => $r['observation']['observed_at']])
+		->and($r['after_foreign_writes'])->toEqual([
+			'value' => $r['observation']['value'],
+			'observed_at' => $r['observation']['observed_at']
+		])
 		->and($r['while_leased'])->toBe(['accounts' => 0, 'skipped' => 1, 'stopped_early' => false])
 		->and($r['no_budget'])->toBe(['accounts' => 0, 'skipped' => 0, 'stopped_early' => true])
 		->and($r['d2_lifecycle'])->toBe(['missing', 'missing', 'deleted'])
@@ -261,5 +264,7 @@ it('leaves no partial result when a run is killed mid-account, and the next run 
 		->and($r['while_leased'])->toBe(['accounts' => 0, 'skipped' => 1, 'stopped_early' => false])
 		->and($r['after_expiry'])->toBe(['accounts' => 1, 'skipped' => 0, 'stopped_early' => false])
 		->and($r['final']['health'])->toEqual(['run_started' => '1800000420', 'collection' => 'ok', 'series_read' => '1'])
-		->and($r['final']['observations'])->toEqual([['metric' => 'cpu', 'value' => '7', 'observed_at' => '1799999940', 'status' => 'ok']]);
+		->and($r['final']['observations'])->toEqual([
+			['metric' => 'cpu', 'value' => '7', 'observed_at' => '1799999940', 'status' => 'ok']
+		]);
 });

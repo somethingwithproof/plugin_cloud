@@ -28,7 +28,12 @@ namespace Somethingwithproof\Cloud;
  */
 final class SecureFile {
 	public static function pathAcceptable(string $path): bool {
-		return $path !== '' && strlen($path) <= 512 && $path[0] === '/' && preg_match('/[\x00-\x1f\x7f]/', $path) !== 1 && !str_contains($path, '/../') && !str_ends_with($path, '/..');
+		return $path !== ''
+			&& strlen($path) <= 512
+			&& $path[0] === '/'
+			&& preg_match('/[\x00-\x1f\x7f]/', $path) !== 1
+			&& !str_contains($path, '/../')
+			&& !str_ends_with($path, '/..');
 	}
 
 	/**

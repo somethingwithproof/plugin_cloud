@@ -36,7 +36,12 @@ final class SettingsRepository {
 		$placeholders = implode(', ', array_fill(0, count(Settings::NAMES), '?'));
 		$row          = [];
 
-		foreach (Row::rows(db_fetch_assoc_prepared("SELECT name, value FROM settings WHERE name IN ($placeholders)", Settings::NAMES, true, $this->connection)) as $setting) {
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			"SELECT name, value FROM settings WHERE name IN ($placeholders)",
+			Settings::NAMES,
+			true,
+			$this->connection
+		)) as $setting) {
 			$row[Row::string($setting, 'name')] = $setting['value'] ?? null;
 		}
 

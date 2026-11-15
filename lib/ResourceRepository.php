@@ -41,9 +41,15 @@ final class ResourceRepository {
 				return false;
 			}
 
-			db_execute_prepared('INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, region, lifecycle, missing_count, first_seen, last_seen)
-				SELECT ?, ?, ?, ?, ?, ?, 0, ?, ? FROM plugin_cloud_lease l WHERE l.account_id = ? AND l.holder = ? AND l.expires_at >= ?
-				ON DUPLICATE KEY UPDATE name = VALUES(name), region = VALUES(region), lifecycle = VALUES(lifecycle), missing_count = 0, last_seen = VALUES(last_seen)', [$accountId, $resource->type, $resource->providerId, $resource->name, $resource->region, Lifecycle::Active->value, $now, $now, $accountId, $holder, $now], true, $this->connection);
+			db_execute_prepared('INSERT INTO plugin_cloud_resource
+					(account_id, type, provider_id, name, region, lifecycle, missing_count, first_seen, last_seen)
+				SELECT ?, ?, ?, ?, ?, ?, 0, ?, ? FROM plugin_cloud_lease l
+					WHERE l.account_id = ? AND l.holder = ? AND l.expires_at >= ?
+				ON DUPLICATE KEY UPDATE name = VALUES(name), region = VALUES(region), lifecycle = VALUES(lifecycle),
+					missing_count = 0, last_seen = VALUES(last_seen)', [
+				$accountId, $resource->type, $resource->providerId, $resource->name, $resource->region,
+				Lifecycle::Active->value, $now, $now, $accountId, $holder, $now,
+			], true, $this->connection);
 
 			$seen[] = $resource->type . "\0" . $resource->providerId;
 		}
@@ -52,15 +58,25 @@ final class ResourceRepository {
 			return false;
 		}
 
-		foreach (Row::rows(db_fetch_assoc_prepared('SELECT id, type, provider_id, missing_count FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?', [$accountId, Lifecycle::Deleted->value], true, $this->connection)) as $row) {
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT id, type, provider_id, missing_count FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?',
+			[$accountId, Lifecycle::Deleted->value],
+			true,
+			$this->connection
+		)) as $row) {
 			if (in_array(Row::string($row, 'type') . "\0" . Row::string($row, 'provider_id'), $seen, true)) {
 				continue;
 			}
 
 			$missing = Row::int($row, 'missing_count', 0, 0) + 1;
 
-			db_execute_prepared('UPDATE plugin_cloud_resource r INNER JOIN plugin_cloud_lease l ON l.account_id = r.account_id AND l.holder = ? AND l.expires_at >= ?
-				SET r.missing_count = ?, r.lifecycle = ? WHERE r.id = ?', [$holder, $now, $missing, ($missing >= self::DELETE_AFTER ? Lifecycle::Deleted : Lifecycle::Missing)->value, Row::int($row, 'id')], true, $this->connection);
+			db_execute_prepared('UPDATE plugin_cloud_resource r INNER JOIN plugin_cloud_lease l
+					ON l.account_id = r.account_id AND l.holder = ? AND l.expires_at >= ?
+				SET r.missing_count = ?, r.lifecycle = ? WHERE r.id = ?', [
+				$holder, $now, $missing,
+				($missing >= self::DELETE_AFTER ? Lifecycle::Deleted : Lifecycle::Missing)->value,
+				Row::int($row, 'id'),
+			], true, $this->connection);
 		}
 
 		return true;
@@ -72,7 +88,12 @@ final class ResourceRepository {
 	public function counts(int $accountId): array {
 		$counts = [];
 
-		foreach (Row::rows(db_fetch_assoc_prepared('SELECT lifecycle, COUNT(*) AS n FROM plugin_cloud_resource WHERE account_id = ? GROUP BY lifecycle', [$accountId], true, $this->connection)) as $row) {
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT lifecycle, COUNT(*) AS n FROM plugin_cloud_resource WHERE account_id = ? GROUP BY lifecycle',
+			[$accountId],
+			true,
+			$this->connection
+		)) as $row) {
 			$counts[Row::string($row, 'lifecycle')] = Row::int($row, 'n');
 		}
 

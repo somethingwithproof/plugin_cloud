@@ -41,7 +41,14 @@ final class StreamTransport {
 	 * @param array<string, string> $headers
 	 * @return array{status: int, headers: array<string, string>, body: string}
 	 */
-	public function send(string $method, string $url, array $headers, ?string $body, float $connectTimeout, float $totalTimeout): array {
+	public function send(
+		string $method,
+		string $url,
+		array $headers,
+		?string $body,
+		float $connectTimeout,
+		float $totalTimeout
+	): array {
 		// allow_url_fopen is PHP_INI_SYSTEM, so the plugin can detect it but
 		// not change it at runtime.
 		if (!filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)) {

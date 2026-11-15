@@ -50,7 +50,13 @@ final class Schema {
 	}
 
 	public function storedVersion(): int {
-		$value = db_fetch_cell_prepared('SELECT value FROM settings WHERE name = ?', [self::SETTING], '', true, $this->connection);
+		$value = db_fetch_cell_prepared(
+			'SELECT value FROM settings WHERE name = ?',
+			[self::SETTING],
+			'',
+			true,
+			$this->connection
+		);
 
 		return is_numeric($value) ? (int) $value : 0;
 	}
@@ -85,7 +91,12 @@ final class Schema {
 				return false;
 			}
 
-			db_execute_prepared('REPLACE INTO settings (name, value) VALUES (?, ?)', [self::SETTING, (string) $version], true, $this->connection);
+			db_execute_prepared(
+				'REPLACE INTO settings (name, value) VALUES (?, ?)',
+				[self::SETTING, (string) $version],
+				true,
+				$this->connection
+			);
 
 			Log::info(sprintf('Schema migrated to version %d', $version));
 		}
@@ -94,18 +105,41 @@ final class Schema {
 	}
 
 	public function recordedPluginVersion(): string {
-		return (string) db_fetch_cell_prepared('SELECT version FROM plugin_config WHERE directory = ?', [self::PLUGIN], '', true, $this->connection);
+		return (string) db_fetch_cell_prepared(
+			'SELECT version FROM plugin_config WHERE directory = ?',
+			[self::PLUGIN],
+			'',
+			true,
+			$this->connection
+		);
 	}
 
 	public function recordPluginVersion(string $version, string $author, string $homepage): void {
-		db_execute_prepared('UPDATE plugin_config SET version = ?, author = ?, webpage = ? WHERE directory = ?', [$version, $author, $homepage, self::PLUGIN], true, $this->connection);
+		db_execute_prepared(
+			'UPDATE plugin_config SET version = ?, author = ?, webpage = ? WHERE directory = ?',
+			[$version, $author, $homepage, self::PLUGIN],
+			true,
+			$this->connection
+		);
 	}
 
 	public function hooksRegistered(): bool {
 		$placeholders = implode(', ', array_fill(0, count(self::HOOKS), '?'));
 
-		$hooks  = (int) db_fetch_cell_prepared("SELECT COUNT(DISTINCT hook) FROM plugin_hooks WHERE name = ? AND hook IN ($placeholders)", array_merge([self::PLUGIN], array_keys(self::HOOKS)), '', true, $this->connection);
-		$realms = (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_realms WHERE plugin = ?', [self::PLUGIN], '', true, $this->connection);
+		$hooks  = (int) db_fetch_cell_prepared(
+			"SELECT COUNT(DISTINCT hook) FROM plugin_hooks WHERE name = ? AND hook IN ($placeholders)",
+			array_merge([self::PLUGIN], array_keys(self::HOOKS)),
+			'',
+			true,
+			$this->connection
+		);
+		$realms = (int) db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM plugin_realms WHERE plugin = ?',
+			[self::PLUGIN],
+			'',
+			true,
+			$this->connection
+		);
 
 		return $hooks === count(self::HOOKS) && $realms === count(Pages::realms());
 	}
@@ -115,7 +149,12 @@ final class Schema {
 	 * schema version so a reinstall reuses them.
 	 */
 	public function untrackTables(): void {
-		db_execute_prepared("DELETE FROM plugin_db_changes WHERE plugin = ? AND method = 'create'", [self::PLUGIN], true, $this->connection);
+		db_execute_prepared(
+			"DELETE FROM plugin_db_changes WHERE plugin = ? AND method = 'create'",
+			[self::PLUGIN],
+			true,
+			$this->connection
+		);
 	}
 
 	public function forgetVersion(): void {
@@ -142,7 +181,13 @@ final class Schema {
 	public function trackTables(): void {
 		foreach (array_keys(self::tables()) as $table) {
 			if ($this->tableExists($table)) {
-				db_execute_prepared("INSERT INTO plugin_db_changes (plugin, `table`, `column`, `method`) SELECT ?, ?, '', 'create' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM plugin_db_changes WHERE plugin = ? AND `table` = ? AND `method` = 'create')", [self::PLUGIN, $table, self::PLUGIN, $table], true, $this->connection);
+				db_execute_prepared(
+					"INSERT INTO plugin_db_changes (plugin, `table`, `column`, `method`) SELECT ?, ?, '', 'create' FROM DUAL
+						WHERE NOT EXISTS (SELECT 1 FROM plugin_db_changes WHERE plugin = ? AND `table` = ? AND `method` = 'create')",
+					[self::PLUGIN, $table, self::PLUGIN, $table],
+					true,
+					$this->connection
+				);
 			}
 		}
 	}
@@ -165,7 +210,13 @@ final class Schema {
 	}
 
 	private function tableExists(string $table): bool {
-		return db_fetch_cell_prepared('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?', [$table], '', true, $this->connection) > 0;
+		return db_fetch_cell_prepared(
+			'SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',
+			[$table],
+			'',
+			true,
+			$this->connection
+		) > 0;
 	}
 
 	/**
@@ -177,10 +228,31 @@ final class Schema {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function tables(): array {
-		$innodb   = ['type' => 'InnoDB', 'charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci', 'row_format' => 'Dynamic'];
-		$id       = static fn (string $name): array => ['name' => $name, 'type' => 'int(10)', 'unsigned' => true, 'NULL' => false];
-		$time     = static fn (string $name): array => ['name' => $name, 'type' => 'int(10)', 'unsigned' => true, 'NULL' => false, 'default' => '0'];
-		$text     = static fn (string $name, int $length, string $default = ''): array => ['name' => $name, 'type' => "varchar($length)", 'NULL' => false, 'default' => $default];
+		$innodb   = [
+			'type' => 'InnoDB',
+			'charset' => 'utf8mb4',
+			'collate' => 'utf8mb4_unicode_ci',
+			'row_format' => 'Dynamic'
+		];
+		$id       = static fn (string $name): array => [
+			'name' => $name,
+			'type' => 'int(10)',
+			'unsigned' => true,
+			'NULL' => false
+		];
+		$time     = static fn (string $name): array => [
+			'name' => $name,
+			'type' => 'int(10)',
+			'unsigned' => true,
+			'NULL' => false,
+			'default' => '0'
+		];
+		$text     = static fn (string $name, int $length, string $default = ''): array => [
+			'name' => $name,
+			'type' => "varchar($length)",
+			'NULL' => false,
+			'default' => $default
+		];
 
 		return [
 			'plugin_cloud_account' => $innodb + [

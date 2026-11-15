@@ -53,7 +53,10 @@ final readonly class Operation {
 
 		$query = $parts['query'] ?? '';
 
-		if ($query !== '' && ($this->queryPattern === null || self::repeatsName($query) || preg_match($this->queryPattern, $query) !== 1)) {
+		if (
+			$query !== ''
+			&& ($this->queryPattern === null || self::repeatsName($query) || preg_match($this->queryPattern, $query) !== 1)
+		) {
 			return false;
 		}
 

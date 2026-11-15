@@ -56,7 +56,11 @@ final class CredentialStore {
 			throw CredentialError::because('the credential is empty or too long');
 		}
 
-		if (!$this->secrets->store($accountId, SecretRepository::CREDENTIAL, $this->vault()->encrypt($secret, $accountId, SecretRepository::CREDENTIAL))) {
+		if (!$this->secrets->store(
+			$accountId,
+			SecretRepository::CREDENTIAL,
+			$this->vault()->encrypt($secret, $accountId, SecretRepository::CREDENTIAL)
+		)) {
 			throw CredentialError::because('the credential could not be stored');
 		}
 	}

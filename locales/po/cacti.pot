@@ -108,19 +108,15 @@ msgid "Cloud Accounts"
 msgstr ""
 
 #: lib/AccountsPage.php
-msgid "Actions"
-msgstr ""
-
-#: lib/AccountsPage.php lib/HealthPage.php
-msgid "Credential"
-msgstr ""
-
-#: lib/AccountsPage.php
 msgid "Name"
 msgstr ""
 
 #: lib/AccountsPage.php
 msgid "Provider"
+msgstr ""
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
 msgstr ""
 
 #: lib/AccountsPage.php
@@ -129,6 +125,10 @@ msgstr ""
 
 #: lib/AccountsPage.php
 msgid "Verify"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Actions"
 msgstr ""
 
 #: lib/AccountsPage.php lib/HealthPage.php
@@ -185,11 +185,11 @@ msgid "Save"
 msgstr ""
 
 #: lib/AccountsPage.php
-msgid "None stored"
+msgid "Stored in the vault"
 msgstr ""
 
 #: lib/AccountsPage.php
-msgid "Stored in the vault"
+msgid "None stored"
 msgstr ""
 
 #: lib/AccountsPage.php
@@ -233,15 +233,11 @@ msgid "Collection"
 msgstr ""
 
 #: lib/HealthPage.php
-msgid "Data"
-msgstr ""
-
-#: lib/HealthPage.php
-msgid "Discovery"
-msgstr ""
-
-#: lib/HealthPage.php
 msgid "Last Run"
+msgstr ""
+
+#: lib/HealthPage.php
+msgid "Series Read"
 msgstr ""
 
 #: lib/HealthPage.php
@@ -249,11 +245,15 @@ msgid "Requests"
 msgstr ""
 
 #: lib/HealthPage.php
+msgid "Discovery"
+msgstr ""
+
+#: lib/HealthPage.php
 msgid "Resources"
 msgstr ""
 
 #: lib/HealthPage.php
-msgid "Series Read"
+msgid "Data"
 msgstr ""
 
 #: lib/HealthPage.php

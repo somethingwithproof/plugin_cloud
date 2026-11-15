@@ -46,7 +46,16 @@ afterEach(function () {
 });
 
 function cloud_warn_account(array $row = []): Account {
-	return Account::fromRow($row + ['id' => 4, 'provider' => 'digitalocean', 'name' => 'Ops', 'credential_source' => 'vault', 'collect_interval' => 300, 'admin_state' => 'enabled']);
+	return Account::fromRow(
+		$row + [
+			'id' => 4,
+			'provider' => 'digitalocean',
+			'name' => 'Ops',
+			'credential_source' => 'vault',
+			'collect_interval' => 300,
+			'admin_state' => 'enabled'
+		]
+	);
 }
 
 function cloud_warnings(string $key, array $accounts, int $poller = 300): array {
@@ -54,7 +63,20 @@ function cloud_warnings(string $key, array $accounts, int $poller = 300): array 
 }
 
 it('has no warnings for a usable key, safe files, and matching intervals', function () {
-	expect(cloud_warnings($this->key, [cloud_warn_account(), cloud_warn_account(['id' => 5, 'credential_source' => 'file', 'credential_file' => $this->token, 'collect_interval' => 600])]))->toBe([]);
+	expect(
+		cloud_warnings(
+			$this->key,
+			[
+				cloud_warn_account(),
+				cloud_warn_account([
+					'id' => 5,
+					'credential_source' => 'file',
+					'credential_file' => $this->token,
+					'collect_interval' => 600
+				])
+			]
+		)
+	)->toBe([]);
 });
 
 it('warns everyone when the vault key file is missing or refused', function (string $fixture, string $reason) {
@@ -99,7 +121,10 @@ it('warns Cloud Admin only when a credential file is unsafe', function (string $
 		})->call($this),
 	};
 
-	$warnings = cloud_warnings($this->key, [cloud_warn_account(['credential_source' => 'file', 'credential_file' => $path])]);
+	$warnings = cloud_warnings(
+		$this->key,
+		[cloud_warn_account(['credential_source' => 'file', 'credential_file' => $path])]
+	);
 
 	expect($warnings)->toHaveCount(1)
 		->and($warnings[0]['admin'])->toBeTrue()
@@ -112,10 +137,19 @@ it('warns Cloud Admin only when a credential file is unsafe', function (string $
 	['link', 'symbolic link'],
 ]);
 
-it('warns when the poller interval cannot honour the collection interval', function (int $collect, int $poller, ?string $expected) {
-	$messages = array_column(cloud_warnings($this->key, [cloud_warn_account(['collect_interval' => $collect])], $poller), 'message');
+it('warns when the poller interval cannot honour the collection interval', function (
+	int $collect,
+	int $poller,
+	?string $expected
+) {
+	$messages = array_column(
+		cloud_warnings($this->key, [cloud_warn_account(['collect_interval' => $collect])], $poller),
+		'message'
+	);
 
-	expect($messages)->toBe($expected === null ? [] : ['Ops: the collection interval of ' . $collect . ' seconds ' . $expected]);
+	expect($messages)->toBe(
+		$expected === null ? [] : ['Ops: the collection interval of ' . $collect . ' seconds ' . $expected]
+	);
 })->with([
 	[300, 300, null],
 	[600, 300, null],
@@ -127,5 +161,17 @@ it('warns when the poller interval cannot honour the collection interval', funct
 ]);
 
 it('skips disabled accounts', function () {
-	expect(cloud_warnings($this->key, [cloud_warn_account(['admin_state' => 'disabled', 'credential_source' => 'file', 'credential_file' => '/none', 'collect_interval' => 450])]))->toBe([]);
+	expect(
+		cloud_warnings(
+			$this->key,
+			[
+				cloud_warn_account([
+					'admin_state' => 'disabled',
+					'credential_source' => 'file',
+					'credential_file' => '/none',
+					'collect_interval' => 450
+				])
+			]
+		)
+	)->toBe([]);
 });

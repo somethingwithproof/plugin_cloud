@@ -51,14 +51,25 @@ $password = 'Cloud-' . bin2hex(random_bytes(8));
 $failures = 0;
 
 $view  = (int) db_fetch_cell("SELECT id + 100 FROM plugin_realms WHERE plugin = 'cloud' AND file = 'cloud_health.php'");
-$admin = (int) db_fetch_cell("SELECT id + 100 FROM plugin_realms WHERE plugin = 'cloud' AND file = 'cloud_accounts.php'");
+$admin = (int) db_fetch_cell(
+	"SELECT id + 100 FROM plugin_realms WHERE plugin = 'cloud' AND file = 'cloud_accounts.php'"
+);
 
-db_execute_prepared("UPDATE user_auth SET password = ?, must_change_password = '', password_change = '', enabled = 'on', locked = '', failed_attempts = 0 WHERE id = 1", array(password_hash($password, PASSWORD_DEFAULT)));
+db_execute_prepared(
+	"UPDATE user_auth SET password = ?, must_change_password = '', password_change = '', enabled = 'on', locked = '', " .
+		"failed_attempts = 0 WHERE id = 1",
+	array(password_hash($password, PASSWORD_DEFAULT))
+);
 
 // Realm 8 is Console access.
 foreach (array('viewer' => array(8, $view), 'norealm' => array(8)) as $name => $realms) {
 	db_execute_prepared('DELETE FROM user_auth WHERE username = ?', array($name));
-	db_execute_prepared("INSERT INTO user_auth (username, password, realm, full_name, must_change_password, password_change, policy_graphs, policy_trees, policy_hosts, policy_graph_templates, enabled) VALUES (?, ?, 0, ?, '', '', 1, 1, 1, 1, 'on')", array($name, password_hash($password, PASSWORD_DEFAULT), $name));
+	db_execute_prepared(
+		"INSERT INTO user_auth (username, password, realm, full_name, must_change_password, password_change, " .
+			"policy_graphs, policy_trees, policy_hosts, policy_graph_templates, enabled) VALUES (?, ?, 0, ?, '', '', 1, 1, 1, " .
+			"1, 'on')",
+		array($name, password_hash($password, PASSWORD_DEFAULT), $name)
+	);
 	$id = (int) db_fetch_insert_id();
 
 	foreach ($realms as $realm) {
@@ -76,7 +87,16 @@ function perm_expect($ok, $message) {
 function perm_http($url, $jar, $post = null) {
 	$ch = curl_init($url);
 
-	curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER => true, CURLOPT_COOKIEJAR => $jar, CURLOPT_COOKIEFILE => $jar, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 60));
+	curl_setopt_array(
+		$ch,
+		array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_COOKIEJAR => $jar,
+			CURLOPT_COOKIEFILE => $jar,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_TIMEOUT => 60
+		)
+	);
 
 	if ($post !== null) {
 		curl_setopt($ch, CURLOPT_POST, true);
@@ -97,30 +117,56 @@ function perm_login($user) {
 
 	$jar = tempnam(sys_get_temp_dir(), 'cloudperm');
 	list(, $login) = perm_http($root . 'index.php', $jar);
-	perm_http($root . 'index.php', $jar, array('__csrf_magic' => perm_token($login), 'action' => 'login', 'login_username' => $user, 'login_password' => $password));
+	perm_http(
+		$root . 'index.php',
+		$jar,
+		array(
+			'__csrf_magic' => perm_token($login),
+			'action' => 'login',
+			'login_username' => $user,
+			'login_password' => $password
+		)
+	);
 
 	return $jar;
 }
 
 // Markers that only the rendered plugin page contains.
-$pages = array('cloud_accounts.php' => 'name="action" value="save"|No cloud accounts yet|linkEditMain', 'cloud_health.php' => 'Cloud Warnings');
+$pages = array(
+	'cloud_accounts.php' => 'name="action" value="save"|No cloud accounts yet|linkEditMain',
+	'cloud_health.php' => 'Cloud Warnings'
+);
 
-db_execute_prepared("INSERT INTO plugin_cloud_account (provider, name, credential_source, admin_state) VALUES ('digitalocean', ?, 'vault', 'disabled')", array('<b id="cloudprobe">Probe</b>'));
+db_execute_prepared(
+	"INSERT INTO plugin_cloud_account (provider, name, credential_source, admin_state) VALUES ('digitalocean', ?, " .
+		"'vault', 'disabled')",
+	array('<b id="cloudprobe">Probe</b>')
+);
 $probe = (int) db_fetch_insert_id();
 
-foreach (array('admin' => array('cloud_accounts.php' => true, 'cloud_health.php' => true), 'viewer' => array('cloud_accounts.php' => false, 'cloud_health.php' => true), 'norealm' => array('cloud_accounts.php' => false, 'cloud_health.php' => false)) as $user => $expect) {
+foreach (array(
+	'admin' => array('cloud_accounts.php' => true, 'cloud_health.php' => true),
+	'viewer' => array('cloud_accounts.php' => false, 'cloud_health.php' => true),
+	'norealm' => array('cloud_accounts.php' => false, 'cloud_health.php' => false)
+) as $user => $expect) {
 	$jar = perm_login($user);
 
 	foreach ($expect as $page => $allowed) {
 		list($code, $body) = perm_http($base . $page, $jar);
 		$shown = preg_match('/' . $pages[$page] . '/', $body) === 1;
 
-		perm_expect($shown === $allowed && preg_match('/(Fatal error|Parse error|Warning:|Uncaught)/', $body) !== 1, "$user " . ($allowed ? 'sees' : 'is denied') . " $page (HTTP $code)");
+		perm_expect(
+			$shown === $allowed && preg_match('/(Fatal error|Parse error|Warning:|Uncaught)/', $body) !== 1,
+			"$user " . ($allowed ? 'sees' : 'is denied') . " $page (HTTP $code)"
+		);
 
 		// Credential state is an account detail for Cloud Admin only.
 		if ($page === 'cloud_health.php' && $allowed) {
 			$credential = strpos($body, '<th>Credential</th>') !== false;
-			perm_expect($credential === ($user === 'admin'), "$user " . ($user === 'admin' ? 'sees' : 'does not see') . ' credential state on cloud_health.php');
+			perm_expect(
+				$credential === ($user === 'admin'),
+				"$user " . ($user === 'admin' ? 'sees' : 'does not see') . ' credential state on cloud_health.php'
+			);
 		}
 	}
 
@@ -135,7 +181,10 @@ $exists = function () use ($probe) {
 // The probe's name is markup; every page that prints it must escape it.
 foreach (array('cloud_accounts.php', 'cloud_accounts.php?action=edit&id=' . $probe) as $page) {
 	list(, $body) = perm_http($base . $page, $jar);
-	perm_expect(strpos($body, '<b id="cloudprobe">') === false && strpos($body, '&lt;b id=&quot;cloudprobe&quot;&gt;') !== false, "$page escapes the account name");
+	perm_expect(
+		strpos($body, '<b id="cloudprobe">') === false && strpos($body, '&lt;b id=&quot;cloudprobe&quot;&gt;') !== false,
+		"$page escapes the account name"
+	);
 }
 
 perm_http($base . 'cloud_accounts.php?action=delete&id=' . $probe, $jar);
@@ -145,7 +194,11 @@ perm_http($base . 'cloud_accounts.php', $jar, array('action' => 'delete', 'id' =
 perm_expect($exists(), 'a delete POST without the csrf-magic token has no effect');
 
 list(, $list) = perm_http($base . 'cloud_accounts.php', $jar);
-perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token($list), 'action' => 'delete', 'id' => $probe));
+perm_http(
+	$base . 'cloud_accounts.php',
+	$jar,
+	array('__csrf_magic' => perm_token($list), 'action' => 'delete', 'id' => $probe)
+);
 perm_expect(!$exists(), 'the same delete as a POST with the token removes the account');
 
 // A credential saved through the form must come back in no response, no
@@ -165,26 +218,45 @@ $responses = array();
 list($code, $form) = perm_http($base . 'cloud_accounts.php?action=edit', $jar);
 $responses[] = array('form', $code, $form, 'name="credential"');
 list($code, $saved) = perm_http($base . 'cloud_accounts.php', $jar, array(
-	'__csrf_magic' => perm_token($form), 'action' => 'save', 'id' => 0, 'provider' => 'digitalocean', 'name' => $probeName, 'poller_id' => 1,
-	'credential_source' => 'vault', 'credential' => $secret, 'collect_interval' => 300, 'discover_interval' => 3600, 'request_share' => 50, 'enabled' => 'on',
+	'__csrf_magic' => perm_token($form), 'action' => 'save', 'id' => 0, 'provider' => 'digitalocean',
+	'name' => $probeName, 'poller_id' => 1,
+	'credential_source' => 'vault', 'credential' => $secret, 'collect_interval' => 300,
+	'discover_interval' => 3600, 'request_share' => 50, 'enabled' => 'on',
 ));
 $responses[] = array('save', $code, $saved, 'The account was saved.');
 
 $account = (int) db_fetch_cell_prepared('SELECT id FROM plugin_cloud_account WHERE name = ?', array($probeName));
-perm_expect($account > 0 && (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ?', array($account)) === 1, 'an account saved through the form stores its credential in the vault');
+perm_expect(
+	$account > 0 && (int) db_fetch_cell_prepared(
+		'SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ?',
+		array($account)
+	) === 1,
+	'an account saved through the form stores its credential in the vault'
+);
 
-foreach (array('list' => array('cloud_accounts.php', 'Stored in the vault'), 'edit' => array('cloud_accounts.php?action=edit&id=' . $account, 'A credential is stored.'), 'health' => array('cloud_health.php', $probeName)) as $label => $page) {
+foreach (array(
+	'list' => array('cloud_accounts.php', 'Stored in the vault'),
+	'edit' => array('cloud_accounts.php?action=edit&id=' . $account, 'A credential is stored.'),
+	'health' => array('cloud_health.php', $probeName)
+) as $label => $page) {
 	list($code, $body) = perm_http($base . $page[0], $jar);
 	$responses[] = array($label, $code, $body, $page[1]);
 }
 
 // No driver ships yet, so Verify records the configuration status.
-list($code, $verified) = perm_http($base . 'cloud_accounts.php', $jar, array('__csrf_magic' => perm_token($body), 'action' => 'verify', 'id' => $account));
+list($code, $verified) = perm_http(
+	$base . 'cloud_accounts.php',
+	$jar,
+	array('__csrf_magic' => perm_token($body), 'action' => 'verify', 'id' => $account)
+);
 $responses[] = array('verify', $code, $verified, 'The account or its credential is not configured correctly.');
 
 foreach ($responses as $response) {
 	list($label, $code, $body, $marker) = $response;
-	perm_expect($code === 200 && strpos($body, $marker) !== false, "the $label request succeeded (HTTP $code) and its page shows what it should");
+	perm_expect(
+		$code === 200 && strpos($body, $marker) !== false,
+		"the $label request succeeded (HTTP $code) and its page shows what it should"
+	);
 }
 
 $leaks = array();
@@ -201,7 +273,10 @@ if (strpos($log, $secret) !== false) {
 	$leaks[] = 'cacti.log';
 }
 
-foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND (TABLE_NAME LIKE 'plugin\\_cloud\\_%' OR TABLE_NAME = 'settings')") as $table) {
+foreach (db_fetch_assoc(
+	"SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND (TABLE_NAME LIKE " .
+		"'plugin\\_cloud\\_%' OR TABLE_NAME = 'settings')"
+) as $table) {
 	foreach (db_fetch_assoc('SELECT * FROM `' . $table['t'] . '`') as $row) {
 		if (strpos(implode("\0", array_map('strval', $row)), $secret) !== false) {
 			$leaks[] = $table['t'];
@@ -209,7 +284,13 @@ foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES W
 	}
 }
 
-perm_expect(count($responses) === 6 && $leaks === array(), 'the credential appears in no response, log, or table' . ($leaks === array() ? '' : ': ' . implode(', ', array_unique($leaks))));
+perm_expect(
+	count($responses) === 6 && $leaks === array(),
+	'the credential appears in no response, log, or table' . ($leaks === array() ? '' : ': ' . implode(
+		', ',
+		array_unique($leaks)
+	))
+);
 
 db_execute("DELETE FROM settings WHERE name = 'cloud_vault_key_file'");
 unlink($keyFile);

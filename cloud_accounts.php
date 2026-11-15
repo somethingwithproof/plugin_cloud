@@ -36,7 +36,9 @@ cloud_require_post('cloud_accounts.php', array('save', 'delete', 'verify'));
 $cloud_accounts    = cloud_accounts();
 $cloud_credentials = cloud_credentials();
 $cloud_page        = new \Somethingwithproof\Cloud\AccountsPage($cloud_accounts, $cloud_credentials);
-$cloud_user        = isset($_SESSION['sess_user_id']) && is_numeric($_SESSION['sess_user_id']) ? (int) $_SESSION['sess_user_id'] : 0;
+$cloud_user        = isset($_SESSION['sess_user_id']) && is_numeric($_SESSION['sess_user_id'])
+	? (int) $_SESSION['sess_user_id']
+	: 0;
 $cloud_action      = (string) get_nfilter_request_var('action');
 
 switch ($cloud_action) {
@@ -44,7 +46,23 @@ switch ($cloud_action) {
 		$cloud_id    = (int) get_filter_request_var('id');
 		$cloud_input = array();
 
-		foreach (array('provider', 'name', 'poller_id', 'credential_source', 'credential_file', 'collect_interval', 'discover_interval', 'request_share', 'monthly_ceiling', 'enabled', 'scope_account_id', 'scope_regions', 'scope_project', 'scope_tenant', 'scope_subscription') as $cloud_field) {
+		foreach (array(
+			'provider',
+			'name',
+			'poller_id',
+			'credential_source',
+			'credential_file',
+			'collect_interval',
+			'discover_interval',
+			'request_share',
+			'monthly_ceiling',
+			'enabled',
+			'scope_account_id',
+			'scope_regions',
+			'scope_project',
+			'scope_tenant',
+			'scope_subscription'
+		) as $cloud_field) {
 			$cloud_input[$cloud_field] = (string) get_nfilter_request_var($cloud_field);
 		}
 
@@ -60,7 +78,11 @@ switch ($cloud_action) {
 			$cloud_input['provider'] = $cloud_existing->provider->value;
 		}
 
-		$cloud_parsed = \Somethingwithproof\Cloud\AccountInput::parse($cloud_input, $cloud_id, \Somethingwithproof\Cloud\Provider::released());
+		$cloud_parsed = \Somethingwithproof\Cloud\AccountInput::parse(
+			$cloud_input,
+			$cloud_id,
+			\Somethingwithproof\Cloud\Provider::released()
+		);
 		$cloud_errors = $cloud_parsed->errors;
 
 		if ($cloud_parsed->account !== null && $cloud_accounts->nameTaken($cloud_parsed->account->name, $cloud_id)) {
@@ -82,7 +104,11 @@ switch ($cloud_action) {
 				$cloud_credentials->storeVaultCredential($cloud_saved, new \Somethingwithproof\Cloud\Secret($cloud_raw));
 				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
 			} catch (\Somethingwithproof\Cloud\CredentialError $cloud_error) {
-				raise_message('cloud_credential', __('The account was saved, but the credential was not stored: %s', $cloud_error->getMessage(), 'cloud'), MESSAGE_LEVEL_ERROR);
+				raise_message(
+					'cloud_credential',
+					__('The account was saved, but the credential was not stored: %s', $cloud_error->getMessage(), 'cloud'),
+					MESSAGE_LEVEL_ERROR
+				);
 			}
 		}
 
@@ -98,7 +124,11 @@ switch ($cloud_action) {
 		exit;
 	case 'delete':
 		if ($cloud_accounts->delete((int) get_filter_request_var('id'), $cloud_user)) {
-			raise_message('cloud_deleted', __('The account and its collected data were deleted. Its Cacti devices and graphs were left in place.', 'cloud'), MESSAGE_LEVEL_INFO);
+			raise_message(
+				'cloud_deleted',
+				__('The account and its collected data were deleted. Its Cacti devices and graphs were left in place.', 'cloud'),
+				MESSAGE_LEVEL_INFO
+			);
 		}
 
 		header('Location: cloud_accounts.php');
@@ -107,9 +137,17 @@ switch ($cloud_action) {
 		$cloud_account = $cloud_accounts->find((int) get_filter_request_var('id'));
 
 		if ($cloud_account !== null) {
-			$cloud_status = (new \Somethingwithproof\Cloud\Verifier(\Somethingwithproof\Cloud\Drivers::production(), $cloud_credentials, $cloud_accounts))->verify($cloud_account, $cloud_user);
+			$cloud_status = (new \Somethingwithproof\Cloud\Verifier(
+				\Somethingwithproof\Cloud\Drivers::production(),
+				$cloud_credentials,
+				$cloud_accounts
+			))->verify($cloud_account, $cloud_user);
 
-			raise_message('cloud_verify', $cloud_status->message(), $cloud_status === \Somethingwithproof\Cloud\VerifyStatus::Ok ? MESSAGE_LEVEL_INFO : MESSAGE_LEVEL_WARN);
+			raise_message(
+				'cloud_verify',
+				$cloud_status->message(),
+				$cloud_status === \Somethingwithproof\Cloud\VerifyStatus::Ok ? MESSAGE_LEVEL_INFO : MESSAGE_LEVEL_WARN
+			);
 		}
 
 		header('Location: cloud_accounts.php');

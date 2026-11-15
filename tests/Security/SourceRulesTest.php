@@ -38,7 +38,11 @@ function cloud_sources(): array {
 	foreach ($iterator as $file) {
 		$relative = substr($file->getPathname(), strlen(cloud_root()) + 1);
 
-		if ($file->getExtension() === 'php' && !str_starts_with($relative, 'tests/') && !str_starts_with($relative, '.git/')) {
+		if (
+			$file->getExtension() === 'php'
+			&& !str_starts_with($relative, 'tests/')
+			&& !str_starts_with($relative, '.git/')
+		) {
 			$files[] = $relative;
 		}
 	}
@@ -156,10 +160,20 @@ it('passes the cloud text domain to every translated plugin string', function ()
 	$core = ['Management'];
 
 	foreach (cloud_sources() as $file) {
-		$tokens = array_values(array_filter(PhpToken::tokenize((string) file_get_contents(cloud_root() . '/' . $file)), fn ($t) => !$t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])));
+		$tokens = array_values(
+			array_filter(
+				PhpToken::tokenize((string) file_get_contents(cloud_root() . '/' . $file)),
+				fn ($t) => !$t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])
+			)
+		);
 
 		foreach ($tokens as $i => $token) {
-			if (!$token->is(T_STRING) || $token->text !== '__' || ($tokens[$i + 1]->text ?? '') !== '(' || ($tokens[$i - 1]->is(T_FUNCTION))) {
+			if (
+				!$token->is(T_STRING)
+				|| $token->text !== '__'
+				|| ($tokens[$i + 1]->text ?? '') !== '('
+				|| ($tokens[$i - 1]->is(T_FUNCTION))
+			) {
 				continue;
 			}
 
@@ -192,7 +206,10 @@ it('passes the cloud text domain to every translated plugin string', function ()
 it('ships a translation template containing every plugin string', function () {
 	$pot = (string) file_get_contents(cloud_root() . '/locales/po/cacti.pot');
 
-	foreach (['The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled.'] as $msgid) {
+	foreach ([
+		'The Cloud plugin requires PHP %s or later. This server runs PHP %s, '
+			. 'so the plugin was not installed or enabled.'
+	] as $msgid) {
 		expect($pot)->toContain('msgid "' . $msgid . '"');
 	}
 });
@@ -212,7 +229,8 @@ it('uses plain placeholders in translated strings, because core\'s __() does not
 	foreach (cloud_sources() as $file) {
 		$source = (string) file_get_contents(cloud_root() . '/' . $file);
 
-		preg_match_all("/__\\('((?:[^'\\\\]|\\\\.)*)'/", $source, $texts);
+		// The text may sit on the line after __( when the call is wrapped.
+		preg_match_all("/__\\(\\s*'((?:[^'\\\\]|\\\\.)*)'/", $source, $texts);
 
 		foreach ($texts[1] as $text) {
 			expect($text)->not->toMatch('/%[0-9]+\$/', $file);

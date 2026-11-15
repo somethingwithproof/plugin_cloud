@@ -42,7 +42,10 @@ final class GuardedTransport implements HttpTransport {
 
 	public function send(HttpRequest $request): HttpResponse {
 		if ($this->allows($request) === null) {
-			throw new TransportError('operation_refused', $request->method . ' ' . (string) parse_url($request->url, PHP_URL_PATH));
+			throw new TransportError(
+				'operation_refused',
+				$request->method . ' ' . (string) parse_url($request->url, PHP_URL_PATH)
+			);
 		}
 
 		return $this->inner->send($request);

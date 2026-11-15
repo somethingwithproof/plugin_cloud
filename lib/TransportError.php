@@ -31,7 +31,13 @@ final class TransportError extends \RuntimeException {
 
 	public function errorClass(): ErrorClass {
 		return match ($this->kind) {
-			'url_rejected', 'host_refused', 'operation_refused', 'header_rejected', 'redirect_refused', 'tls_verify', 'tls_name' => ErrorClass::Config,
+			'url_rejected',
+			'host_refused',
+			'operation_refused',
+			'header_rejected',
+			'redirect_refused',
+			'tls_verify',
+			'tls_name' => ErrorClass::Config,
 			'malformed', 'too_large', 'headers_too_large' => ErrorClass::Malformed,
 			default => ErrorClass::Transient,
 		};

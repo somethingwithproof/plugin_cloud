@@ -139,7 +139,11 @@ final readonly class Account {
 		$now  = $this->toRow();
 		$then = $before?->toRow() ?? [];
 
-		return array_keys(array_filter($now, static fn ($value, $key) => !array_key_exists($key, $then) || $then[$key] !== $value, ARRAY_FILTER_USE_BOTH));
+		return array_keys(array_filter(
+			$now,
+			static fn ($value, $key) => !array_key_exists($key, $then) || $then[$key] !== $value,
+			ARRAY_FILTER_USE_BOTH
+		));
 	}
 
 	public function enabled(): bool {

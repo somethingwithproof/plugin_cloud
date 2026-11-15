@@ -72,10 +72,19 @@ const EXPECTED_CASES = array(
 
 $dir = $argv[1] ?? '';
 $contextFiles = is_dir($dir) ? glob(rtrim($dir, '/') . '/*/context.json') : false;
-$found = $contextFiles === false ? array() : array_map(static fn (string $f): string => basename(dirname($f)), $contextFiles);
+$found = $contextFiles === false ? array() : array_map(
+	static fn (string $f): string => basename(dirname($f)),
+	$contextFiles
+);
 sort($found);
 if ($found !== EXPECTED_CASES) {
-	fwrite(STDERR, "not the pinned suite's v4 directory: missing " . implode(', ', array_diff(EXPECTED_CASES, $found)) . '; extra ' . implode(', ', array_diff($found, EXPECTED_CASES)) . "\n");
+	fwrite(
+		STDERR,
+		"not the pinned suite's v4 directory: missing " . implode(
+			', ',
+			array_diff(EXPECTED_CASES, $found)
+		) . '; extra ' . implode(', ', array_diff($found, EXPECTED_CASES)) . "\n"
+	);
 	exit(2);
 }
 $pass = 0;

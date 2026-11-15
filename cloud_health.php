@@ -42,5 +42,9 @@ $cloud_page  = new \Somethingwithproof\Cloud\HealthPage(
 );
 
 top_header();
-$cloud_page->render(cloud_settings(), api_user_realm_auth('cloud_accounts.php'), (int) read_config_option('poller_interval'));
+$cloud_page->render(
+	cloud_settings(),
+	api_user_realm_auth('cloud_accounts.php'),
+	(int) read_config_option('poller_interval')
+);
 bottom_footer();

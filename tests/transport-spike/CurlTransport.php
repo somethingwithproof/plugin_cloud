@@ -36,7 +36,14 @@ final class CurlTransport {
 	 * @param array<string, string> $headers
 	 * @return array{status: int, headers: array<string, string>, body: string}
 	 */
-	public function send(string $method, string $url, array $headers, ?string $body, float $connectTimeout, float $totalTimeout): array {
+	public function send(
+		string $method,
+		string $url,
+		array $headers,
+		?string $body,
+		float $connectTimeout,
+		float $totalTimeout
+	): array {
 		if (!extension_loaded('curl')) {
 			throw new TransportError('curl_missing');
 		}
@@ -68,7 +75,10 @@ final class CurlTransport {
 			CURLOPT_NOSIGNAL          => true,
 			CURLOPT_PROTOCOLS         => CURLPROTO_HTTPS,
 			CURLOPT_HTTP_VERSION      => CURL_HTTP_VERSION_1_1,
-			CURLOPT_HEADERFUNCTION    => function ($ch, string $line) use (&$responseHeaders, &$headerBytes, &$failure, $maxBytes): int {
+			CURLOPT_HEADERFUNCTION    => function (
+				$ch,
+				string $line
+			) use (&$responseHeaders, &$headerBytes, &$failure, $maxBytes): int {
 				$headerBytes += strlen($line);
 				if ($headerBytes > 65536) {
 					$failure = 'headers_too_large';
@@ -118,11 +128,16 @@ final class CurlTransport {
 				60, 77 => 'tls_verify',
 				51     => 'tls_name',
 				// 28 is both; libcurl names the phase in the message.
-				28     => str_starts_with($error, 'Connection timed out') || str_starts_with($error, 'Connection timeout') || str_contains($error, 'SSL connection timeout') ? 'connect_timeout' : 'total_timeout',
+				28     => str_starts_with($error, 'Connection timed out')
+					|| str_starts_with($error, 'Connection timeout')
+					|| str_contains($error, 'SSL connection timeout') ? 'connect_timeout' : 'total_timeout',
 				7      => 'connect_refused',
 				default => 'curl_' . $errno,
 			};
-			if ($kind === 'tls_verify' && (str_contains($error, 'does not match') || str_contains($error, 'subject name matches'))) {
+			if (
+				$kind === 'tls_verify'
+				&& (str_contains($error, 'does not match') || str_contains($error, 'subject name matches'))
+			) {
 				$kind = 'tls_name';
 			}
 			throw new TransportError($kind, substr($error, 0, 400));

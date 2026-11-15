@@ -60,7 +60,8 @@ final class SocketTransport implements HttpTransport {
 
 		// A CR or LF in a name or value would let a caller inject headers or a
 		// second request.
-		$request = "$method $target HTTP/1.1\r\nHost: " . $host . ($port === 443 ? '' : ":$port") . "\r\nConnection: close\r\n";
+		$request = "$method $target HTTP/1.1\r\nHost: " . $host . ($port === 443 ? '' : ":$port")
+			. "\r\nConnection: close\r\n";
 		foreach ($headers as $name => $value) {
 			if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/', $name) !== 1 || preg_match('/[\r\n\x00]/', $value) === 1) {
 				throw new TransportError('header_rejected');
@@ -260,7 +261,11 @@ final class SocketTransport implements HttpTransport {
 		$pos = 0;
 		while (true) {
 			$eol = strpos($raw, "\r\n", $pos);
-			if ($eol === false || preg_match('/^([0-9A-Fa-f]{1,8})(?:;[^\r\n]*)?$/', substr($raw, $pos, $eol - $pos), $m) !== 1) {
+			if ($eol === false || preg_match(
+				'/^([0-9A-Fa-f]{1,8})(?:;[^\r\n]*)?$/',
+				substr($raw, $pos, $eol - $pos),
+				$m
+			) !== 1) {
 				throw new TransportError('malformed', 'chunk size');
 			}
 			// At most eight hex digits, so the value always fits an int.

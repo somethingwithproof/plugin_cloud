@@ -44,6 +44,12 @@ final readonly class Observation {
 			return null;
 		}
 
-		return new self($resource, $metric, Row::float($row, 'value'), Row::int($row, 'observed_at', 0, 0), Row::int($row, 'fetched_at', 0, 0));
+		return new self(
+			$resource,
+			$metric,
+			Row::float($row, 'value'),
+			Row::int($row, 'observed_at', 0, 0),
+			Row::int($row, 'fetched_at', 0, 0)
+		);
 	}
 }
