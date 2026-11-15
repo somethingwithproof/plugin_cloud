@@ -156,9 +156,13 @@ final class HealthPage {
 	}
 
 	private function collectionLabel(AccountHealth $health): string {
-		return $health->error === null
+		$label = $health->error === null
 			? $health->collection->value
 			: $health->collection->value . ' (' . $health->error->value . ')';
+		$wait  = $health->retryAt - $this->clock->now();
+
+		// The provider asked for a pause; the collector skips the account until then.
+		return $wait > 0 ? $label . ', ' . __('retry in %d s', $wait, 'cloud') : $label;
 	}
 
 	private function age(int $time): string {

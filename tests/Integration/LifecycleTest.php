@@ -46,7 +46,7 @@ it('installs fresh with tracked tables, hooks, and both realms, leaving the plug
 
 	expect($state['plugin']['status'])->toEqual('4')
 		->and($state['plugin']['version'])->toEqual(CLOUD_VERSION)
-		->and($state['schema'])->toEqual('1')
+		->and($state['schema'])->toEqual('2')
 		->and(array_keys($state['tables']))->toBe(CLOUD_TABLES)
 		->and($state['tracked'])->toBe(CLOUD_TABLES)
 		->and(array_keys($state['hooks']))->toBe(CLOUD_HOOKS)
@@ -116,7 +116,7 @@ it('finishes an upgrade that was interrupted after creating only some tables', f
 	expect($state['result'])->toBeTrue()
 		->and(array_keys($state['tables']))->toBe(CLOUD_TABLES)
 		->and($state['tables']['plugin_cloud_account'])->toBe(1)
-		->and($state['schema'])->toEqual('1')
+		->and($state['schema'])->toEqual('2')
 		->and($state['plugin']['version'])->toEqual(CLOUD_VERSION);
 });
 
@@ -129,7 +129,30 @@ it('does not advance past a migration that did not run', function () {
 		->and($stopped['schema'])->toEqual('0');
 
 	$finished = lifecycle('upgrade');
-	expect($finished['schema'])->toEqual('1');
+	expect($finished['schema'])->toEqual('2');
+});
+
+it('adds the retry column to a version 1 database, and a kept uninstall keeps it', function () {
+	lifecycle('install');
+	lifecycle('seed');
+	lifecycle('drop_column', 'plugin_cloud_health.retry_at');
+	lifecycle('set_schema', '1');
+
+	$upgraded = lifecycle('upgrade');
+	expect($upgraded['result'])->toBeTrue()
+		->and($upgraded['schema'])->toEqual('2')
+		->and($upgraded['health_columns'])->toContain('retry_at')
+		->and($upgraded['tracked_columns'])->toBe(['plugin_cloud_health.retry_at'])
+		->and($upgraded['tables']['plugin_cloud_account'])->toBe(1);
+
+	// Core drops tracked columns on uninstall; keeping tables keeps them too.
+	$kept = lifecycle('uninstall');
+	expect($kept['health_columns'])->toContain('retry_at')
+		->and($kept['tracked_columns'])->toBe([]);
+
+	$reinstalled = lifecycle('install');
+	expect($reinstalled['schema'])->toEqual('2')
+		->and($reinstalled['health_columns'])->toContain('retry_at');
 });
 
 it('refuses a schema newer than the code and leaves the recorded version alone', function () {
@@ -211,7 +234,15 @@ it('collects only what is due, owned, enabled, mapped, and leased', function () 
 		->and($r['d2_lifecycle'])->toBe(['missing', 'missing', 'deleted'])
 		->and($r['health_unchanged'])->toBeTrue()
 		->and($r['order_run1']['stopped_early'])->toBeTrue()
-		->and($r['order'])->toBe(['Second', 'Main']);
+		->and($r['order'])->toBe(['Second', 'Main'])
+		// Over budget: the first series in stored order are read, the rest marked.
+		->and($r['budget_collected'])->toBe(['b1/m_a', 'b1/m_b'])
+		->and($r['budget_health'])->toEqual(['collection' => 'budget', 'series_total' => '3', 'series_read' => '2'])
+		->and($r['budget_status'])->toBe(['m_a' => 'ok', 'm_b' => 'ok', 'm_c' => 'budget'])
+		// Throttled: no run until Retry-After has passed.
+		->and($r['throttled_health'])->toEqual(['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => (string) ($r['throttled_at'] + 900)])
+		->and($r['during_retry'])->toBe([])
+		->and($r['after_retry'])->toBe(['b1/m_a', 'b1/m_b']);
 });
 
 it('honours keep tables on uninstall when the runtime is refused', function () {

@@ -43,10 +43,23 @@ final class DigitalOceanDriver implements ProviderDriver {
 
 	private const MONTH = 2592000;
 
+	/** The longest wait a provider may impose through Retry-After or ratelimit-reset. */
+	private const MAX_WAIT = 3600;
+
 	private const ID_PATTERNS = [
 		DigitalOceanCatalog::DROPLET       => '/^[1-9][0-9]{0,19}$/',
 		DigitalOceanCatalog::LOAD_BALANCER => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
 	];
+
+	/** Percent of the token's limit this account may use; set per call. */
+	private int $share = 100;
+
+	/**
+	 * Seconds to wait once the rate-limit headers show the account's share
+	 * is used up: the rest of the token's limit is left to its other users
+	 * (REQ-BUDGET-003). Null while there is room.
+	 */
+	private ?int $exhausted = null;
 
 	public function __construct(private readonly HttpTransport $http, private readonly Clock $clock) {
 	}
@@ -78,6 +91,8 @@ final class DigitalOceanDriver implements ProviderDriver {
 	 * tested against a Droplet, so a team with none passes on the list scopes.
 	 */
 	public function verify(Account $account, Secret $credential): VerifyStatus {
+		$this->share = $account->requestShare;
+
 		try {
 			$droplets = $this->get($credential, '/v2/droplets', ['per_page' => 1, 'page' => 1]);
 			$this->get($credential, '/v2/load_balancers', ['per_page' => 1, 'page' => 1]);
@@ -97,13 +112,19 @@ final class DigitalOceanDriver implements ProviderDriver {
 	}
 
 	public function discover(Account $account, Secret $credential): Inventory {
-		$resources = [];
+		$this->share = $account->requestShare;
+		$resources   = [];
 		$requests  = 0;
 
 		foreach ([DigitalOceanCatalog::DROPLET => 'droplets', DigitalOceanCatalog::LOAD_BALANCER => 'load_balancers'] as $type => $key) {
 			for ($page = 1; ; $page++) {
 				if ($page > self::MAX_PAGES) {
 					throw new DriverError(ErrorClass::Malformed, $key . ' list exceeds ' . self::MAX_PAGES . ' pages');
+				}
+
+				// Stopping part way would return a cut-off list.
+				if ($this->exhausted !== null) {
+					throw new DriverError(ErrorClass::Throttled, 'request share used up', $this->exhausted);
 				}
 
 				$body = $this->get($credential, '/v2/' . $key, ['per_page' => self::PER_PAGE, 'page' => $page]);
@@ -131,12 +152,21 @@ final class DigitalOceanDriver implements ProviderDriver {
 	}
 
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
+		$this->share  = $account->requestShare;
 		$observations = [];
 		$sent         = 0;
 		$error        = null;
+		$retryAfter   = 0;
 		$now          = $this->clock->now();
 
 		foreach ($requests as $request) {
+			if ($this->exhausted !== null) {
+				$error      = ErrorClass::Throttled;
+				$retryAfter = $this->exhausted;
+
+				break;
+			}
+
 			$metric = DigitalOceanCatalog::metric($request->metric);
 			$id     = self::ID_PATTERNS[$request->resourceType] ?? null;
 
@@ -155,8 +185,9 @@ final class DigitalOceanDriver implements ProviderDriver {
 			} catch (DriverError $e) {
 				// A credential, scope, or rate problem fails every later
 				// request too, so the run stops there.
-				$stops = in_array($e->errorClass, [ErrorClass::Auth, ErrorClass::Permission, ErrorClass::Throttled], true);
-				$error = $stops || $error === null ? $e->errorClass : $error;
+				$stops      = in_array($e->errorClass, [ErrorClass::Auth, ErrorClass::Permission, ErrorClass::Throttled], true);
+				$error      = $stops || $error === null ? $e->errorClass : $error;
+				$retryAfter = $e->retryAfter;
 
 				if ($stops) {
 					break;
@@ -171,7 +202,7 @@ final class DigitalOceanDriver implements ProviderDriver {
 			}
 		}
 
-		return new CollectResult($observations, $sent, $error);
+		return new CollectResult($observations, $sent, $error, $retryAfter);
 	}
 
 	/**
@@ -208,8 +239,10 @@ final class DigitalOceanDriver implements ProviderDriver {
 		};
 
 		if ($class !== null) {
-			throw new DriverError($class, 'HTTP ' . $response->status);
+			throw new DriverError($class, 'HTTP ' . $response->status, $class === ErrorClass::Throttled ? $this->retryAfter($response) : 0);
 		}
+
+		$this->checkShare($response);
 
 		try {
 			$body = json_decode($response->body, true, 64, JSON_THROW_ON_ERROR);
@@ -222,6 +255,33 @@ final class DigitalOceanDriver implements ProviderDriver {
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Retry-After as seconds or an HTTP date, bounded; 0 when absent.
+	 */
+	private function retryAfter(HttpResponse $response): int {
+		$value = trim($response->header('retry-after'));
+		$wait  = ctype_digit($value) ? (int) $value : (($at = strtotime($value)) !== false && $value !== '' ? $at - $this->clock->now() : 0);
+
+		return max(0, min(self::MAX_WAIT, $wait));
+	}
+
+	/**
+	 * The hourly limit is a rolling count per token. Once what remains is no
+	 * more than the part of it reserved for other users of the token, stop
+	 * until ratelimit-reset, when the oldest request expires.
+	 */
+	private function checkShare(HttpResponse $response): void {
+		$limit     = $response->header('ratelimit-limit');
+		$remaining = $response->header('ratelimit-remaining');
+
+		if (!ctype_digit($limit) || !ctype_digit($remaining) || (int) $remaining > intdiv((int) $limit * (100 - $this->share), 100)) {
+			return;
+		}
+
+		$reset           = $response->header('ratelimit-reset');
+		$this->exhausted = max(1, min(self::MAX_WAIT, ctype_digit($reset) ? (int) $reset - $this->clock->now() : 60));
 	}
 
 	/**

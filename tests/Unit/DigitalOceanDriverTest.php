@@ -17,7 +17,6 @@
  * more details.
  */
 
-
 use Somethingwithproof\Cloud\Account;
 use Somethingwithproof\Cloud\CloudResource;
 use Somethingwithproof\Cloud\DigitalOceanCatalog;
@@ -339,4 +338,66 @@ it('registers DigitalOcean in production, and refuses every request when offline
 	} finally {
 		putenv('CLOUD_OFFLINE');
 	}
+});
+
+function cloud_do_limited(int $limit, int $remaining, int $reset): Closure {
+	return static function () use ($limit, $remaining, $reset): HttpResponse {
+		$response = cloud_do_json(cloud_do_fixture('droplet_cpu'));
+
+		return new HttpResponse(200, $response->headers + ['ratelimit-limit' => (string) $limit, 'ratelimit-remaining' => (string) $remaining, 'ratelimit-reset' => (string) $reset], $response->body);
+	};
+}
+
+it('passes on Retry-After from a 429, in seconds or as a date, bounded to an hour', function (string $header, int $expected) {
+	[$driver] = cloud_do_driver(static fn (): HttpResponse => new HttpResponse(429, ['retry-after' => $header], '{}'));
+
+	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_bw_pub_in')]);
+
+	expect($result->error)->toBe(ErrorClass::Throttled)
+		->and($result->requests)->toBe(1)
+		->and($result->retryAfter)->toBe($expected);
+})->with([
+	'seconds'    => ['120', 120],
+	'date'       => [gmdate('D, d M Y H:i:s', CLOUD_DO_NOW + 300) . ' GMT', 300],
+	'too long'   => ['86400', 3600],
+	'absent'     => ['', 0],
+	'nonsense'   => ['soon', 0],
+]);
+
+it('stops once the rate-limit headers leave only what other users of the token are owed', function () {
+	// A 50 percent share of 5,000 leaves 2,500 for others.
+	[$driver, $http] = cloud_do_driver(cloud_do_limited(5000, 2500, CLOUD_DO_NOW + 45));
+
+	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]);
+
+	expect(count($http->sent))->toBe(1)
+		->and($result->observations)->toHaveCount(1)
+		->and($result->error)->toBe(ErrorClass::Throttled)
+		->and($result->retryAfter)->toBe(45);
+});
+
+it('keeps reading while the headers show room in its share', function () {
+	[$driver, $http] = cloud_do_driver(cloud_do_limited(5000, 2501, CLOUD_DO_NOW + 45));
+
+	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]);
+
+	expect(count($http->sent))->toBe(2)->and($result->error)->toBeNull();
+});
+
+it('fails discovery rather than return a list cut off by the request share', function () {
+	[$driver] = cloud_do_driver(static function (): HttpResponse {
+		$body          = cloud_do_fixture('droplets');
+		$body['links'] = ['pages' => ['next' => 'https://api.digitalocean.com/v2/droplets?page=2']];
+
+		return new HttpResponse(200, ['ratelimit-limit' => '5000', 'ratelimit-remaining' => '10', 'ratelimit-reset' => (string) (CLOUD_DO_NOW + 30)], json_encode($body));
+	});
+
+	try {
+		$driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN));
+		$caught = null;
+	} catch (DriverError $e) {
+		$caught = $e;
+	}
+
+	expect($caught?->errorClass)->toBe(ErrorClass::Throttled)->and($caught?->retryAfter)->toBe(30);
 });

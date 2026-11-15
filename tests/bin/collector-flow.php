@@ -62,6 +62,8 @@ final class FlowDriver implements ProviderDriver {
 	public static ?FixedClock $clock = null;
 	/** seconds each discovery takes on $clock */
 	public static int $tick = 0;
+	/** when set, collect answers throttled with this Retry-After */
+	public static int $throttle = 0;
 
 	public function __construct(HttpTransport $http) {
 	}
@@ -94,6 +96,10 @@ final class FlowDriver implements ProviderDriver {
 	}
 
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
+		if (self::$throttle > 0) {
+			return new CollectResult([], 1, \Somethingwithproof\Cloud\ErrorClass::Throttled, self::$throttle);
+		}
+
 		$out = [];
 
 		foreach ($requests as $request) {
@@ -111,7 +117,7 @@ final class FlowDriver implements ProviderDriver {
 	}
 
 	public function estimate(array $requests, int $intervalSeconds): UsageEstimate {
-		return new UsageEstimate(0, 0, 0.0);
+		return new UsageEstimate(count($requests), 0, 0.0);
 	}
 }
 
@@ -272,6 +278,42 @@ $flow_clock->advance(3700);
 flow_collector($flow_clock, 'h9')->run(1, 100);
 $result['order'] = FlowDriver::$order;
 FlowDriver::$clock = null;
+
+// Budget: a 1 percent share of DigitalOcean's limits allows two requests a
+// run, so two of three series are read in their stored order and the third
+// is marked unread with reason budget.
+FlowDriver::$present = array('b1');
+$budgeted = flow_account('Budgeted', 1, 'enabled');
+db_execute_prepared('UPDATE plugin_cloud_account SET request_share = 1 WHERE id = ?', array($budgeted));
+$flow_clock->advance(3700);
+flow_collector($flow_clock, 'h10')->run(1, 240);
+$b1 = (int) db_fetch_cell_prepared("SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'b1'", array($budgeted));
+db_execute_prepared('INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric) VALUES (900001, ?, ?, ?), (900001, ?, ?, ?), (900001, ?, ?, ?)', array($budgeted, $b1, 'm_a', $budgeted, $b1, 'm_b', $budgeted, $b1, 'm_c'));
+
+$flow_b1 = static fn (): array => array_values(array_filter(FlowDriver::$collected, static fn (string $c): bool => str_starts_with($c, 'b1/')));
+
+$flow_clock->advance(300);
+FlowDriver::$collected = array();
+flow_collector($flow_clock, 'h11')->run(1, 240);
+$result['budget_collected'] = $flow_b1();
+$result['budget_health']    = db_fetch_row_prepared('SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?', array($budgeted));
+$result['budget_status']    = array_column(db_fetch_assoc_prepared('SELECT metric, status FROM plugin_cloud_observation WHERE resource_id = ? ORDER BY metric', array($b1)), 'status', 'metric');
+
+// A throttled run records when to try again; a due run before then does
+// nothing, and the first run after it collects.
+FlowDriver::$throttle = 900;
+$flow_clock->advance(300);
+$result['throttled_at'] = $flow_clock->now();
+flow_collector($flow_clock, 'h12')->run(1, 240);
+$result['throttled_health'] = db_fetch_row_prepared('SELECT collection, error_class, retry_at FROM plugin_cloud_health WHERE account_id = ?', array($budgeted));
+FlowDriver::$throttle  = 0;
+FlowDriver::$collected = array();
+$flow_clock->advance(300);
+flow_collector($flow_clock, 'h13')->run(1, 240);
+$result['during_retry'] = $flow_b1();
+$flow_clock->advance(700);
+flow_collector($flow_clock, 'h14')->run(1, 240);
+$result['after_retry'] = $flow_b1();
 
 db_execute('DELETE FROM data_template_data WHERE local_data_id IN (900001, 900002)');
 unlink($flow_dir . '/token');

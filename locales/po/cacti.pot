@@ -262,6 +262,11 @@ msgstr ""
 
 #: lib/HealthPage.php
 #, php-format
+msgid "retry in %d s"
+msgstr ""
+
+#: lib/HealthPage.php
+#, php-format
 msgid "%d seconds ago"
 msgstr ""
 

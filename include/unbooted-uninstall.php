@@ -31,7 +31,7 @@ function cloud_uninstall_unbooted(): void {
 	$keep = !is_array($row) || $row === array() || (isset($row['value']) && $row['value'] === 'on');
 
 	if ($keep) {
-		db_execute_prepared("DELETE FROM plugin_db_changes WHERE plugin = ? AND method = 'create'", array('cloud'));
+		db_execute_prepared("DELETE FROM plugin_db_changes WHERE plugin = ? AND method IN ('create', 'addcolumn')", array('cloud'));
 		cacti_log('NOTE: Uninstall kept the plugin tables as configured', false, 'CLOUD');
 	} else {
 		db_execute_prepared('DELETE FROM settings WHERE name = ?', array('cloud_schema_version'));
