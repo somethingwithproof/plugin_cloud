@@ -125,6 +125,17 @@ it('collects exactly the metrics graphed on the scope device, and stops when a g
 	expect(lifecycle('sync')['series'])->toBe(['102 do_load_1', '102 do_load_15', '102 do_load_5']);
 });
 
+it('moves a series to the resource its data source now reads', function () {
+	lifecycle('scope_device');
+	lifecycle('graph', 'do_cpu 101');
+
+	expect(lifecycle('sync')['series'])->toBe(['101 do_cpu_pct']);
+
+	lifecycle('move_index', '101=102');
+
+	expect(lifecycle('sync')['series'])->toBe(['102 do_cpu_pct']);
+});
+
 it('leaves the series alone when the collector syncing them no longer holds the lease', function () {
 	lifecycle('scope_device');
 	$cpu = lifecycle('graph', 'do_cpu 101')['result'];

@@ -38,6 +38,13 @@ final class SeriesRepository {
 	 * whose data sources could not be read: a failed query is not an empty
 	 * device.
 	 *
+	 * A row is the data source, metric, resource and account together, so
+	 * a data source an operator moved to another resource index, or to this
+	 * account's device from another account's, replaces its old row rather
+	 * than keeping it. Rows of other accounts whose data source is now on
+	 * this device are stale and go too; their own collector may never run
+	 * again to remove them.
+	 *
 	 * The rows change in one transaction that first locks the caller's lease
 	 * and checks it is still held, so a run that lost its lease while it read
 	 * cannot replace a newer holder's rows from its older snapshot.
@@ -85,11 +92,9 @@ final class SeriesRepository {
 				$metric = Row::string($row, 'metric');
 
 				if ((DigitalOceanCatalog::metric($metric)['type'] ?? null) === $type) {
-					$wanted[Row::int($row, 'local_data_id') . '/' . $metric] = [
-						Row::int($row, 'local_data_id'),
-						$metric,
-						Row::int($row, 'resource_id'),
-					];
+					$series = [Row::int($row, 'local_data_id'), $metric, Row::int($row, 'resource_id'), $accountId];
+
+					$wanted[implode('/', $series)] = $series;
 				}
 			}
 		}
@@ -106,8 +111,10 @@ final class SeriesRepository {
 
 		$existing = [];
 		$rows     = db_fetch_assoc_prepared(
-			'SELECT local_data_id, metric FROM plugin_cloud_series WHERE account_id = ?',
-			[$accountId],
+			'SELECT s.local_data_id, s.metric, s.resource_id, s.account_id FROM plugin_cloud_series s
+				LEFT JOIN data_local dl ON dl.id = s.local_data_id
+				WHERE s.account_id = ? OR dl.host_id = ?',
+			[$accountId, $host],
 			true,
 			$this->connection
 		);
@@ -119,24 +126,31 @@ final class SeriesRepository {
 		}
 
 		foreach (Row::rows($rows) as $row) {
-			$existing[Row::int($row, 'local_data_id') . '/' . Row::string($row, 'metric')] = [
+			$series = [
 				Row::int($row, 'local_data_id'),
 				Row::string($row, 'metric'),
+				Row::int($row, 'resource_id'),
+				Row::int($row, 'account_id'),
 			];
+
+			$existing[implode('/', $series)] = $series;
 		}
 
 		$writes = [];
 
-		foreach (array_diff_key($existing, $wanted) as [$local, $metric]) {
+		// Deletes first: a replaced row holds the data source and metric key
+		// its replacement needs.
+		foreach (array_diff_key($existing, $wanted) as [$local, $metric, $resource, $account]) {
 			$writes[] = [
-				'DELETE FROM plugin_cloud_series WHERE account_id = ? AND local_data_id = ? AND metric = ?',
-				[$accountId, $local, $metric],
+				'DELETE FROM plugin_cloud_series
+					WHERE local_data_id = ? AND metric = ? AND resource_id = ? AND account_id = ?',
+				[$local, $metric, $resource, $account],
 			];
 		}
 
 		foreach (array_diff_key($wanted, $existing) as [$local, $metric, $resource]) {
 			$writes[] = [
-				'INSERT IGNORE INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric, created_at)
+				'INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric, created_at)
 					VALUES (?, ?, ?, ?, UNIX_TIMESTAMP())',
 				[$local, $accountId, $resource, $metric],
 			];

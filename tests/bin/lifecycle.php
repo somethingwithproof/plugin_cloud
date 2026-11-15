@@ -303,6 +303,17 @@ switch ($action) {
 		$result    = (int) $created['local_graph_id'];
 
 		break;
+	case 'move_index':
+		// Point the scope device's data sources at another resource index,
+		// as editing a data source's index does: "<from>=<to>".
+		list($from, $to) = explode('=', $argument, 2);
+		db_execute_prepared(
+			'UPDATE data_local dl INNER JOIN plugin_cloud_device d ON d.host_id = dl.host_id
+				SET dl.snmp_index = ? WHERE dl.snmp_index = ?',
+			array($to, $from)
+		);
+
+		break;
 	case 'remove_graph':
 		// Delete a graph and its data sources, as the Graphs page does.
 		include_once($config['base_path'] . '/lib/api_data_source.php');

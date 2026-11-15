@@ -23,21 +23,40 @@ use Somethingwithproof\Cloud\SeriesRepository;
 
 /*
  * Series sync against the database stubs: account 4's scope device is host
- * 7, its one recorded series reads do_cpu_pct from data source 5, and run-1
- * holds its lease unless a test says otherwise.
+ * 7, its one recorded series reads do_cpu_pct of resource 11 from data
+ * source 5, and run-1 holds its lease unless a test says otherwise.
  */
 
 /**
- * @param list<array<string, mixed>>|false $sources the scope device's data sources
+ * @param list<array<string, mixed>>|false $sources  the scope device's data sources
+ * @param list<array<string, mixed>>|null  $recorded series rows of the account or its device
  */
-function cloud_series_world(array|false $sources, bool $held = true): void {
+function cloud_series_world(array|false $sources, bool $held = true, ?array $recorded = null): void {
 	$GLOBALS['__cloud_db_exec'] = [];
 	$GLOBALS['__cloud_db_rows'] = [
 		'FROM plugin_cloud_device' => [['host_id' => 7]],
 		'FROM data_local'          => $sources,
 		'FROM plugin_cloud_lease'  => [['held' => $held ? 1 : 0]],
-		'FROM plugin_cloud_series' => [['local_data_id' => 5, 'metric' => 'do_cpu_pct']],
+		'FROM plugin_cloud_series' => $recorded
+			?? [['local_data_id' => 5, 'metric' => 'do_cpu_pct', 'resource_id' => 11, 'account_id' => 4]],
 	];
+}
+
+/**
+ * @return list<array{0: string, 1: list<mixed>}> each mutating statement's verb and parameters
+ */
+function cloud_series_mutations(): array {
+	$out = [];
+
+	foreach ($GLOBALS['__cloud_db_exec'] as $exec) {
+		$verb = strtok(trim($exec['sql']), ' ');
+
+		if (in_array($verb, ['DELETE', 'INSERT'], true)) {
+			$out[] = [$verb, $exec['params']];
+		}
+	}
+
+	return $out;
 }
 
 function cloud_series_sync(): bool {
@@ -84,4 +103,35 @@ it('rolls back when a write leaves the transaction, as a deadlock retry does', f
 		->and(cloud_series_writes())->toBe(['BEGIN', 'DELETE']);
 
 	$GLOBALS['__cloud_in_tx'] = [];
+});
+
+it('keeps a series whose data source, resource and account are unchanged', function () {
+	cloud_series_world([['local_data_id' => 5, 'metric' => 'do_cpu_pct', 'resource_id' => 11]]);
+
+	expect(cloud_series_sync())->toBeTrue()
+		->and(cloud_series_writes())->toBe(['BEGIN', 'COMMIT']);
+});
+
+it('replaces a series whose data source an operator moved to another resource', function () {
+	cloud_series_world([['local_data_id' => 5, 'metric' => 'do_cpu_pct', 'resource_id' => 12]]);
+
+	expect(cloud_series_sync())->toBeTrue()
+		->and(cloud_series_mutations())->toBe([
+			['DELETE', [5, 'do_cpu_pct', 11, 4]],
+			['INSERT', [5, 4, 12, 'do_cpu_pct']],
+		]);
+});
+
+it('replaces another account\'s series whose data source is now on this account\'s device', function () {
+	cloud_series_world(
+		[['local_data_id' => 5, 'metric' => 'do_cpu_pct', 'resource_id' => 11]],
+		true,
+		[['local_data_id' => 5, 'metric' => 'do_cpu_pct', 'resource_id' => 30, 'account_id' => 3]]
+	);
+
+	expect(cloud_series_sync())->toBeTrue()
+		->and(cloud_series_mutations())->toBe([
+			['DELETE', [5, 'do_cpu_pct', 30, 3]],
+			['INSERT', [5, 4, 11, 'do_cpu_pct']],
+		]);
 });
