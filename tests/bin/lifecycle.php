@@ -207,6 +207,11 @@ switch ($action) {
 		}
 
 		break;
+	case 'drop_host':
+		// Delete the device row without Cacti's hooks, as when the plugin is disabled.
+		db_execute('DELETE h FROM host h INNER JOIN plugin_cloud_device d ON d.host_id = h.id');
+
+		break;
 	case 'remove_device':
 		include_once($config['base_path'] . '/lib/api_device.php');
 		api_device_remove((int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device'));

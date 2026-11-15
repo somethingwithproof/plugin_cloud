@@ -114,7 +114,7 @@ final class ScopeDevices {
 			5, 1,                           // max_oids, device_threads
 			$account->pollerId,
 			0,                              // site: none
-			'cloud:' . $account->id,        // external_id
+			DeviceRepository::EXTERNAL_PREFIX . $account->id, // external_id; the link checks it
 			'',                             // location
 		];
 	}
