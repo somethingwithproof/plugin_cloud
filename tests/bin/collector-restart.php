@@ -134,10 +134,17 @@ switch ($action) {
 		// An enabled account a running collector would lease at once.
 		db_execute("INSERT INTO plugin_cloud_account (provider, name, poller_id, credential_source, admin_state) VALUES ('digitalocean', 'Second start', 1, 'vault', 'enabled')");
 
-		// This process holds the collector slot for poller 1.
-		register_process_start('cloud', 'collector', 1, 300);
+		// A live process holds the collector slot for poller 1. Cacti 1.2.x
+		// treats a slot as held only when the holder runs the same script,
+		// so the stand-in names poller_cloud.php on its command line.
+		$script  = $config['base_path'] . '/plugins/cloud/poller_cloud.php';
+		$holder  = proc_open(array(PHP_BINARY, '-r', 'sleep(60);', $script), array(0 => array('file', '/dev/null', 'r'), 1 => array('file', '/dev/null', 'w'), 2 => array('file', '/dev/null', 'w')), $pipes);
+		$status  = proc_get_status($holder);
+		register_process('cloud', 'collector', 1, $status['pid'], 300);
 		$started = microtime(true);
-		exec(escapeshellarg(PHP_BINARY) . ' -q ' . escapeshellarg($config['base_path'] . '/plugins/cloud/poller_cloud.php') . ' --poller=1 --force 2>&1', $lines, $rc);
+		exec(escapeshellarg(PHP_BINARY) . ' -q ' . escapeshellarg($script) . ' --poller=1 --force 2>&1', $lines, $rc);
+		proc_terminate($holder, 9);
+		proc_close($holder);
 		unregister_process('cloud', 'collector', 1);
 		$result = array('rc' => $rc, 'seconds' => round(microtime(true) - $started, 1), 'output' => implode("\n", $lines), 'leases' => (int) db_fetch_cell('SELECT COUNT(*) FROM plugin_cloud_lease'));
 
