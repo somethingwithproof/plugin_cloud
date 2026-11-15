@@ -422,6 +422,53 @@ function cloud_device_remove($ids) {
 	return $ids;
 }
 
+function cloud_estimate_view(): \Somethingwithproof\Cloud\EstimateView {
+	return new \Somethingwithproof\Cloud\EstimateView(
+		new \Somethingwithproof\Cloud\CostPreview(
+			new \Somethingwithproof\Cloud\ResourceRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+			new \Somethingwithproof\Cloud\SeriesRepository(false)
+		),
+		\Somethingwithproof\Cloud\Drivers::production()
+	);
+}
+
+/**
+ * New Graphs, for a scope device: what graphing everything would cost, and
+ * a link to the per-graph estimate (REQ-COST-001). Cached data only.
+ */
+function cloud_graphs_new_top_links(): void {
+	global $config;
+
+	$host = get_request_var('host_id');
+
+	if (!is_numeric($host) || !cloud_boot() || !api_user_realm_auth('cloud_health.php')) {
+		return;
+	}
+
+	$clock   = new \Somethingwithproof\Cloud\SystemClock();
+	$id      = (new \Somethingwithproof\Cloud\DeviceRepository(false, $clock))->accountFor((int) $host);
+	$account = $id === null ? null : cloud_accounts()->find($id);
+	$driver  = $account === null ? null : \Somethingwithproof\Cloud\Drivers::production()->for($account);
+
+	if ($account === null || $driver === null) {
+		return;
+	}
+
+	$view = cloud_estimate_view();
+	$note = $view->budgetNote($account, $driver);
+
+	print "<span class='linkMarker'>*</span><a class='hyperLink' href='"
+		. html_escape(
+			$config['url_path'] . 'plugins/cloud/cloud_health.php#'
+				. \Somethingwithproof\Cloud\EstimateView::ANCHOR . $account->id
+		)
+		. "'>" . __esc('Cloud Request Estimate', 'cloud') . '</a><br>';
+
+	if ($note !== null) {
+		print '<span' . ($note[1] ? " class='textError'" : '') . '>' . html_escape($note[0]) . '</span><br>';
+	}
+}
+
 function cloud_poller_bottom(): void {
 	global $config;
 

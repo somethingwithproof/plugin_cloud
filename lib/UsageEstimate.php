@@ -19,11 +19,18 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * What collecting a set of series costs (REQ-COST-001). The cost is at list
+ * price, before discounts and shared free tiers (REQ-COST-003), and names
+ * the page the price came from and the date it was checked.
+ */
 final readonly class UsageEstimate {
 	public function __construct(
 		public int $requestsPerCollection,
 		public int $requestsPerMonth,
 		public float $monthlyCost,
+		public string $priceSource = '',
+		public string $priceChecked = '',
 	) {
 	}
 }

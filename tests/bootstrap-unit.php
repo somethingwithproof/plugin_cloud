@@ -76,10 +76,16 @@ if (!function_exists('read_config_option')) {
 $GLOBALS['__cloud_db_exec'] = [];
 $GLOBALS['__cloud_db_rows'] = [];
 
-function cloud_test_rows(string $sql): mixed {
+/**
+ * The stub rows for the first needle the SQL contains. A Closure entry
+ * answers from the bound parameters.
+ *
+ * @param list<mixed> $params
+ */
+function cloud_test_rows(string $sql, array $params = []): mixed {
 	foreach ($GLOBALS['__cloud_db_rows'] as $needle => $rows) {
 		if (str_contains($sql, $needle)) {
-			return $rows;
+			return $rows instanceof \Closure ? $rows($params) : $rows;
 		}
 	}
 
@@ -96,7 +102,7 @@ if (!function_exists('db_execute_prepared')) {
 
 if (!function_exists('db_fetch_assoc_prepared')) {
 	function db_fetch_assoc_prepared($sql, $params = [], $log = true, $db_conn = false, $log_function = null) {
-		return cloud_test_rows($sql);
+		return cloud_test_rows($sql, $params);
 	}
 }
 
@@ -167,3 +173,22 @@ $GLOBALS['config'] = [
 
 require_once dirname(__DIR__) . '/setup.php';
 require_once dirname(__DIR__) . '/include/autoload.php';
+
+// Cacti's page helpers, enough to render a box into a string.
+if (!function_exists('html_escape')) {
+	function html_escape($string) {
+		return htmlspecialchars((string) $string, ENT_QUOTES, 'UTF-8');
+	}
+}
+
+if (!function_exists('html_start_box')) {
+	function html_start_box($title, $width, $div, $cell_padding, $align, $add_text) {
+		print '<table><tr><th>' . html_escape($title) . '</th></tr>';
+	}
+}
+
+if (!function_exists('html_end_box')) {
+	function html_end_box($trailing_br = true) {
+		print '</table>';
+	}
+}

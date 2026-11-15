@@ -174,7 +174,7 @@ flowchart TB
 
 | Component | Responsibility | Interfaces | Failure behavior |
 |---|---|---|---|
-| Plugin pages | Accounts, credentials, inventory, graph selection with cost estimate, health | Cacti page framework, csrf-magic, realms | Show cached data with its age; never call a provider during a page request except Verify |
+| Plugin pages | Accounts, credentials, inventory, health with the request estimate, an estimate link and summary on New Graphs for scope devices | Cacti page framework, csrf-magic, realms | Show cached data with its age; never call a provider during a page request except Verify |
 | Collector (`poller_cloud.php`) | For each due account: refresh credentials, run discovery when due, read metrics for enabled data sources, update the cache and health | `poller_bottom`, `exec_background()`, `register_process_start()`, filtered by `poller_id` | One instance per poller; time budget per run; per-account lease; resumes next cycle |
 | Provider driver | Authentication, endpoints, discovery, metric reads, cost and request estimates for one provider | `ProviderDriver` interface | Returns typed errors (`auth`, `permission`, `throttled`, `transient`, `malformed`, `config`); never throws provider text into pages |
 | Transport | One HTTPS request at a time with timeouts, size cap, no redirects, outbound allowlist | `HttpTransport` interface | A refused URL never resolves a name or opens a socket |

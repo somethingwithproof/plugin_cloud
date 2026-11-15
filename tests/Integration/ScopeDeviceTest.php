@@ -104,3 +104,13 @@ it('collects exactly the metrics graphed on the scope device, and stops when a g
 
 	expect(lifecycle('sync')['series'])->toBe(['102 do_load_1', '102 do_load_15', '102 do_load_5']);
 });
+
+it('shows the request estimate on New Graphs for a scope device only, to users who may view it', function () {
+	$host  = (string) lifecycle('scope_device')['result'];
+	$links = lifecycle('top_links', '1 ' . $host)['result'];
+
+	expect($links)->toContain('plugins/cloud/cloud_health.php#cloud-estimate-')
+		->and($links)->toContain('Request share: 2,500 requests per hour, 50 percent of the token limit. Collected now: 0.')
+		->and(lifecycle('top_links', '1 1')['result'])->toBe('')
+		->and(lifecycle('top_links', '0 ' . $host)['result'])->toBe('');
+});

@@ -41,6 +41,16 @@ final class RequestBudget {
 		'digitalocean' => [5000, 250],
 	];
 
+	/**
+	 * The account's share of its token's hourly limit, or null for a
+	 * provider without one.
+	 */
+	public static function hourlyShare(Account $account): ?int {
+		$limits = self::LIMITS[$account->provider->value] ?? null;
+
+		return $limits === null ? null : intdiv($limits[0] * $account->requestShare, 100);
+	}
+
 	public static function perRun(Account $account): ?int {
 		$limits = self::LIMITS[$account->provider->value] ?? null;
 

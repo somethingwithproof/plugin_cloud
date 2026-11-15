@@ -234,6 +234,85 @@ msgstr ""
 msgid "Instance identity of the poller"
 msgstr ""
 
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr ""
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr ""
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr ""
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr ""
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr ""
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Collection already exceeds the share; the rest reads U."
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr ""
+
 #: lib/HealthPage.php
 msgid "Cloud Warnings"
 msgstr ""
@@ -244,10 +323,6 @@ msgstr ""
 
 #: lib/HealthPage.php
 msgid "Cloud Collection"
-msgstr ""
-
-#: lib/HealthPage.php
-msgid "Account"
 msgstr ""
 
 #: lib/HealthPage.php
@@ -268,10 +343,6 @@ msgstr ""
 
 #: lib/HealthPage.php
 msgid "Discovery"
-msgstr ""
-
-#: lib/HealthPage.php
-msgid "Resources"
 msgstr ""
 
 #: lib/HealthPage.php

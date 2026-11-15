@@ -43,6 +43,10 @@ final class DigitalOceanDriver implements ProviderDriver {
 
 	private const MONTH = 2592000;
 
+	/** Where the rate limit is documented and no API charge is (provider facts DO10). */
+	private const PRICE_SOURCE  = 'https://docs.digitalocean.com/reference/api/reference/openapi.json';
+	private const PRICE_CHECKED = '2026-11-14';
+
 	/** The longest wait a provider may impose through Retry-After or ratelimit-reset. */
 	private const MAX_WAIT = 3600;
 
@@ -248,7 +252,13 @@ final class DigitalOceanDriver implements ProviderDriver {
 	public function estimate(array $requests, int $intervalSeconds): UsageEstimate {
 		$perCollection = count($requests);
 
-		return new UsageEstimate($perCollection, (int) ceil($perCollection * self::MONTH / max(1, $intervalSeconds)), 0.0);
+		return new UsageEstimate(
+			$perCollection,
+			(int) ceil($perCollection * self::MONTH / max(1, $intervalSeconds)),
+			0.0,
+			self::PRICE_SOURCE,
+			self::PRICE_CHECKED
+		);
 	}
 
 	/**

@@ -47,4 +47,5 @@ $cloud_page->render(
 	api_user_realm_auth('cloud_accounts.php'),
 	(int) read_config_option('poller_interval')
 );
+cloud_estimate_view()->render(cloud_accounts()->all());
 bottom_footer();
