@@ -345,7 +345,7 @@ Arithmetic at 1,000 series collected every 300 seconds (8,640 collections a mont
 | Google Cloud | One or more per metric type and project | About $3.82 (8.64 million series, first million free, $0.50 per million) |
 | Azure | One per 50 resources, region, and type (if a batch bills as one call) | Within the free million calls per subscription: 20 calls per collection, 172,800 a month. If each resource bills separately, about $76 ([cost model](research/cost-model.md)) |
 
-Engineering targets, to be measured, not yet demonstrated:
+Engineering targets, measured against a fixture server in [performance.md](performance.md):
 
 - A collector run for 1,000 series finishes within one poller interval, including provider latency.
 - No page request calls a provider, except Verify on the account page.

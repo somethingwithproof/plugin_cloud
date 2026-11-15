@@ -74,6 +74,7 @@ These steps install the milestone 2 code for evaluation. They require Cacti 1.2.
 
 ## Design
 
+- [docs/performance.md](docs/performance.md) has the collector and health page measurements, with the hardware and settings used.
 - [docs/PLAN.md](docs/PLAN.md) is the full plan: architecture, the provider and Cacti facts it depends on (with sources), the driver contract, cost arithmetic, security boundaries, testing, and risks.
 - [docs/decisions/](docs/decisions/) holds architecture decision records for choices already made.
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) maps every requirement ID to its issue.
