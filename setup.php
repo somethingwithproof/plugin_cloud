@@ -128,6 +128,52 @@ function plugin_cloud_check_config(): bool {
 	return plugin_cloud_upgrade();
 }
 
+/**
+ * Common start of every page script, after include/auth.php has authorized
+ * the realm. Refuses on an unsupported runtime or a disabled plugin, because
+ * Cacti keeps plugin realms registered while a plugin is disabled.
+ */
+function cloud_page_start(): bool {
+	if (cloud_boot() && api_plugin_is_enabled('cloud')) {
+		return true;
+	}
+
+	top_header();
+
+	html_start_box(__('Cloud', 'cloud'), '100%', '', '3', 'center', '');
+
+	print '<tr><td>' . html_escape(cloud_php_supported() ? __('The Cloud plugin is not enabled.', 'cloud') : __('The Cloud plugin requires PHP %s or later.', '8.2.0', 'cloud')) . '</td></tr>';
+
+	html_end_box();
+
+	bottom_footer();
+
+	return false;
+}
+
+/**
+ * State-changing actions are accepted only as POST (REQ-UI-004). A GET that
+ * names one is sent back to the page without effect.
+ *
+ * @param list<string> $actions
+ */
+function cloud_require_post(string $page, array $actions): void {
+	$action = (string) get_nfilter_request_var('action');
+
+	if (in_array($action, $actions, true) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+		header('Location: ' . $page);
+		exit;
+	}
+}
+
+function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
+	return new \Somethingwithproof\Cloud\CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()), cloud_settings()->vaultKeyFile);
+}
+
+function cloud_accounts(): \Somethingwithproof\Cloud\AccountRepository {
+	return new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+}
+
 function cloud_settings(): \Somethingwithproof\Cloud\Settings {
 	return (new \Somethingwithproof\Cloud\SettingsRepository(false))->load();
 }

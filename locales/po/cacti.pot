@@ -16,6 +16,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr ""
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr ""
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr ""
+
 #: lib/AccountInput.php
 msgid "Provider: choose one of the listed providers."
 msgstr ""
@@ -46,11 +67,11 @@ msgstr ""
 msgid "%s: enter whole seconds from %d to %d."
 msgstr ""
 
-#: lib/AccountInput.php
+#: lib/AccountInput.php lib/AccountsPage.php
 msgid "Collection Interval"
 msgstr ""
 
-#: lib/AccountInput.php
+#: lib/AccountInput.php lib/AccountsPage.php
 msgid "Discovery Interval"
 msgstr ""
 
@@ -82,6 +103,103 @@ msgstr ""
 msgid "Subscription ID"
 msgstr ""
 
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Actions"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Credential"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "State"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "No cloud accounts yet."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Disabled"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr ""
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr ""
+
 #: lib/CredentialSource.php
 msgid "Stored in the plugin vault"
 msgstr ""
@@ -100,10 +218,6 @@ msgstr ""
 
 #: lib/Pages.php
 msgid "Cloud Admin"
-msgstr ""
-
-#: lib/Pages.php
-msgid "Cloud Accounts"
 msgstr ""
 
 #: lib/Pages.php
@@ -205,9 +319,18 @@ msgid "The Cloud plugin requires the PHP extensions %s, which this server does n
 msgstr ""
 
 #: setup.php
-msgid "Management"
+msgid "Cloud"
 msgstr ""
 
 #: setup.php
-msgid "Cloud"
+msgid "The Cloud plugin is not enabled."
+msgstr ""
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr ""
+
+#: setup.php
+msgid "Management"
 msgstr ""
