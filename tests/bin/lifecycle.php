@@ -111,6 +111,51 @@ switch ($action) {
 		db_execute("INSERT INTO plugin_cloud_account (provider, name, credential_source) VALUES ('digitalocean', 'Seed', 'vault')");
 
 		break;
+	case 'credential_flow':
+		// Create, edit, store a vault credential, read it back, and delete
+		// an account through the repositories, then search every plugin
+		// table and the Cacti log for the secret (REQ-CRED-004).
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+
+		$secret  = 'dop_v1_' . bin2hex(random_bytes(32));
+		$keyFile = sys_get_temp_dir() . '/cloud-test-' . getmypid() . '.key';
+		file_put_contents($keyFile, bin2hex(random_bytes(32)));
+		chmod($keyFile, 0600);
+
+		$clock    = new \Somethingwithproof\Cloud\SystemClock();
+		$accounts = new \Somethingwithproof\Cloud\AccountRepository(false, $clock);
+		$store    = new \Somethingwithproof\Cloud\CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, $clock), $keyFile);
+		$input    = array('provider' => 'digitalocean', 'name' => 'Flow', 'poller_id' => '1', 'credential_source' => 'vault', 'collect_interval' => '300', 'discover_interval' => '3600', 'request_share' => '50', 'enabled' => 'on');
+
+		$id = $accounts->save(\Somethingwithproof\Cloud\AccountInput::parse($input, 0, \Somethingwithproof\Cloud\Provider::released())->account, 1);
+		$store->storeVaultCredential($id, new \Somethingwithproof\Cloud\Secret($secret));
+		$accounts->recordCredentialChange($id, 1);
+		$accounts->save(\Somethingwithproof\Cloud\AccountInput::parse(array('name' => 'Flow renamed') + $input, $id, \Somethingwithproof\Cloud\Provider::released())->account, 1);
+		$accounts->recordVerify($id, \Somethingwithproof\Cloud\VerifyStatus::Invalid, 1);
+
+		$readBack = $store->credentialFor($accounts->find($id))->reveal() === $secret;
+		$audit    = array_reverse(array_column($accounts->auditLog($id), 'action'));
+		$leaks    = array();
+
+		foreach (db_fetch_assoc("SELECT TABLE_NAME AS t FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'plugin\\_cloud\\_%'") as $table) {
+			foreach (db_fetch_assoc('SELECT * FROM `' . $table['t'] . '`') as $row) {
+				if (strpos(implode("\0", array_map('strval', $row)), $secret) !== false) {
+					$leaks[] = $table['t'];
+				}
+			}
+		}
+
+		if (strpos((string) @file_get_contents(cacti_log_file()), $secret) !== false) {
+			$leaks[] = 'cacti.log';
+		}
+
+		$accounts->delete($id, 1);
+		unlink($keyFile);
+
+		$result = array('read_back' => $readBack, 'audit' => $audit, 'leaks' => $leaks, 'account_gone' => $accounts->find($id) === null);
+
+		break;
 	case 'state':
 		break;
 	default:

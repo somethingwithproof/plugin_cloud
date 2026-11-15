@@ -1,0 +1,218 @@
+<?php
+/*
+ * SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * This file is part of plugin_cloud, a plugin for Cacti.
+ * https://github.com/somethingwithproof/plugin_cloud
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ */
+
+use Somethingwithproof\Cloud\CredentialError;
+use Somethingwithproof\Cloud\CredentialFile;
+use Somethingwithproof\Cloud\Redactor;
+use Somethingwithproof\Cloud\Secret;
+use Somethingwithproof\Cloud\Vault;
+use Somethingwithproof\Cloud\VaultEntry;
+use Somethingwithproof\Cloud\VaultKey;
+
+const CLOUD_TEST_SECRET = 'dop_v1_0123456789abcdef0123456789abcdef0123456789abcdef0123456789ab';
+
+beforeEach(function () {
+	$this->dir = sys_get_temp_dir() . '/cloud-vault-' . bin2hex(random_bytes(4));
+	mkdir($this->dir, 0700);
+});
+
+afterEach(function () {
+	foreach (glob($this->dir . '/{,.}*', GLOB_BRACE) ?: [] as $path) {
+		if (is_link($path) || is_file($path)) {
+			unlink($path);
+		} elseif (is_dir($path) && !in_array(basename($path), ['.', '..'], true)) {
+			rmdir($path);
+		}
+	}
+
+	rmdir($this->dir);
+});
+
+function cloud_file(string $dir, string $name, string $content, int $mode = 0600): string {
+	$path = $dir . '/' . $name;
+	file_put_contents($path, $content);
+	chmod($path, $mode);
+
+	return $path;
+}
+
+function cloud_refusal(callable $read): string {
+	try {
+		$read();
+	} catch (CredentialError $e) {
+		return $e->getMessage();
+	}
+
+	return 'accepted';
+}
+
+it('round-trips a secret through AES-256-GCM with a fresh nonce each time', function () {
+	$vault = new Vault(VaultKey::fromBytes(random_bytes(32)));
+	$one   = $vault->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
+	$two   = $vault->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
+
+	expect($vault->decrypt($one, 5, 'credential')->reveal())->toBe(CLOUD_TEST_SECRET)
+		->and(strlen($one->nonce))->toBe(Vault::NONCE_BYTES)
+		->and($one->nonce)->not->toBe($two->nonce)
+		->and($one->ciphertext)->not->toContain(CLOUD_TEST_SECRET);
+});
+
+it('binds a ciphertext to its account and purpose', function () {
+	$vault = new Vault(VaultKey::fromBytes(random_bytes(32)));
+	$entry = $vault->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
+
+	expect(cloud_refusal(fn () => $vault->decrypt($entry, 6, 'credential')))->toContain('integrity')
+		->and(cloud_refusal(fn () => $vault->decrypt($entry, 5, 'token')))->toContain('integrity');
+});
+
+it('detects a tampered ciphertext or tag', function () {
+	$vault = new Vault(VaultKey::fromBytes(random_bytes(32)));
+	$entry = $vault->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
+
+	$flipped = new VaultEntry($entry->nonce, $entry->ciphertext ^ "\x01", $entry->tag, $entry->keyId);
+	$badTag  = new VaultEntry($entry->nonce, $entry->ciphertext, str_repeat("\0", 16), $entry->keyId);
+
+	expect(cloud_refusal(fn () => $vault->decrypt($flipped, 5, 'credential')))->toContain('integrity')
+		->and(cloud_refusal(fn () => $vault->decrypt($badTag, 5, 'credential')))->toContain('integrity');
+});
+
+it('reports a replaced key as such, not as corruption', function () {
+	$entry = (new Vault(VaultKey::fromBytes(random_bytes(32))))->encrypt(new Secret(CLOUD_TEST_SECRET), 5, 'credential');
+
+	expect(cloud_refusal(fn () => (new Vault(VaultKey::fromBytes(random_bytes(32))))->decrypt($entry, 5, 'credential')))->toContain('different vault key');
+});
+
+it('reads a key file of 32 raw bytes or 64 hex characters', function () {
+	$bytes = random_bytes(32);
+
+	expect(VaultKey::fromFile(cloud_file($this->dir, 'raw', $bytes))->bytes())->toBe($bytes)
+		->and(VaultKey::fromFile(cloud_file($this->dir, 'hex', bin2hex($bytes) . "\n"))->bytes())->toBe($bytes)
+		->and(VaultKey::fromFile(cloud_file($this->dir, 'hex0640', bin2hex($bytes), 0640))->bytes())->toBe($bytes);
+});
+
+it('refuses key files that fail a check, naming the check', function (string $case, string $reason) {
+	$dir = $this->dir;
+
+	$path = match ($case) {
+		'relative'   => 'etc/cloud.key',
+		'missing'    => $dir . '/missing.key',
+		'symlink'    => (function () use ($dir) { symlink(cloud_file($dir, 'target', bin2hex(random_bytes(32))), $dir . '/link'); return $dir . '/link'; })(),
+		'directory'  => (function () use ($dir) { mkdir($dir . '/sub', 0700); return $dir . '/sub'; })(),
+		'world-read' => cloud_file($dir, 'wr', bin2hex(random_bytes(32)), 0604),
+		'world-write'=> cloud_file($dir, 'ww', bin2hex(random_bytes(32)), 0602),
+		'short'      => cloud_file($dir, 'short', random_bytes(31)),
+		'long'       => cloud_file($dir, 'long', random_bytes(33)),
+		'not hex'    => cloud_file($dir, 'nothex', str_repeat('g', 64)),
+		'oversize'   => cloud_file($dir, 'big', str_repeat('a', 100)),
+	};
+
+	expect(cloud_refusal(fn () => VaultKey::fromFile($path)))->toContain($reason);
+})->with([
+	['relative', 'absolute path'],
+	['missing', 'does not exist'],
+	['symlink', 'symbolic link'],
+	['directory', 'not a regular file'],
+	['world-read', 'other users'],
+	['world-write', 'other users'],
+	['short', '32 bytes or 64 hexadecimal'],
+	['long', '32 bytes or 64 hexadecimal'],
+	['not hex', '32 bytes or 64 hexadecimal'],
+	['oversize', 'larger than allowed'],
+]);
+
+it('refuses credential files that fail a check', function () {
+	$dir = $this->dir;
+	symlink(cloud_file($dir, 'real', CLOUD_TEST_SECRET), $dir . '/link');
+
+	expect(CredentialFile::read(cloud_file($dir, 'ok', CLOUD_TEST_SECRET . "\n"))->reveal())->toBe(CLOUD_TEST_SECRET)
+		->and(cloud_refusal(fn () => CredentialFile::read('token')))->toContain('absolute path')
+		->and(cloud_refusal(fn () => CredentialFile::read($dir . '/link')))->toContain('symbolic link')
+		->and(cloud_refusal(fn () => CredentialFile::read($dir)))->toContain('not a regular file')
+		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'open', CLOUD_TEST_SECRET, 0644))))->toContain('other users')
+		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'empty', "\n"))))->toContain('empty')
+		->and(cloud_refusal(fn () => CredentialFile::read(cloud_file($dir, 'big', str_repeat('a', CredentialFile::MAX_BYTES + 1)))))->toContain('larger than allowed');
+});
+
+it('never puts secret material in a refusal message', function () {
+	$path = cloud_file($this->dir, 'k', CLOUD_TEST_SECRET);
+
+	expect(cloud_refusal(fn () => VaultKey::fromFile($path)))->not->toContain(CLOUD_TEST_SECRET);
+});
+
+it('hides secrets from dumps and refuses to serialize or export them', function () {
+	$secret = new Secret(CLOUD_TEST_SECRET);
+	$key    = VaultKey::fromBytes(str_repeat('k', 32));
+
+	ob_start();
+	var_dump($secret, $key);
+	$dumped = (string) ob_get_clean();
+
+	expect($dumped . print_r($secret, true) . print_r($key, true))->not->toContain(CLOUD_TEST_SECRET)
+		->and($dumped)->not->toContain(str_repeat('k', 32))
+		->and(fn () => serialize($secret))->toThrow(LogicException::class)
+		->and(fn () => serialize($key))->toThrow(LogicException::class)
+		->and(fn () => json_encode(['s' => $secret], JSON_THROW_ON_ERROR))->not->toThrow(Throwable::class)
+		->and(json_encode(['s' => $secret]))->not->toContain(CLOUD_TEST_SECRET);
+});
+
+it('keeps secrets out of exception traces', function () {
+	$trace = '';
+
+	try {
+		(static function (Secret $s, string $raw) {
+			throw new RuntimeException('boom');
+		})(new Secret(CLOUD_TEST_SECRET), 'x');
+	} catch (RuntimeException $e) {
+		$trace = $e->getTraceAsString();
+	}
+
+	expect($trace)->not->toContain(CLOUD_TEST_SECRET);
+});
+
+it('redacts known secrets in every encoding and authorization material by pattern', function () {
+	$redactor = new Redactor();
+	$redactor->add(new Secret('p@ss/word+with spaces'));
+	$redactor->add(new Secret(CLOUD_TEST_SECRET));
+
+	$text = implode("\n", [
+		'token ' . CLOUD_TEST_SECRET,
+		'url ?key=' . rawurlencode('p@ss/word+with spaces') . '&x=' . urlencode('p@ss/word+with spaces'),
+		'json ' . json_encode(['v' => 'p@ss/word+with spaces']),
+		'Authorization: AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20261114, Signature=abc123',
+		'header Bearer eyJhbGciOi.payload.sig',
+		'query X-Amz-Signature=deadbeef&X-Amz-Credential=AKID%2F2026',
+		'body {"access_token":"ya29.a0Af","expires_in":3599}',
+		"-----BEGIN PRIVATE KEY-----\nMIIEv\n-----END PRIVATE KEY-----",
+	]);
+
+	$clean = $redactor->clean($text);
+
+	foreach (['p@ss/word+with spaces', rawurlencode('p@ss/word+with spaces'), urlencode('p@ss/word+with spaces'), CLOUD_TEST_SECRET, 'abc123', 'eyJhbGciOi', 'deadbeef', 'AKID%2F2026', 'ya29.a0Af', 'MIIEv'] as $leak) {
+		expect($clean)->not->toContain($leak);
+	}
+
+	expect($clean)->toContain('expires_in');
+});
+
+it('leaves short known values alone so errors stay readable', function () {
+	$redactor = new Redactor();
+	$redactor->add(new Secret('abc'));
+
+	expect($redactor->clean('abc error'))->toBe('abc error');
+});

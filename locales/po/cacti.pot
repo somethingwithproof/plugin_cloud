@@ -16,6 +16,84 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr ""
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr ""
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Collection Interval"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Discovery Interval"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr ""
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr ""
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr ""
+
 #: lib/Pages.php
 msgid "Cloud View"
 msgstr ""
@@ -30,6 +108,22 @@ msgstr ""
 
 #: lib/Pages.php
 msgid "Cloud Health"
+msgstr ""
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr ""
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
 msgstr ""
 
 #: lib/Settings.php
@@ -66,6 +160,38 @@ msgstr ""
 
 #: lib/Settings.php
 msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr ""
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
 msgstr ""
 
 #: setup.php

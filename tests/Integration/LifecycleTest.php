@@ -168,3 +168,16 @@ it('keeps tables on uninstall by default, and drops them only when the box was c
 		->and($dropped['tables'])->toBe([])
 		->and($dropped['schema'])->toBeEmpty();
 });
+
+it('stores credentials only as ciphertext and audits every account change', function () {
+	lifecycle('install');
+
+	$state = lifecycle('credential_flow');
+
+	expect($state['result']['read_back'])->toBeTrue()
+		->and($state['result']['leaks'])->toBe([])
+		->and($state['result']['audit'])->toBe(['create', 'credential', 'update', 'verify'])
+		->and($state['result']['account_gone'])->toBeTrue()
+		->and($state['tables']['plugin_cloud_secret'])->toBe(0)
+		->and($state['tables']['plugin_cloud_audit'])->toBe(5);
+});
