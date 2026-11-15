@@ -1,8 +1,8 @@
 # plugin_cloud
 
-A proposed Cacti 1.2 plugin that brings resources and metrics from public cloud providers into Cacti as ordinary devices, data sources, and graphs. Cloud workloads then sit next to the network that carries them, under Cacti's permissions, and Thold and Maint can alert on and suppress them. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
+A Cacti 1.2 plugin that brings resources and metrics from public cloud providers into Cacti as ordinary devices, data sources, and graphs. Cloud workloads then sit next to the network that carries them, under Cacti's permissions, and Thold and Maint can alert on and suppress them. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
 
-> **Status: milestone 2 (foundation).** The plugin installs, stores accounts and credentials, and runs its collector, but no provider driver ships yet, so it collects nothing. DigitalOcean arrives in milestone 3. Do not run it in production.
+> **Status: in development, no release yet.** Milestone 2 (foundation) is merged on `main`. The plugin installs, stores accounts and credentials, and runs its collector, but no provider driver is merged, so it collects nothing. Milestone 3 (DigitalOcean and Cacti objects) is in progress and not yet on `main`. Do not run it in production.
 
 ## Why
 
@@ -26,7 +26,7 @@ The plugin reads each provider's monitoring API on a Cacti poller, caches the la
 | Phase | Scope | Milestones | Status |
 |---|---|---|---|
 | 0, research | Provider fact confirmation, metric catalogs, cost and rate model, signing test vectors, transport spike | [M1](https://github.com/somethingwithproof/plugin_cloud/milestone/1) | Done, except the checks that need a live provider account |
-| 1, core and DigitalOcean | Accounts, credential vault, transport, collector, observation cache, Cacti objects, health page, DigitalOcean Droplets and load balancers | [M2](https://github.com/somethingwithproof/plugin_cloud/milestone/2), [M3](https://github.com/somethingwithproof/plugin_cloud/milestone/3), [M4](https://github.com/somethingwithproof/plugin_cloud/milestone/4) | M2 in review ([#81](https://github.com/somethingwithproof/plugin_cloud/pull/81)); M3 and M4 not started |
+| 1, core and DigitalOcean | Accounts, credential vault, transport, collector, observation cache, Cacti objects, health page, DigitalOcean Droplets and load balancers | [M2](https://github.com/somethingwithproof/plugin_cloud/milestone/2), [M3](https://github.com/somethingwithproof/plugin_cloud/milestone/3), [M4](https://github.com/somethingwithproof/plugin_cloud/milestone/4) | M2 merged ([#81](https://github.com/somethingwithproof/plugin_cloud/pull/81)); M3 in progress, not on `main`; M4 not started |
 | 2, AWS | Signature Version 4, `AssumeRole`, instance roles, CloudWatch `GetMetricData`, regional inventory | [M5](https://github.com/somethingwithproof/plugin_cloud/milestone/5) | Not started |
 | 3, Google Cloud | Service account JWT, metadata server, Cloud Monitoring `timeSeries.list` | [M6](https://github.com/somethingwithproof/plugin_cloud/milestone/6) | Not started |
 | 4, Azure | Entra client credentials, managed identity, Resource Graph, `metrics:getBatch` | [M7](https://github.com/somethingwithproof/plugin_cloud/milestone/7) | Not started |

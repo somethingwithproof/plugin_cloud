@@ -1,6 +1,6 @@
 # Cacti 1.2 Cloud Plugin Plan
 
-Status: proposal, revision 2 (2026-11-14). Nothing described here as a plugin capability exists yet. Statements about cloud providers, Cacti core, Thold, and Maint describe current upstream behavior and cite the page or file that was checked. Revision 2 applies the milestone 1 documentation checks and spikes in [`docs/research/`](research/); facts that need a live provider account are still marked and listed under [live checks](research/provider-facts.md#live-checks). Estimates are in [research/estimates.md](research/estimates.md).
+Status: in development, plan revision 2 (2026-11-14). Milestone 2 (foundation) is merged on `main`: the PHP guard, lifecycle, realms and settings, accounts, credential vault, transport and outbound policy, provider driver contract, collector, observation cache, health page, and test harness. No provider driver is merged, so the plugin collects nothing yet. Milestone 3 is in progress and not on `main`; later milestones are not started. There is no release. Statements about cloud providers, Cacti core, Thold, and Maint describe current upstream behavior and cite the page or file that was checked. Revision 2 applies the milestone 1 documentation checks and spikes in [`docs/research/`](research/); facts that need a live provider account are still marked and listed under [live checks](research/provider-facts.md#live-checks). Estimates are in [research/estimates.md](research/estimates.md).
 
 `plugin_cloud` brings resources and metrics from public cloud providers into Cacti 1.2 as ordinary Cacti devices, data sources, and graphs. Operators see cloud workloads next to the network that carries them, under Cacti's permissions, and alert on them with Thold and Maint. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
 
@@ -410,4 +410,4 @@ Not scheduled; revisited after phase 1:
 
 ## Upstream process
 
-This repository holds the proposal and tracks its requirements as GitHub issues and milestones. Before code is proposed for the Cacti organization, open an issue there describing the problem, the phase plan, and the open decisions, and ask maintainers about the repository, name, object model, and test harness. No Thold or Maint change is needed.
+This repository holds the plan and tracks its requirements as GitHub issues and milestones. Before code is proposed for the Cacti organization, open an issue there describing the problem, the phase plan, and the open decisions, and ask maintainers about the repository, name, object model, and test harness. No Thold or Maint change is needed.
