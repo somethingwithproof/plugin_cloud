@@ -118,17 +118,7 @@ final class HealthPage {
 		$freshness  = [];
 
 		foreach ($this->observations->forAccount($account->id) as $entry) {
-			$state = match (true) {
-				// A recent datapoint without a value is still no measurement.
-				$entry['observation']->value === null => 'unknown',
-				$entry['status'] === 'ok'             => $this->freshness->evaluate(
-					$entry['observation'],
-					$account->collectInterval,
-					0,
-					$account->collectInterval
-				)->value,
-				default                               => $entry['status'],
-			};
+			$state = $this->freshness->state($entry['observation'], $entry['status'], $account->collectInterval);
 
 			$freshness[$state] = ($freshness[$state] ?? 0) + 1;
 		}

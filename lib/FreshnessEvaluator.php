@@ -35,6 +35,22 @@ final class FreshnessEvaluator {
 	public function __construct(private readonly Clock $clock) {
 	}
 
+	/**
+	 * The state of a cached datapoint as the health page counts it and the
+	 * script server serves it. No catalog metric documents a period yet
+	 * (#16), so the account's collection interval stands in for it.
+	 *
+	 * @return string a Freshness value, 'unknown', or the cache status
+	 */
+	public function state(Observation $observation, string $status, int $collectInterval): string {
+		return match (true) {
+			// A recent datapoint without a value is still no measurement.
+			$observation->value === null => 'unknown',
+			$status === 'ok'             => $this->evaluate($observation, $collectInterval, 0, $collectInterval)->value,
+			default                      => $status,
+		};
+	}
+
 	public function evaluate(?Observation $observation, int $period, int $delay, int $collectInterval): Freshness {
 		if ($observation === null || $observation->observedAt <= 0) {
 			return Freshness::Never;

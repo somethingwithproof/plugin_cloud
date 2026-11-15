@@ -399,6 +399,29 @@ function cloud_draw_navigation_text($nav) {
  * poller_bottom hook: start this poller's collector in the background
  * (REQ-COLL-001). The collector itself skips accounts of other pollers.
  */
+/**
+ * Cacti is deleting devices: forget any that were scope devices. Runs
+ * before the rows go, and receives the ids as an array.
+ *
+ * @param mixed $ids
+ * @return mixed the ids, unchanged, for the next plugin
+ */
+function cloud_device_remove($ids) {
+	if (!cloud_boot() || !is_array($ids)) {
+		return $ids;
+	}
+
+	$devices = new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+
+	foreach ($ids as $id) {
+		if (is_numeric($id)) {
+			$devices->unlink((int) $id);
+		}
+	}
+
+	return $ids;
+}
+
 function cloud_poller_bottom(): void {
 	global $config;
 
@@ -429,6 +452,47 @@ function cloud_poller_bottom(): void {
 	// docblock declares a string.
 	// @phpstan-ignore argument.type
 	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
+}
+
+function cloud_scope_devices(): \Somethingwithproof\Cloud\ScopeDevices {
+	global $config;
+
+	// The libraries host.php loads to save a device and run its data queries.
+	foreach (array(
+		'api_data_source.php', 'api_device.php', 'api_graph.php', 'data_query.php',
+		'ping.php', 'poller.php', 'snmp.php', 'template.php', 'utility.php'
+	) as $file) {
+		include_once($config['library_path'] . '/' . $file);
+	}
+
+	return new \Somethingwithproof\Cloud\ScopeDevices(
+		new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+		new \Somethingwithproof\Cloud\TemplateRepository(false),
+		function (\Somethingwithproof\Cloud\Account $account, int $template): int {
+			$id = call_user_func_array(
+				'api_device_save',
+				\Somethingwithproof\Cloud\ScopeDevices::deviceFields($account, $template)
+			);
+
+			return is_numeric($id) ? (int) $id : 0;
+		},
+		function (int $host, int $query): void {
+			run_data_query($host, $query);
+		}
+	);
+}
+
+function cloud_script_server(): \Somethingwithproof\Cloud\ScriptServer {
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+
+	return new \Somethingwithproof\Cloud\ScriptServer(
+		new \Somethingwithproof\Cloud\DeviceRepository(false, $clock),
+		cloud_accounts(),
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\ObservationRepository(false),
+		new \Somethingwithproof\Cloud\FreshnessEvaluator($clock),
+		$clock
+	);
 }
 
 function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {

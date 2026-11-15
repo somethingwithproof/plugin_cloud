@@ -137,6 +137,8 @@ final class AccountRepository {
 			['DELETE FROM plugin_cloud_series WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_lease WHERE account_id = ?', [$id]],
 			['DELETE FROM plugin_cloud_health WHERE account_id = ?', [$id]],
+			// The Cacti device stays, with its history; it just serves nothing now.
+			['DELETE FROM plugin_cloud_device WHERE account_id = ?', [$id]],
 			[
 				'DELETE o FROM plugin_cloud_observation o INNER JOIN plugin_cloud_resource r ON r.id = o.resource_id
 					WHERE r.account_id = ?',
