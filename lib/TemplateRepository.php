@@ -105,8 +105,12 @@ final class TemplateRepository {
 		return $objects;
 	}
 
+	/**
+	 * Cacti identifies template objects by 32 hex digits; a truncated SHA-256
+	 * of a fixed key gives each object a stable one. Not a security control.
+	 */
 	public static function hash(string $key): string {
-		return md5('plugin_cloud/' . $key);
+		return substr(hash('sha256', 'plugin_cloud/' . $key), 0, 32);
 	}
 
 	/**
