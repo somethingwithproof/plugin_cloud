@@ -43,6 +43,7 @@ final class Schema {
 		'config_settings'      => 'cloud_config_settings',
 		'device_remove'        => 'cloud_device_remove',
 		'draw_navigation_text' => 'cloud_draw_navigation_text',
+		'graphs_new_top_links' => 'cloud_graphs_new_top_links',
 		'poller_bottom'        => 'cloud_poller_bottom',
 	];
 

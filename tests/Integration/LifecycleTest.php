@@ -42,6 +42,7 @@ const CLOUD_HOOKS = [
 	'config_settings',
 	'device_remove',
 	'draw_navigation_text',
+	'graphs_new_top_links',
 	'poller_bottom',
 ];
 
