@@ -23,7 +23,7 @@ namespace Somethingwithproof\Cloud;
  * A resource as discovery reports it. Provider strings are untrusted: they
  * are length-limited here and escaped wherever they are printed.
  */
-final readonly class Resource {
+final readonly class CloudResource {
 	public string $type;
 	public string $providerId;
 	public string $name;

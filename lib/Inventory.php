@@ -21,7 +21,7 @@ namespace Somethingwithproof\Cloud;
 
 final readonly class Inventory {
 	/**
-	 * @param list<Resource> $resources
+	 * @param list<CloudResource> $resources
 	 */
 	public function __construct(public array $resources, public int $requests) {
 	}

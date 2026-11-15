@@ -21,8 +21,13 @@ namespace Somethingwithproof\Cloud;
 
 /**
  * One provider read operation a driver may call (ADR 0002). Requests are
- * matched on method, host, and path, and for reads made through POST also on
+ * matched on method, host, path, query, and for reads made through POST on
  * the body, so a write operation on the same path is refused.
+ *
+ * A request with a query string matches only an operation that lists a
+ * query pattern, and a form body or query with a repeated parameter name
+ * never matches: providers differ on which copy they act on, so a pattern
+ * could approve one copy while the provider runs the other.
  */
 final readonly class Operation {
 	public function __construct(
@@ -31,6 +36,7 @@ final readonly class Operation {
 		public string $host,
 		public string $pathPattern,
 		public ?string $bodyPattern = null,
+		public ?string $queryPattern = null,
 	) {
 	}
 
@@ -45,10 +51,36 @@ final readonly class Operation {
 			return false;
 		}
 
-		if ($this->bodyPattern === null) {
-			return $request->body === null || $request->body === '';
+		$query = $parts['query'] ?? '';
+
+		if ($query !== '' && ($this->queryPattern === null || self::repeatsName($query) || preg_match($this->queryPattern, $query) !== 1)) {
+			return false;
 		}
 
-		return preg_match($this->bodyPattern, $request->body ?? '') === 1;
+		$body = $request->body ?? '';
+
+		if ($this->bodyPattern === null) {
+			return $body === '';
+		}
+
+		$form = str_starts_with(strtolower($request->headers['Content-Type'] ?? $request->headers['content-type'] ?? ''), 'application/x-www-form-urlencoded');
+
+		return !($form && self::repeatsName($body)) && preg_match($this->bodyPattern, $body) === 1;
+	}
+
+	private static function repeatsName(string $encoded): bool {
+		$names = [];
+
+		foreach (explode('&', $encoded) as $pair) {
+			$name = strtolower(rawurldecode(explode('=', $pair, 2)[0]));
+
+			if (isset($names[$name])) {
+				return true;
+			}
+
+			$names[$name] = true;
+		}
+
+		return false;
 	}
 }

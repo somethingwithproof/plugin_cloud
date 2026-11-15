@@ -183,6 +183,10 @@ it('refuses URLs outside the policy without opening a socket', function (string 
 	['https://api.example.com:+443/v2', 'url_rejected'],
 	["https://api.example.com/v2\r\nX: 1", 'url_rejected'],
 	['https://api.example.com/v2/../admin', 'url_rejected'],
+	['https://api.example.com/v2/%2e%2e/admin', 'url_rejected'],
+	['https://api.example.com/v2/%2E./admin', 'url_rejected'],
+	['https://api.example.com/v2%2fdroplets', 'url_rejected'],
+	['https://api.example.com/v2%5cdroplets', 'url_rejected'],
 	['https://API.example.com/v2', 'url_rejected'],
 	["https://api.example.com/\xc3\xa9", 'url_rejected'],
 ]);
@@ -200,14 +204,22 @@ it('refuses operations that are not on the driver list before they are sent', fu
 	$guard = new GuardedTransport($sent, [
 		new Operation('List droplets', 'GET', 'api.example.com', '#^/v2/droplets$#'),
 		new Operation('Read metrics', 'POST', 'api.example.com', '#^/$#', '/^Action=GetMetricData(&|$)/'),
+		new Operation('Page droplets', 'GET', 'api.example.com', '#^/v2/droplets$#', null, '/^page=\d+&per_page=\d+$/'),
 	]);
+	$form  = ['Content-Type' => 'application/x-www-form-urlencoded'];
 
 	$guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets'));
-	$guard->send(new HttpRequest('POST', 'https://api.example.com/', [], 'Action=GetMetricData&Version=2010-08-01'));
+	$guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Version=2010-08-01'));
+	$guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=2&per_page=200'));
 
 	expect(cloud_kind(fn () => $guard->send(new HttpRequest('DELETE', 'https://api.example.com/v2/droplets'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets/1/actions'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', [], 'Action=PutMetricAlarm'))))->toBe('operation_refused')
 		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets', [], 'x'))))->toBe('operation_refused')
-		->and($sent->calls)->toBe(2);
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&Action=PutMetricAlarm'))))->toBe('operation_refused')
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/', $form, 'Action=GetMetricData&action=DeleteAlarms'))))->toBe('operation_refused')
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('POST', 'https://api.example.com/?Action=PutMetricAlarm', $form, 'Action=GetMetricData'))))->toBe('operation_refused')
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?page=1&page=2&per_page=1'))))->toBe('operation_refused')
+		->and(cloud_kind(fn () => $guard->send(new HttpRequest('GET', 'https://api.example.com/v2/droplets?tag_name=x'))))->toBe('operation_refused')
+		->and($sent->calls)->toBe(3);
 });

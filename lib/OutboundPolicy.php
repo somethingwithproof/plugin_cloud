@@ -67,6 +67,12 @@ final readonly class OutboundPolicy {
 
 		$path = isset($m[3]) && $m[3] !== '' ? $m[3] : '/';
 
+		// An encoded dot, slash, or backslash lets a server see a different
+		// path from the one checked here and in the operation list.
+		if (preg_match('/%(2e|2f|5c|00)/i', $path) === 1) {
+			throw new TransportError('url_rejected', 'encoded path separator');
+		}
+
 		if (preg_match('#(^|/)\.\.?(/|$)#', $path) === 1) {
 			throw new TransportError('url_rejected', 'dot segment');
 		}
