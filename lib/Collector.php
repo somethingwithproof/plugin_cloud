@@ -195,7 +195,14 @@ final class Collector {
 
 		if ($left !== []) {
 			$this->observations->markUnread($account->id, $this->holder, $this->clock->now(), $left, RequestBudget::REASON);
-			Log::warning(sprintf('Account %d: %d of %d series exceed the request budget and were not read', $account->id, count($left), count($wanted)));
+			Log::warning(
+				sprintf(
+					'Account %d: %d of %d series exceed the request budget and were not read',
+					$account->id,
+					count($left),
+					count($wanted)
+				)
+			);
 		}
 
 		$result = $throttled ?? ($fit === [] ? new CollectResult([], 0) : $driver->collect($account, $credential, $fit));

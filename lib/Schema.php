@@ -218,7 +218,16 @@ final class Schema {
 	private function addColumn(string $table, array $column): bool {
 		api_plugin_db_add_column(self::PLUGIN, $table, $column);
 
-		if ((int) db_fetch_cell_prepared('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?', [$table, $column['name']], '', true, $this->connection) === 0) {
+		if (
+			(int) db_fetch_cell_prepared(
+				'SELECT COUNT(*) FROM information_schema.COLUMNS
+					WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+				[$table, $column['name']],
+				'',
+				true,
+				$this->connection
+			) === 0
+		) {
 			Log::error(sprintf('Unable to add column %s.%s', $table, $column['name']));
 
 			return false;

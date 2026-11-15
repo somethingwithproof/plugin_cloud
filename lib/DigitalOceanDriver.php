@@ -81,8 +81,22 @@ final class DigitalOceanDriver implements ProviderDriver {
 		return [
 			new Operation('List Droplets', 'GET', self::HOST, '#^/v2/droplets$#', null, $page),
 			new Operation('List load balancers', 'GET', self::HOST, '#^/v2/load_balancers$#', null, $page),
-			new Operation('Read Droplet metrics', 'GET', self::HOST, "#^/v2/monitoring/metrics/droplet/($droplet)$#", null, "/^host_id=[0-9]{1,20}&$window(&interface=(public|private)&direction=(inbound|outbound))?$/"),
-			new Operation('Read load balancer metrics', 'GET', self::HOST, "#^/v2/monitoring/metrics/load_balancer/($lb)$#", null, "/^lb_id=[0-9a-f-]{36}&$window$/"),
+			new Operation(
+				'Read Droplet metrics',
+				'GET',
+				self::HOST,
+				"#^/v2/monitoring/metrics/droplet/($droplet)$#",
+				null,
+				"/^host_id=[0-9]{1,20}&$window(&interface=(public|private)&direction=(inbound|outbound))?$/"
+			),
+			new Operation(
+				'Read load balancer metrics',
+				'GET',
+				self::HOST,
+				"#^/v2/monitoring/metrics/load_balancer/($lb)$#",
+				null,
+				"/^lb_id=[0-9a-f-]{36}&$window$/"
+			),
 		];
 	}
 
@@ -102,7 +116,11 @@ final class DigitalOceanDriver implements ProviderDriver {
 
 			if (is_int($first) && $first > 0) {
 				$now = $this->clock->now();
-				$this->get($credential, '/v2/monitoring/metrics/droplet/cpu', ['host_id' => $first, 'start' => $now - self::WINDOW, 'end' => $now]);
+				$this->get(
+					$credential,
+					'/v2/monitoring/metrics/droplet/cpu',
+					['host_id' => $first, 'start' => $now - self::WINDOW, 'end' => $now]
+				);
 			}
 
 			return VerifyStatus::Ok;
@@ -116,7 +134,9 @@ final class DigitalOceanDriver implements ProviderDriver {
 		$resources   = [];
 		$requests  = 0;
 
-		foreach ([DigitalOceanCatalog::DROPLET => 'droplets', DigitalOceanCatalog::LOAD_BALANCER => 'load_balancers'] as $type => $key) {
+		foreach (
+			[DigitalOceanCatalog::DROPLET => 'droplets', DigitalOceanCatalog::LOAD_BALANCER => 'load_balancers'] as $type => $key
+		) {
 			for ($page = 1; ; $page++) {
 				if ($page > self::MAX_PAGES) {
 					throw new DriverError(ErrorClass::Malformed, $key . ' list exceeds ' . self::MAX_PAGES . ' pages');
@@ -140,7 +160,9 @@ final class DigitalOceanDriver implements ProviderDriver {
 					$resources[] = self::resource($type, $item);
 				}
 
-				$pages = is_array($body['links'] ?? null) && is_array($body['links']['pages'] ?? null) ? $body['links']['pages'] : [];
+				$pages = is_array($body['links'] ?? null) && is_array($body['links']['pages'] ?? null)
+					? $body['links']['pages']
+					: [];
 
 				if ($items === [] || !isset($pages['next'])) {
 					break;
@@ -170,7 +192,12 @@ final class DigitalOceanDriver implements ProviderDriver {
 			$metric = DigitalOceanCatalog::metric($request->metric);
 			$id     = self::ID_PATTERNS[$request->resourceType] ?? null;
 
-			if ($metric === null || $metric['type'] !== $request->resourceType || $id === null || preg_match($id, $request->providerId) !== 1) {
+			if (
+				$metric === null
+				|| $metric['type'] !== $request->resourceType
+				|| $id === null
+				|| preg_match($id, $request->providerId) !== 1
+			) {
 				$error ??= ErrorClass::Config;
 
 				continue;
@@ -181,7 +208,10 @@ final class DigitalOceanDriver implements ProviderDriver {
 
 			try {
 				$sent++;
-				$point = self::convert($this->get($credential, '/v2/monitoring/metrics/' . $metric['type'] . '/' . $metric['path'], $query), $metric['convert']);
+				$point = self::convert(
+					$this->get($credential, '/v2/monitoring/metrics/' . $metric['type'] . '/' . $metric['path'], $query),
+					$metric['convert']
+				);
 			} catch (DriverError $e) {
 				// A credential, scope, or rate problem fails every later
 				// request too, so the run stops there.
@@ -198,7 +228,13 @@ final class DigitalOceanDriver implements ProviderDriver {
 
 			// No data: the Droplet is new, off, or lacks the metrics agent.
 			if ($point !== null) {
-				$observations[] = new Observation($request->resourceId, $request->metric, $point[1], $point[0], $this->clock->now());
+				$observations[] = new Observation(
+					$request->resourceId,
+					$request->metric,
+					$point[1],
+					$point[0],
+					$this->clock->now()
+				);
 			}
 		}
 
@@ -224,7 +260,13 @@ final class DigitalOceanDriver implements ProviderDriver {
 		$url = 'https://' . self::HOST . $path . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
 
 		try {
-			$response = $this->http->send(new HttpRequest('GET', $url, ['Authorization' => 'Bearer ' . $credential->reveal(), 'Accept' => 'application/json']));
+			$response = $this->http->send(
+				new HttpRequest(
+					'GET',
+					$url,
+					['Authorization' => 'Bearer ' . $credential->reveal(), 'Accept' => 'application/json']
+				)
+			);
 		} catch (TransportError $e) {
 			throw DriverError::fromTransport($e);
 		}
@@ -239,7 +281,11 @@ final class DigitalOceanDriver implements ProviderDriver {
 		};
 
 		if ($class !== null) {
-			throw new DriverError($class, 'HTTP ' . $response->status, $class === ErrorClass::Throttled ? $this->retryAfter($response) : 0);
+			throw new DriverError(
+				$class,
+				'HTTP ' . $response->status,
+				$class === ErrorClass::Throttled ? $this->retryAfter($response) : 0
+			);
 		}
 
 		$this->checkShare($response);
@@ -262,7 +308,9 @@ final class DigitalOceanDriver implements ProviderDriver {
 	 */
 	private function retryAfter(HttpResponse $response): int {
 		$value = trim($response->header('retry-after'));
-		$wait  = ctype_digit($value) ? (int) $value : (($at = strtotime($value)) !== false && $value !== '' ? $at - $this->clock->now() : 0);
+		$wait  = ctype_digit($value)
+			? (int) $value
+			: (($at = strtotime($value)) !== false && $value !== '' ? $at - $this->clock->now() : 0);
 
 		return max(0, min(self::MAX_WAIT, $wait));
 	}
@@ -276,7 +324,11 @@ final class DigitalOceanDriver implements ProviderDriver {
 		$limit     = $response->header('ratelimit-limit');
 		$remaining = $response->header('ratelimit-remaining');
 
-		if (!ctype_digit($limit) || !ctype_digit($remaining) || (int) $remaining > intdiv((int) $limit * (100 - $this->share), 100)) {
+		if (
+			!ctype_digit($limit)
+			|| !ctype_digit($remaining)
+			|| (int) $remaining > intdiv((int) $limit * (100 - $this->share), 100)
+		) {
 			return;
 		}
 
@@ -295,7 +347,9 @@ final class DigitalOceanDriver implements ProviderDriver {
 		$id     = $item['id'] ?? null;
 		$id     = is_int($id) ? (string) $id : (is_string($id) ? $id : '');
 		$name   = is_string($item['name'] ?? null) ? $item['name'] : '';
-		$region = is_array($item['region'] ?? null) && is_string($item['region']['slug'] ?? null) ? $item['region']['slug'] : '';
+		$region = is_array($item['region'] ?? null) && is_string($item['region']['slug'] ?? null)
+			? $item['region']['slug']
+			: '';
 
 		if (preg_match(self::ID_PATTERNS[$type], $id) !== 1) {
 			throw new DriverError(ErrorClass::Malformed, $type . ' id has an unexpected form');

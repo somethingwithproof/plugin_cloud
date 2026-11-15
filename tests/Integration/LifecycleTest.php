@@ -240,7 +240,11 @@ it('collects only what is due, owned, enabled, mapped, and leased', function () 
 		->and($r['budget_health'])->toEqual(['collection' => 'budget', 'series_total' => '3', 'series_read' => '2'])
 		->and($r['budget_status'])->toBe(['m_a' => 'ok', 'm_b' => 'ok', 'm_c' => 'budget'])
 		// Throttled: no run until Retry-After has passed.
-		->and($r['throttled_health'])->toEqual(['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => (string) ($r['throttled_at'] + 900)])
+		->and($r['throttled_health'])->toEqual([
+			'collection'  => 'failed',
+			'error_class' => 'throttled',
+			'retry_at'    => (string) ($r['throttled_at'] + 900),
+		])
 		->and($r['during_retry'])->toBe([])
 		->and($r['after_retry'])->toBe(['b1/m_a', 'b1/m_b']);
 });

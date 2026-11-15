@@ -41,8 +41,15 @@ final class Drivers {
 		// real pages and collector without reaching a provider. It can only
 		// take traffic away, never send it anywhere else.
 		$offline = getenv('CLOUD_OFFLINE') === '1';
-		$drivers = new self(static fn (OutboundPolicy $policy): HttpTransport => $offline ? new RefusingTransport() : new SocketTransport($policy));
-		$drivers->register(Provider::DigitalOcean, static fn (HttpTransport $http): ProviderDriver => new DigitalOceanDriver($http, new SystemClock()));
+		$drivers = new self(
+			static fn (OutboundPolicy $policy): HttpTransport => $offline
+				? new RefusingTransport()
+				: new SocketTransport($policy)
+		);
+		$drivers->register(
+			Provider::DigitalOcean,
+			static fn (HttpTransport $http): ProviderDriver => new DigitalOceanDriver($http, new SystemClock())
+		);
 
 		return $drivers;
 	}

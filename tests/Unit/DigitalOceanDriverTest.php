@@ -42,7 +42,12 @@ define('CLOUD_DO_TOKEN', 'dop_v1_' . str_repeat('0123456789abcdef', 4));
 const CLOUD_DO_NOW   = 1635387200;
 
 function cloud_do_fixture(string $name): array {
-	return json_decode((string) file_get_contents(__DIR__ . '/../fixtures/digitalocean/' . $name . '.json'), true, 64, JSON_THROW_ON_ERROR);
+	return json_decode(
+		(string) file_get_contents(__DIR__ . '/../fixtures/digitalocean/' . $name . '.json'),
+		true,
+		64,
+		JSON_THROW_ON_ERROR
+	);
 }
 
 /**
@@ -75,7 +80,11 @@ function cloud_do_driver(Closure $answer): array {
 	$inner = new DoScripted($answer);
 	$probe = new DigitalOceanDriver($inner, new FixedClock(CLOUD_DO_NOW));
 	$guard = new class ($inner, $probe->operations(), $probe->endpoints(cloud_do_account())) implements HttpTransport {
-		public function __construct(private readonly HttpTransport $inner, private readonly array $operations, private readonly \Somethingwithproof\Cloud\OutboundPolicy $policy) {
+		public function __construct(
+			private readonly HttpTransport $inner,
+			private readonly array $operations,
+			private readonly \Somethingwithproof\Cloud\OutboundPolicy $policy
+		) {
 		}
 
 		public function send(HttpRequest $request): HttpResponse {
@@ -105,10 +114,17 @@ function cloud_do_metric(string $metric, string $providerId = '222651441', int $
 }
 
 it('lists Droplets and load balancers from the documented examples', function () {
-	[$driver, $http] = cloud_do_driver(static fn (string $path): HttpResponse => cloud_do_json(cloud_do_fixture($path === '/v2/droplets' ? 'droplets' : 'load_balancers')));
+	[$driver, $http] = cloud_do_driver(
+		static fn (string $path): HttpResponse => cloud_do_json(
+			cloud_do_fixture($path === '/v2/droplets' ? 'droplets' : 'load_balancers')
+		)
+	);
 
 	$inventory = $driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN));
-	$found     = array_map(static fn (CloudResource $r): string => "$r->type $r->providerId $r->name $r->region", $inventory->resources);
+	$found     = array_map(
+		static fn (CloudResource $r): string => "$r->type $r->providerId $r->name $r->region",
+		$inventory->resources
+	);
 
 	expect($found)->toBe([
 		'droplet 3164444 example.com nyc3',
@@ -159,7 +175,8 @@ it('refuses a list entry whose id is not a Droplet id, rather than storing it', 
 		return cloud_do_json($body);
 	});
 
-	expect(fn () => $driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))->toThrow(DriverError::class, 'malformed');
+	expect(fn () => $driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))
+		->toThrow(DriverError::class, 'malformed');
 });
 
 it('computes CPU percent busy from the documented example', function () {
@@ -174,13 +191,17 @@ it('computes CPU percent busy from the documented example', function () {
 		->and($seen->observedAt)->toBe(1635387120)
 		->and($seen->value)->toEqualWithDelta(100 * 0.08 / 119.96, 1e-9)
 		->and($seen->fetchedAt)->toBe(CLOUD_DO_NOW)
-		->and($http->sent[0]->url)->toBe('https://api.digitalocean.com/v2/monitoring/metrics/droplet/cpu?host_id=222651441&start=' . (CLOUD_DO_NOW - 900) . '&end=' . CLOUD_DO_NOW);
+		->and($http->sent[0]->url)->toBe(
+			'https://api.digitalocean.com/v2/monitoring/metrics/droplet/cpu?host_id=222651441&start='
+				. (CLOUD_DO_NOW - 900) . '&end=' . CLOUD_DO_NOW
+		);
 });
 
 it('reads bandwidth as bits per second with its interface and direction', function () {
 	[$driver, $http] = cloud_do_driver(static fn (): HttpResponse => cloud_do_json(cloud_do_fixture('droplet_bandwidth')));
 
-	$seen = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_bw_prv_in')])->observations[0];
+	$seen = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_bw_prv_in')])
+		->observations[0];
 
 	expect($seen->observedAt)->toBe(1634052720)
 		->and($seen->value)->toEqualWithDelta(16214.285714285712, 1e-6)
@@ -188,7 +209,11 @@ it('reads bandwidth as bits per second with its interface and direction', functi
 });
 
 it('reports no observation and no error for a metric with no data, as without the agent', function () {
-	[$driver] = cloud_do_driver(static fn (): HttpResponse => cloud_do_json(['status' => 'success', 'data' => ['resultType' => 'matrix', 'result' => []]]));
+	[$driver] = cloud_do_driver(
+		static fn (): HttpResponse => cloud_do_json(
+			['status' => 'success', 'data' => ['resultType' => 'matrix', 'result' => []]]
+		)
+	);
 
 	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_mem_avail')]);
 
@@ -206,23 +231,42 @@ it('records an unknown CPU value across a counter reset, never zero', function (
 
 	[$driver] = cloud_do_driver(static fn (): HttpResponse => cloud_do_json($body));
 
-	expect($driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct')])->observations[0]->value)->toBeNull();
+	expect(
+		$driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct')])
+			->observations[0]->value
+	)->toBeNull();
 });
 
 it('reports several load balancer series as malformed instead of guessing how to combine them', function () {
 	$series = ['metric' => ['lb_id' => '4de7ac8b-495b-4884-9a69-1050c6793cd6'], 'values' => [[1635387120, '3']]];
 
-	[$driver] = cloud_do_driver(static fn (): HttpResponse => cloud_do_json(['status' => 'success', 'data' => ['resultType' => 'matrix', 'result' => [$series, $series]]]));
+	[$driver] = cloud_do_driver(
+		static fn (): HttpResponse => cloud_do_json(
+			['status' => 'success', 'data' => ['resultType' => 'matrix', 'result' => [$series, $series]]]
+		)
+	);
 
-	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('dolb_conn_cur', '4de7ac8b-495b-4884-9a69-1050c6793cd6')]);
+	$result = $driver->collect(
+		cloud_do_account(),
+		new Secret(CLOUD_DO_TOKEN),
+		[cloud_do_metric('dolb_conn_cur', '4de7ac8b-495b-4884-9a69-1050c6793cd6')]
+	);
 
 	expect($result->observations)->toBe([])->and($result->error)->toBe(ErrorClass::Malformed);
 });
 
-it('maps 401, 403, 429, and 5xx, and stops at a credential, scope, or rate failure', function (int $status, ErrorClass $class, int $sent) {
+it('maps 401, 403, 429, and 5xx, and stops at a credential, scope, or rate failure', function (
+	int $status,
+	ErrorClass $class,
+	int $sent
+) {
 	[$driver, $http] = cloud_do_driver(cloud_do_status($status));
 
-	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_bw_pub_in'), cloud_do_metric('do_bw_pub_out')]);
+	$result = $driver->collect(
+		cloud_do_account(),
+		new Secret(CLOUD_DO_TOKEN),
+		[cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_bw_pub_in'), cloud_do_metric('do_bw_pub_out')]
+	);
 
 	expect($result->error)->toBe($class)
 		->and(count($http->sent))->toBe($sent)
@@ -238,7 +282,8 @@ it('maps 401, 403, 429, and 5xx, and stops at a credential, scope, or rate failu
 it('treats a body that is not JSON as malformed', function () {
 	[$driver] = cloud_do_driver(static fn (): HttpResponse => new HttpResponse(200, [], '<html>maintenance</html>'));
 
-	expect($driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct')])->error)->toBe(ErrorClass::Malformed);
+	expect($driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct')])->error)
+		->toBe(ErrorClass::Malformed);
 });
 
 it('never requests a series whose stored id or metric does not fit its type', function () {
@@ -258,14 +303,19 @@ it('never requests a series whose stored id or metric does not fit its type', fu
 });
 
 it('verifies each scope it needs, and the monitoring scope against a Droplet', function () {
-	[$driver, $http] = cloud_do_driver(static fn (string $path): HttpResponse => cloud_do_json(cloud_do_fixture(match ($path) {
-		'/v2/droplets'       => 'droplets',
-		'/v2/load_balancers' => 'load_balancers',
-		default              => 'droplet_cpu',
-	})));
+	[$driver, $http] = cloud_do_driver(static fn (string $path): HttpResponse => cloud_do_json(
+		cloud_do_fixture(match ($path) {
+			'/v2/droplets'       => 'droplets',
+			'/v2/load_balancers' => 'load_balancers',
+			default              => 'droplet_cpu',
+		})
+	));
 
 	expect($driver->verify(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))->toBe(VerifyStatus::Ok)
-		->and(array_map(static fn (HttpRequest $r): string => (string) parse_url($r->url, PHP_URL_PATH), $http->sent))->toBe(['/v2/droplets', '/v2/load_balancers', '/v2/monitoring/metrics/droplet/cpu'])
+		->and(array_map(
+			static fn (HttpRequest $r): string => (string) parse_url($r->url, PHP_URL_PATH),
+			$http->sent
+		))->toBe(['/v2/droplets', '/v2/load_balancers', '/v2/monitoring/metrics/droplet/cpu'])
 		->and($http->sent[2]->url)->toContain('host_id=3164444');
 });
 
@@ -281,7 +331,10 @@ it('reports a rejected token and a missing scope on verify', function (int $stat
 ]);
 
 it('allows only GET under the three documented prefixes, and every catalog path', function () {
-	$probe = new DigitalOceanDriver(new DoScripted(static fn (): HttpResponse => cloud_do_json([])), new FixedClock(CLOUD_DO_NOW));
+	$probe = new DigitalOceanDriver(
+		new DoScripted(static fn (): HttpResponse => cloud_do_json([])),
+		new FixedClock(CLOUD_DO_NOW)
+	);
 	$guard = new GuardedTransport(new DoScripted(static fn (): HttpResponse => cloud_do_json([])), $probe->operations());
 
 	foreach ($probe->operations() as $operation) {
@@ -291,12 +344,21 @@ it('allows only GET under the three documented prefixes, and every catalog path'
 
 	foreach (['droplet' => 'host_id=1', 'load_balancer' => 'lb_id=4de7ac8b-495b-4884-9a69-1050c6793cd6'] as $type => $id) {
 		foreach (DigitalOceanCatalog::paths($type) as $path) {
-			expect($guard->allows(new HttpRequest('GET', "https://api.digitalocean.com/v2/monitoring/metrics/$type/$path?$id&start=1&end=2")))->not->toBeNull($path);
+			expect(
+				$guard->allows(
+					new HttpRequest('GET', "https://api.digitalocean.com/v2/monitoring/metrics/$type/$path?$id&start=1&end=2")
+				)
+			)->not->toBeNull($path);
 		}
 	}
 
 	foreach ([
-		new HttpRequest('POST', 'https://api.digitalocean.com/v2/droplets', ['Content-Type' => 'application/json'], '{"name":"x"}'),
+		new HttpRequest(
+			'POST',
+			'https://api.digitalocean.com/v2/droplets',
+			['Content-Type' => 'application/json'],
+			'{"name":"x"}'
+		),
 		new HttpRequest('DELETE', 'https://api.digitalocean.com/v2/droplets?per_page=1&page=1'),
 		new HttpRequest('GET', 'https://api.digitalocean.com/v2/droplets/3164444/actions?per_page=1&page=1'),
 		new HttpRequest('GET', 'https://api.digitalocean.com/v2/account/keys?per_page=1&page=1'),
@@ -309,17 +371,29 @@ it('allows only GET under the three documented prefixes, and every catalog path'
 });
 
 it('lists only metrics that need no agent by default', function () {
-	expect(DigitalOceanCatalog::defaults('droplet'))->toBe(['do_cpu_pct', 'do_bw_pub_in', 'do_bw_pub_out', 'do_bw_prv_in', 'do_bw_prv_out'])
+	expect(DigitalOceanCatalog::defaults('droplet'))
+		->toBe(['do_cpu_pct', 'do_bw_pub_in', 'do_bw_pub_out', 'do_bw_prv_in', 'do_bw_prv_out'])
 		->and(count(DigitalOceanCatalog::defaults('load_balancer')))->toBe(16);
 
-	foreach (array_merge(DigitalOceanCatalog::defaults('droplet'), DigitalOceanCatalog::defaults('load_balancer')) as $name) {
+	foreach (
+		array_merge(DigitalOceanCatalog::defaults('droplet'), DigitalOceanCatalog::defaults('load_balancer')) as $name
+	) {
 		expect(strlen($name))->toBeLessThanOrEqual(19)->and(preg_match('/^[a-zA-Z0-9_]+$/', $name))->toBe(1);
 	}
 });
 
 it('estimates one request per series per collection and no charge', function () {
-	$estimate = (new DigitalOceanDriver(new DoScripted(static fn (): HttpResponse => cloud_do_json([])), new FixedClock(0)))
-		->estimate(array_map(static fn (string $m): MetricRequest => cloud_do_metric($m), DigitalOceanCatalog::defaults('droplet')), 300);
+	$estimate = (new DigitalOceanDriver(
+		new DoScripted(static fn (): HttpResponse => cloud_do_json([])),
+		new FixedClock(0)
+	))
+		->estimate(
+			array_map(
+				static fn (string $m): MetricRequest => cloud_do_metric($m),
+				DigitalOceanCatalog::defaults('droplet')
+			),
+			300
+		);
 
 	expect($estimate->requestsPerCollection)->toBe(5)
 		->and($estimate->requestsPerMonth)->toBe(5 * 8640)
@@ -334,7 +408,8 @@ it('registers DigitalOcean in production, and refuses every request when offline
 
 		expect($driver)->toBeInstanceOf(DigitalOceanDriver::class)
 			->and($driver->verify(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))->toBe(VerifyStatus::Config)
-			->and(fn () => $driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))->toThrow(DriverError::class, 'operation_refused');
+			->and(fn () => $driver->discover(cloud_do_account(), new Secret(CLOUD_DO_TOKEN)))
+				->toThrow(DriverError::class, 'operation_refused');
 	} finally {
 		putenv('CLOUD_OFFLINE');
 	}
@@ -344,14 +419,29 @@ function cloud_do_limited(int $limit, int $remaining, int $reset): Closure {
 	return static function () use ($limit, $remaining, $reset): HttpResponse {
 		$response = cloud_do_json(cloud_do_fixture('droplet_cpu'));
 
-		return new HttpResponse(200, $response->headers + ['ratelimit-limit' => (string) $limit, 'ratelimit-remaining' => (string) $remaining, 'ratelimit-reset' => (string) $reset], $response->body);
+		return new HttpResponse(
+			200,
+			$response->headers + [
+				'ratelimit-limit'     => (string) $limit,
+				'ratelimit-remaining' => (string) $remaining,
+				'ratelimit-reset'     => (string) $reset,
+			],
+			$response->body
+		);
 	};
 }
 
-it('passes on Retry-After from a 429, in seconds or as a date, bounded to an hour', function (string $header, int $expected) {
+it('passes on Retry-After from a 429, in seconds or as a date, bounded to an hour', function (
+	string $header,
+	int $expected
+) {
 	[$driver] = cloud_do_driver(static fn (): HttpResponse => new HttpResponse(429, ['retry-after' => $header], '{}'));
 
-	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_bw_pub_in')]);
+	$result = $driver->collect(
+		cloud_do_account(),
+		new Secret(CLOUD_DO_TOKEN),
+		[cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_bw_pub_in')]
+	);
 
 	expect($result->error)->toBe(ErrorClass::Throttled)
 		->and($result->requests)->toBe(1)
@@ -368,7 +458,11 @@ it('stops once the rate-limit headers leave only what other users of the token a
 	// A 50 percent share of 5,000 leaves 2,500 for others.
 	[$driver, $http] = cloud_do_driver(cloud_do_limited(5000, 2500, CLOUD_DO_NOW + 45));
 
-	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]);
+	$result = $driver->collect(
+		cloud_do_account(),
+		new Secret(CLOUD_DO_TOKEN),
+		[cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]
+	);
 
 	expect(count($http->sent))->toBe(1)
 		->and($result->observations)->toHaveCount(1)
@@ -379,7 +473,11 @@ it('stops once the rate-limit headers leave only what other users of the token a
 it('keeps reading while the headers show room in its share', function () {
 	[$driver, $http] = cloud_do_driver(cloud_do_limited(5000, 2501, CLOUD_DO_NOW + 45));
 
-	$result = $driver->collect(cloud_do_account(), new Secret(CLOUD_DO_TOKEN), [cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]);
+	$result = $driver->collect(
+		cloud_do_account(),
+		new Secret(CLOUD_DO_TOKEN),
+		[cloud_do_metric('do_cpu_pct'), cloud_do_metric('do_cpu_pct', '3164444', 8)]
+	);
 
 	expect(count($http->sent))->toBe(2)->and($result->error)->toBeNull();
 });
@@ -389,7 +487,11 @@ it('fails discovery rather than return a list cut off by the request share', fun
 		$body          = cloud_do_fixture('droplets');
 		$body['links'] = ['pages' => ['next' => 'https://api.digitalocean.com/v2/droplets?page=2']];
 
-		return new HttpResponse(200, ['ratelimit-limit' => '5000', 'ratelimit-remaining' => '10', 'ratelimit-reset' => (string) (CLOUD_DO_NOW + 30)], json_encode($body));
+		return new HttpResponse(
+			200,
+			['ratelimit-limit' => '5000', 'ratelimit-remaining' => '10', 'ratelimit-reset' => (string) (CLOUD_DO_NOW + 30)],
+			json_encode($body)
+		);
 	});
 
 	try {

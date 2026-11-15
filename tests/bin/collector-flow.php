@@ -287,17 +287,36 @@ $budgeted = flow_account('Budgeted', 1, 'enabled');
 db_execute_prepared('UPDATE plugin_cloud_account SET request_share = 1 WHERE id = ?', array($budgeted));
 $flow_clock->advance(3700);
 flow_collector($flow_clock, 'h10')->run(1, 240);
-$b1 = (int) db_fetch_cell_prepared("SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'b1'", array($budgeted));
-db_execute_prepared('INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric) VALUES (900001, ?, ?, ?), (900001, ?, ?, ?), (900001, ?, ?, ?)', array($budgeted, $b1, 'm_a', $budgeted, $b1, 'm_b', $budgeted, $b1, 'm_c'));
+$b1 = (int) db_fetch_cell_prepared(
+	"SELECT id FROM plugin_cloud_resource WHERE account_id = ? AND provider_id = 'b1'",
+	array($budgeted)
+);
+db_execute_prepared(
+	'INSERT INTO plugin_cloud_series (local_data_id, account_id, resource_id, metric)
+		VALUES (900001, ?, ?, ?), (900001, ?, ?, ?), (900001, ?, ?, ?)',
+	array($budgeted, $b1, 'm_a', $budgeted, $b1, 'm_b', $budgeted, $b1, 'm_c')
+);
 
-$flow_b1 = static fn (): array => array_values(array_filter(FlowDriver::$collected, static fn (string $c): bool => str_starts_with($c, 'b1/')));
+$flow_b1 = static fn (): array => array_values(
+	array_filter(FlowDriver::$collected, static fn (string $c): bool => str_starts_with($c, 'b1/'))
+);
 
 $flow_clock->advance(300);
 FlowDriver::$collected = array();
 flow_collector($flow_clock, 'h11')->run(1, 240);
 $result['budget_collected'] = $flow_b1();
-$result['budget_health']    = db_fetch_row_prepared('SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?', array($budgeted));
-$result['budget_status']    = array_column(db_fetch_assoc_prepared('SELECT metric, status FROM plugin_cloud_observation WHERE resource_id = ? ORDER BY metric', array($b1)), 'status', 'metric');
+$result['budget_health']    = db_fetch_row_prepared(
+	'SELECT collection, series_total, series_read FROM plugin_cloud_health WHERE account_id = ?',
+	array($budgeted)
+);
+$result['budget_status']    = array_column(
+	db_fetch_assoc_prepared(
+		'SELECT metric, status FROM plugin_cloud_observation WHERE resource_id = ? ORDER BY metric',
+		array($b1)
+	),
+	'status',
+	'metric'
+);
 
 // A throttled run records when to try again; a due run before then does
 // nothing, and the first run after it collects.
@@ -305,7 +324,10 @@ FlowDriver::$throttle = 900;
 $flow_clock->advance(300);
 $result['throttled_at'] = $flow_clock->now();
 flow_collector($flow_clock, 'h12')->run(1, 240);
-$result['throttled_health'] = db_fetch_row_prepared('SELECT collection, error_class, retry_at FROM plugin_cloud_health WHERE account_id = ?', array($budgeted));
+$result['throttled_health'] = db_fetch_row_prepared(
+	'SELECT collection, error_class, retry_at FROM plugin_cloud_health WHERE account_id = ?',
+	array($budgeted)
+);
 FlowDriver::$throttle  = 0;
 FlowDriver::$collected = array();
 $flow_clock->advance(300);

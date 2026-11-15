@@ -27,7 +27,13 @@ use Somethingwithproof\Cloud\MetricRequest;
 use Somethingwithproof\Cloud\RequestBudget;
 
 function cloud_budget_account(array $row = []): Account {
-	return Account::fromRow($row + ['id' => 1, 'provider' => 'digitalocean', 'credential_source' => 'vault', 'collect_interval' => 300, 'request_share' => 50]);
+	return Account::fromRow($row + [
+		'id'                => 1,
+		'provider'          => 'digitalocean',
+		'credential_source' => 'vault',
+		'collect_interval'  => 300,
+		'request_share'     => 50,
+	]);
 }
 
 function cloud_budget_driver(): DigitalOceanDriver {
@@ -53,8 +59,13 @@ function cloud_budget_series(int $droplets): array {
 	return $series;
 }
 
-it('allows the smaller of the hourly share per run and the per-minute share', function (int $interval, int $share, int $expected) {
-	expect(RequestBudget::perRun(cloud_budget_account(['collect_interval' => $interval, 'request_share' => $share])))->toBe($expected);
+it('allows the smaller of the hourly share per run and the per-minute share', function (
+	int $interval,
+	int $share,
+	int $expected
+) {
+	expect(RequestBudget::perRun(cloud_budget_account(['collect_interval' => $interval, 'request_share' => $share])))
+		->toBe($expected);
 })->with([
 	// 5,000 x 50% x 270 s / 3,600 s = 187, above 250 x 50% = 125.
 	'5 minutes at the default share' => [300, 50, 125],
@@ -82,7 +93,12 @@ it('keeps 500 Droplets inside the per-minute and per-hour limits, reading in sto
 });
 
 it('reads everything for a provider with no known limit', function () {
-	$account = Account::fromRow(['id' => 1, 'provider' => 'aws', 'credential_source' => 'vault', 'scope' => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1'])]);
+	$account = Account::fromRow([
+		'id'                => 1,
+		'provider'          => 'aws',
+		'credential_source' => 'vault',
+		'scope'             => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1']),
+	]);
 
 	expect(RequestBudget::perRun($account))->toBeNull();
 });
@@ -101,15 +117,25 @@ it('cuts the series to the monthly cost ceiling', function () {
 			return [];
 		}
 
-		public function verify(Account $account, \Somethingwithproof\Cloud\Secret $credential): \Somethingwithproof\Cloud\VerifyStatus {
+		public function verify(
+			Account $account,
+			\Somethingwithproof\Cloud\Secret $credential
+		): \Somethingwithproof\Cloud\VerifyStatus {
 			return \Somethingwithproof\Cloud\VerifyStatus::Ok;
 		}
 
-		public function discover(Account $account, \Somethingwithproof\Cloud\Secret $credential): \Somethingwithproof\Cloud\Inventory {
+		public function discover(
+			Account $account,
+			\Somethingwithproof\Cloud\Secret $credential
+		): \Somethingwithproof\Cloud\Inventory {
 			return new \Somethingwithproof\Cloud\Inventory([], 0);
 		}
 
-		public function collect(Account $account, \Somethingwithproof\Cloud\Secret $credential, array $requests): \Somethingwithproof\Cloud\CollectResult {
+		public function collect(
+			Account $account,
+			\Somethingwithproof\Cloud\Secret $credential,
+			array $requests
+		): \Somethingwithproof\Cloud\CollectResult {
 			return new \Somethingwithproof\Cloud\CollectResult([], 0);
 		}
 
@@ -119,7 +145,13 @@ it('cuts the series to the monthly cost ceiling', function () {
 		}
 	};
 
-	$account = Account::fromRow(['id' => 1, 'provider' => 'aws', 'credential_source' => 'vault', 'monthly_ceiling' => 7.0, 'scope' => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1'])]);
+	$account = Account::fromRow([
+		'id'                => 1,
+		'provider'          => 'aws',
+		'credential_source' => 'vault',
+		'monthly_ceiling'   => 7.0,
+		'scope'             => json_encode(['account_id' => '123456789012', 'regions' => 'us-east-1']),
+	]);
 	$wanted  = cloud_budget_series(2);
 
 	[$fit, $left] = RequestBudget::split($account, $driver, $wanted, 0);
@@ -128,10 +160,15 @@ it('cuts the series to the monthly cost ceiling', function () {
 	expect($fit)->toBe(array_slice($wanted, 0, 3))->and($left)->toHaveCount(7);
 });
 
-it('shows a budget run, and how long a throttled account waits, on the health page', function (array $health, string $expected) {
+it('shows a budget run, and how long a throttled account waits, on the health page', function (
+	array $health,
+	string $expected
+) {
 	$clock = new FixedClock(1800000000);
 
-	$GLOBALS['__cloud_db_rows'] = ['FROM plugin_cloud_health' => [$health + ['account_id' => 1, 'run_started' => 1800000000 - 60]]];
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM plugin_cloud_health' => [$health + ['account_id' => 1, 'run_started' => 1800000000 - 60]],
+	];
 
 	$page = new \Somethingwithproof\Cloud\HealthPage(
 		new \Somethingwithproof\Cloud\AccountRepository(false, $clock),
@@ -150,6 +187,12 @@ it('shows a budget run, and how long a throttled account waits, on the health pa
 	}
 })->with([
 	'over budget'      => [['collection' => 'budget'], 'budget'],
-	'throttled, wait'  => [['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => 1800000000 + 840], 'failed (throttled), retry in 840 s'],
-	'wait has passed'  => [['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => 1800000000 - 1], 'failed (throttled)'],
+	'throttled, wait'  => [
+		['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => 1800000000 + 840],
+		'failed (throttled), retry in 840 s',
+	],
+	'wait has passed'  => [
+		['collection' => 'failed', 'error_class' => 'throttled', 'retry_at' => 1800000000 - 1],
+		'failed (throttled)',
+	],
 ]);

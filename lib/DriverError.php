@@ -23,7 +23,11 @@ final class DriverError extends \RuntimeException {
 	/**
 	 * @param int $retryAfter seconds the provider asked the plugin to wait, 0 when it did not
 	 */
-	public function __construct(public readonly ErrorClass $errorClass, string $reason = '', public readonly int $retryAfter = 0) {
+	public function __construct(
+		public readonly ErrorClass $errorClass,
+		string $reason = '',
+		public readonly int $retryAfter = 0
+	) {
 		parent::__construct($errorClass->value . ($reason !== '' ? ': ' . $reason : ''));
 	}
 
