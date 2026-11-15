@@ -78,3 +78,15 @@ it('forgets the device when Cacti deletes it, and creates a new one on request',
 	expect($second['result'])->toBeGreaterThan($first)
 		->and($second['devices'])->toHaveCount(1);
 });
+
+it('ignores a link whose device went while the plugin was disabled, and replaces it', function () {
+	$first = (string) lifecycle('scope_device')['result'];
+	lifecycle('drop_host');
+
+	expect(lifecycle('ss', $first . ' droplet get resourceName 101')['result'])->toBe('U');
+
+	$second = lifecycle('scope_device');
+	expect($second['result'])->toBeGreaterThan((int) $first)
+		->and($second['devices'])->toHaveCount(1)
+		->and($second['device_index'])->toBe(['101' => 'web-1', '102' => 'web-2']);
+});

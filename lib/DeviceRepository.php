@@ -22,12 +22,27 @@ namespace Somethingwithproof\Cloud;
  * Which Cacti device is each account's scope device (ADR 0010). One device
  * per account: the script server serves an account's resources only to its
  * own device (REQ-SS-004).
+ *
+ * A link counts only while its host exists and still carries the
+ * external_id the plugin gave it. Cacti skips a disabled plugin's hooks, so
+ * a device deleted then leaves its link behind, and a reused host id must
+ * not inherit the account.
  */
 final class DeviceRepository {
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	public const EXTERNAL_PREFIX = 'cloud:';
+
+	/**
+	 * Replaces any earlier link of the account, which can only be stale when
+	 * the caller found no live one.
+	 */
 	public function link(int $hostId, int $accountId): void {
+		db_execute_prepared('DELETE FROM plugin_cloud_device WHERE account_id = ? OR host_id = ?', [
+			$accountId,
+			$hostId,
+		], true, $this->connection);
 		db_execute_prepared(
 			'INSERT INTO plugin_cloud_device (host_id, account_id, created_at) VALUES (?, ?, ?)',
 			[$hostId, $accountId, $this->clock->now()],
@@ -45,8 +60,9 @@ final class DeviceRepository {
 
 	public function accountFor(int $hostId): ?int {
 		$id = (int) db_fetch_cell_prepared(
-			'SELECT account_id FROM plugin_cloud_device WHERE host_id = ?',
-			[$hostId],
+			'SELECT d.account_id FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
+				WHERE d.host_id = ? AND h.external_id = CONCAT(?, d.account_id)',
+			[$hostId, self::EXTERNAL_PREFIX],
 			'',
 			true,
 			$this->connection
@@ -57,8 +73,9 @@ final class DeviceRepository {
 
 	public function hostFor(int $accountId): ?int {
 		$id = (int) db_fetch_cell_prepared(
-			'SELECT host_id FROM plugin_cloud_device WHERE account_id = ?',
-			[$accountId],
+			'SELECT d.host_id FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
+				WHERE d.account_id = ? AND h.external_id = CONCAT(?, d.account_id)',
+			[$accountId, self::EXTERNAL_PREFIX],
 			'',
 			true,
 			$this->connection
