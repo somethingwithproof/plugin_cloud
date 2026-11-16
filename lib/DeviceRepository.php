@@ -102,12 +102,18 @@ final class DeviceRepository {
 
 	/**
 	 * What Cacti last indexed on a device: each index and its resource name.
+	 * An index is complete only when Cacti cached both fields the data
+	 * queries read, with the id matching the index; an incomplete one maps
+	 * to null, which matches no served resource, so a reindex that failed
+	 * partway is retried.
 	 *
-	 * @return array<string, string>|null index => name; null when unreadable
+	 * @return array<string, string|null>|null index => name, or null when
+	 *         incomplete; null when unreadable
 	 */
 	public function cachedIndex(int $hostId): ?array {
 		$rows = db_fetch_assoc_prepared(
-			"SELECT snmp_index, field_value FROM host_snmp_cache WHERE host_id = ? AND field_name = 'resourceName'",
+			"SELECT snmp_index, field_name, field_value FROM host_snmp_cache
+				WHERE host_id = ? AND field_name IN ('resourceId', 'resourceName')",
 			[$hostId],
 			true,
 			$this->connection
@@ -117,10 +123,19 @@ final class DeviceRepository {
 			return null;
 		}
 
-		$index = [];
+		$fields = [];
 
 		foreach (Row::rows($rows) as $row) {
-			$index[Row::string($row, 'snmp_index')] = Row::string($row, 'field_value');
+			$fields[Row::string($row, 'snmp_index')][Row::string($row, 'field_name')] = Row::string($row, 'field_value');
+		}
+
+		$index = [];
+
+		foreach ($fields as $snmpIndex => $values) {
+			$complete = isset($values['resourceId'], $values['resourceName'])
+				&& $values['resourceId'] === (string) $snmpIndex;
+
+			$index[$snmpIndex] = $complete ? $values['resourceName'] : null;
 		}
 
 		return $index;

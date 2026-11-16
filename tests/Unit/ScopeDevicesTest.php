@@ -57,6 +57,10 @@ function cloud_scope_devices_under_test(): ScopeDevices {
 		static function (int $host, int $query): bool {
 			$GLOBALS['__cloud_scope']['indexed'][] = [$host, $query];
 
+			if (isset($GLOBALS['__cloud_scope']['on_index'])) {
+				($GLOBALS['__cloud_scope']['on_index'])();
+			}
+
 			return $GLOBALS['__cloud_scope']['index_ok'] ?? true;
 		},
 		static function (int $host, int $query): void {
@@ -126,6 +130,24 @@ it('returns the device another request created while it waited for the lock', fu
 });
 
 /**
+ * host_snmp_cache rows for complete indexes.
+ *
+ * @param array<string, string> $names index => resource name
+ *
+ * @return list<array<string, string>>
+ */
+function cloud_scope_cache(array $names): array {
+	$rows = [];
+
+	foreach ($names as $index => $name) {
+		$rows[] = ['snmp_index' => (string) $index, 'field_name' => 'resourceId', 'field_value' => (string) $index];
+		$rows[] = ['snmp_index' => (string) $index, 'field_name' => 'resourceName', 'field_value' => $name];
+	}
+
+	return $rows;
+}
+
+/**
  * Host 42 is account 4's device, with the Droplet query 9 and the load
  * balancer query 10, and Cacti has indexed Droplets 101 and 102.
  */
@@ -138,10 +160,7 @@ function cloud_scope_indexed_world(): void {
 
 		return [['id' => $id]];
 	};
-	$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = [
-		['snmp_index' => '101', 'field_value' => 'web-1'],
-		['snmp_index' => '102', 'field_value' => 'web-2'],
-	];
+	$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = cloud_scope_cache(['101' => 'web-1', '102' => 'web-2']);
 	$GLOBALS['__cloud_db_rows']['FROM host_snmp_query'] = [
 		['snmp_query_id' => 9, 'reindex_method' => 2],
 		['snmp_query_id' => 10, 'reindex_method' => 2],
@@ -175,6 +194,32 @@ it('reports a data query that failed to run, so the next discovery retries it', 
 
 	expect(cloud_scope_devices_under_test()->refresh(4, ['droplet' => ['103' => 'web-3'], 'load_balancer' => []]))->toBeFalse()
 		->and(implode("\n", array_column($GLOBALS['__cloud_log'], 'message')))->toContain('data query 9 failed');
+});
+
+it('retries a data query that updated the cached names but then failed', function () {
+	cloud_scope_indexed_world();
+	$served = ['droplet' => ['101' => 'web-1', '103' => 'web-3'], 'load_balancer' => []];
+	// Cacti caches the new names but not every id before the query fails.
+	$GLOBALS['__cloud_scope']['index_ok'] = false;
+	$GLOBALS['__cloud_scope']['on_index'] = static function (): void {
+		$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = array_values(array_filter(
+			cloud_scope_cache(['101' => 'web-1', '103' => 'web-3']),
+			static fn (array $row): bool => !($row['snmp_index'] === '103' && $row['field_name'] === 'resourceId')
+		));
+	};
+
+	expect(cloud_scope_devices_under_test()->refresh(4, $served))->toBeFalse();
+
+	$GLOBALS['__cloud_scope']['index_ok'] = true;
+	$GLOBALS['__cloud_scope']['on_index'] = static function (): void {
+		$GLOBALS['__cloud_db_rows']['FROM host_snmp_cache'] = cloud_scope_cache(['101' => 'web-1', '103' => 'web-3']);
+	};
+
+	expect(cloud_scope_devices_under_test()->refresh(4, $served))->toBeTrue()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([[42, 9], [42, 9]]);
+
+	expect(cloud_scope_devices_under_test()->refresh(4, $served))->toBeTrue()
+		->and($GLOBALS['__cloud_scope']['indexed'])->toBe([[42, 9], [42, 9]]);
 });
 
 it('indexes nothing while the account\'s device is being created, or when it has none', function () {

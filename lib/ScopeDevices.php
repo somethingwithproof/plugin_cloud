@@ -210,6 +210,9 @@ final class ScopeDevices {
 	}
 
 	/**
+	 * Whether Cacti's cache lists exactly the served resources, each with
+	 * every field the data queries read.
+	 *
 	 * @param array<string, string> $served
 	 */
 	private function indexed(int $host, array $served): bool {
