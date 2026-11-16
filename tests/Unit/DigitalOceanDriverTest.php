@@ -372,7 +372,7 @@ it('allows only GET under the three documented prefixes, and every catalog path'
 
 it('lists only metrics that need no agent by default', function () {
 	expect(DigitalOceanCatalog::defaults('droplet'))
-		->toBe(['do_cpu_pct', 'do_bw_pub_in', 'do_bw_pub_out', 'do_bw_prv_in', 'do_bw_prv_out'])
+		->toBe(['do_bw_pub_in', 'do_bw_pub_out', 'do_bw_prv_in', 'do_bw_prv_out'])
 		->and(count(DigitalOceanCatalog::defaults('load_balancer')))->toBe(16);
 
 	foreach (
@@ -395,8 +395,8 @@ it('estimates one request per series per collection and no charge', function () 
 			300
 		);
 
-	expect($estimate->requestsPerCollection)->toBe(5)
-		->and($estimate->requestsPerMonth)->toBe(5 * 8640)
+	expect($estimate->requestsPerCollection)->toBe(4)
+		->and($estimate->requestsPerMonth)->toBe(4 * 8640)
 		->and($estimate->monthlyCost)->toBe(0.0);
 });
 
