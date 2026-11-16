@@ -83,6 +83,63 @@ final class ResourceRepository {
 	}
 
 	/**
+	 * Resources a scope device serves: every one discovery has not retired,
+	 * so a missing resource keeps its index and reads as unknown.
+	 *
+	 * @return list<array{id: int, providerId: string, name: string, firstSeen: int, lifecycle: string}>
+	 */
+	public function served(int $accountId, string $type): array {
+		$out = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			'SELECT id, provider_id, name, first_seen, lifecycle FROM plugin_cloud_resource
+				WHERE account_id = ? AND type = ? AND lifecycle != ? ORDER BY provider_id',
+			[$accountId, $type, Lifecycle::Deleted->value],
+			true,
+			$this->connection
+		)) as $row) {
+			$out[] = [
+				'id'         => Row::int($row, 'id'),
+				'providerId' => Row::string($row, 'provider_id'),
+				'name'       => Row::string($row, 'name'),
+				'firstSeen'  => Row::int($row, 'first_seen'),
+				'lifecycle'  => Row::string($row, 'lifecycle'),
+			];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * What the account's scope device should list: each served resource's
+	 * id and name as ss_cloud() reports them, by type. Every catalog type is
+	 * present, so an empty list means confirmed empty, not unread.
+	 *
+	 * @return array<string, array<string, string>>|null type => provider id
+	 *         => name; null when the resources could not be read
+	 */
+	public function servedIndex(int $accountId): ?array {
+		$rows = db_fetch_assoc_prepared(
+			'SELECT type, provider_id, name FROM plugin_cloud_resource WHERE account_id = ? AND lifecycle != ?',
+			[$accountId, Lifecycle::Deleted->value],
+			true,
+			$this->connection
+		);
+
+		if (!is_array($rows)) {
+			return null;
+		}
+
+		$index = [DigitalOceanCatalog::DROPLET => [], DigitalOceanCatalog::LOAD_BALANCER => []];
+
+		foreach (Row::rows($rows) as $row) {
+			$index[Row::string($row, 'type')][Row::string($row, 'provider_id')] = ScriptServer::label(Row::string($row, 'name'));
+		}
+
+		return $index;
+	}
+
+	/**
 	 * @return array<string, int> lifecycle => count
 	 */
 	public function counts(int $accountId): array {

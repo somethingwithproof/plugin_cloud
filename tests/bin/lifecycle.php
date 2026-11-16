@@ -161,6 +161,188 @@ switch ($action) {
 		);
 
 		break;
+	case 'scope_device':
+		// The account a seed made, with two Droplets, gets its scope device.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+
+		foreach (array('101' => 'web-1', '102' => 'web-2') as $provider_id => $name) {
+			db_execute_prepared(
+				"INSERT IGNORE INTO plugin_cloud_resource (account_id, type, provider_id, name, lifecycle, first_seen, last_seen)
+					VALUES (?, 'droplet', ?, ?, 'active', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())",
+				array($account, $provider_id, $name)
+			);
+		}
+
+		// "locked": another request holds the account's creation lock.
+		if ($argument === 'locked') {
+			$other = new PDO(
+				'mysql:host=' . $database_hostname . ';port=' . $database_port . ';dbname=' . $database_default,
+				$database_username,
+				$database_password
+			);
+			$other->prepare('SELECT GET_LOCK(?, 0)')->execute(array('plugin_cloud_device_' . $account));
+		}
+
+		$result = cloud_scope_devices(1)->create(cloud_accounts()->find($account));
+
+		break;
+	case 'resource':
+		// Change one Droplet as discovery would: add, rename or retire it.
+		list($provider_id, $change) = explode('=', $argument, 2);
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+
+		if ($change === 'deleted') {
+			db_execute_prepared(
+				"UPDATE plugin_cloud_resource SET lifecycle = 'deleted' WHERE account_id = ? AND provider_id = ?",
+				array($account, $provider_id)
+			);
+		} else {
+			db_execute_prepared(
+				"INSERT INTO plugin_cloud_resource (account_id, type, provider_id, name, lifecycle, first_seen, last_seen)
+					VALUES (?, 'droplet', ?, ?, 'active', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+					ON DUPLICATE KEY UPDATE name = VALUES(name)",
+				array($account, $provider_id, $change)
+			);
+		}
+
+		break;
+	case 'reindex':
+		include_once($config['base_path'] . '/lib/data_query.php');
+		include_once($config['base_path'] . '/lib/snmp.php');
+
+		foreach (db_fetch_assoc('SELECT host_id, snmp_query_id FROM host_snmp_query') as $row) {
+			run_data_query($row['host_id'], $row['snmp_query_id']);
+		}
+
+		break;
+	case 'edit_device':
+		// Save the scope device with a new description, as host.php does,
+		// optionally after setting its data queries' reindex method as on the
+		// device page. Prints each query's reindex method and reindex checks
+		// after the save.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_scope_devices();
+		$host    = (int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device');
+		$account = cloud_accounts()->find((int) db_fetch_cell('SELECT account_id FROM plugin_cloud_device'));
+
+		if ($argument !== '') {
+			foreach (db_fetch_assoc_prepared('SELECT snmp_query_id FROM host_snmp_query WHERE host_id = ?', array($host)) as $row) {
+				api_device_dq_change($host, $row['snmp_query_id'], (int) $argument);
+			}
+		}
+
+		$fields    = \Somethingwithproof\Cloud\ScopeDevices::deviceFields(
+			$account,
+			(int) db_fetch_cell_prepared('SELECT host_template_id FROM host WHERE id = ?', array($host))
+		);
+		$fields[0] = $host;
+		$fields[2] = 'Seed edited';
+		call_user_func_array('api_device_save', $fields);
+
+		$result = array(
+			'description' => db_fetch_cell_prepared('SELECT description FROM host WHERE id = ?', array($host)),
+			'reindex'     => array_map('intval', array_column(
+				db_fetch_assoc_prepared('SELECT reindex_method FROM host_snmp_query WHERE host_id = ? ORDER BY snmp_query_id', array($host)),
+				'reindex_method'
+			)),
+			'checks'      => array_column(
+				db_fetch_assoc_prepared(
+					'SELECT assert_value FROM poller_reindex WHERE host_id = ? ORDER BY data_query_id',
+					array($host)
+				),
+				'assert_value'
+			),
+		);
+
+		break;
+	case 'drop_host':
+		// Delete the device row without Cacti's hooks, as when the plugin is disabled.
+		db_execute('DELETE h FROM host h INNER JOIN plugin_cloud_device d ON d.host_id = h.id');
+
+		break;
+	case 'remove_device':
+		include_once($config['base_path'] . '/lib/api_device.php');
+		api_device_remove((int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device'));
+
+		break;
+	case 'ss':
+		// Call ss_cloud() as the script server does: "<host> <type> <cmd> [field] [index]".
+		$called_by_script_server = true;
+		include_once($config['base_path'] . '/plugins/cloud/ss_cloud.php');
+		$result = (string) call_user_func_array('ss_cloud', explode(' ', $argument));
+
+		break;
+	case 'graph':
+		// Create one plugin graph on the scope device, as New Graphs does: "<graph key> <provider id>".
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		include_once($config['base_path'] . '/lib/api_data_source.php');
+		include_once($config['base_path'] . '/lib/api_graph.php');
+		include_once($config['base_path'] . '/lib/data_query.php');
+		include_once($config['base_path'] . '/lib/template.php');
+		include_once($config['base_path'] . '/lib/utility.php');
+		cloud_boot();
+		list($key, $provider_id) = explode(' ', $argument, 2);
+		$type      = \Somethingwithproof\Cloud\DigitalOceanCatalog::GRAPHS[$key][0];
+		$templates = new \Somethingwithproof\Cloud\TemplateRepository(false);
+		$query     = $templates->id('snmp_query', 'data_query/' . $type);
+		$host      = (int) db_fetch_cell('SELECT host_id FROM plugin_cloud_device');
+		$suggested = array();
+		$created   = create_complete_graph_from_template(
+			$templates->id('graph_templates', 'graph_template/' . $key),
+			$host,
+			array(
+				'snmp_query_id'       => $query,
+				'snmp_index_on'       => get_best_data_query_index_type($host, $query),
+				'snmp_query_graph_id' => $templates->id('snmp_query_graph', 'data_query_graph/' . $key),
+				'snmp_index'          => $provider_id,
+			),
+			$suggested
+		);
+		$result    = (int) $created['local_graph_id'];
+
+		break;
+	case 'move_index':
+		// Point the scope device's data sources at another resource index,
+		// as editing a data source's index does: "<from>=<to>".
+		list($from, $to) = explode('=', $argument, 2);
+		db_execute_prepared(
+			'UPDATE data_local dl INNER JOIN plugin_cloud_device d ON d.host_id = dl.host_id
+				SET dl.snmp_index = ? WHERE dl.snmp_index = ?',
+			array($to, $from)
+		);
+
+		break;
+	case 'remove_graph':
+		// Delete a graph and its data sources, as the Graphs page does.
+		include_once($config['base_path'] . '/lib/api_data_source.php');
+		include_once($config['base_path'] . '/lib/api_graph.php');
+		$sources = array_column(
+			db_fetch_assoc_prepared(
+				'SELECT DISTINCT dtr.local_data_id FROM graph_templates_item gti
+					INNER JOIN data_template_rrd dtr ON dtr.id = gti.task_item_id WHERE gti.local_graph_id = ?',
+				array((int) $argument)
+			),
+			'local_data_id'
+		);
+		api_data_source_remove_multi($sources);
+		api_graph_remove((int) $argument);
+
+		break;
+	case 'sync':
+		// Sync the series as a collector holding the lease, or, with
+		// "stolen", as one whose lease another run has taken over.
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		cloud_boot();
+		$account = (int) db_fetch_cell("SELECT id FROM plugin_cloud_account WHERE name = 'Seed'");
+		$leases  = new \Somethingwithproof\Cloud\LeaseRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+		$holder  = $argument === 'stolen' ? 'lifecycle-newer' : 'lifecycle';
+		$leases->acquire($account, $holder, 60);
+		$result = (new \Somethingwithproof\Cloud\SeriesRepository(false))->sync($account, $leases, 'lifecycle');
+		$leases->release($account, $holder);
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
@@ -247,6 +429,10 @@ switch ($action) {
 		);
 
 		break;
+	case 'discover':
+		include($config['base_path'] . '/plugins/cloud/tests/bin/discover.php');
+
+		break;
 	case 'collector_flow':
 		include($config['base_path'] . '/plugins/cloud/tests/bin/collector-flow.php');
 
@@ -307,6 +493,56 @@ foreach (db_fetch_assoc(
 	$tables[$row['t']] = (int) db_fetch_cell('SELECT COUNT(*) FROM `' . $row['t'] . '`');
 }
 
+// The device state, only while the plugin's device table exists.
+$device_state = array(
+	'device_reindex' => array(),
+	'devices'        => array(),
+	'device_queries' => array(),
+	'device_index'   => array(),
+	'series'         => array(),
+);
+
+if (isset($tables['plugin_cloud_device'])) {
+	$device_state = array(
+		'device_reindex' => array_map('intval', array_column(
+			db_fetch_assoc(
+				'SELECT q.reindex_method FROM host_snmp_query q INNER JOIN plugin_cloud_device d ON d.host_id = q.host_id
+					ORDER BY q.snmp_query_id'
+			),
+			'reindex_method'
+		)),
+		'devices' => db_fetch_assoc(
+			'SELECT d.host_id, d.account_id, h.description, h.availability_method, h.poller_id, ht.name AS template
+				FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
+				LEFT JOIN host_template ht ON ht.id = h.host_template_id'
+		),
+		'device_queries' => array_column(
+			db_fetch_assoc(
+				'SELECT sq.name FROM host_snmp_query hsq INNER JOIN snmp_query sq ON sq.id = hsq.snmp_query_id
+					INNER JOIN plugin_cloud_device d ON d.host_id = hsq.host_id ORDER BY sq.name'
+			),
+			'name'
+		),
+		'series' => array_map(
+			function ($row) {
+				return $row['provider_id'] . ' ' . $row['metric'];
+			},
+			db_fetch_assoc(
+				'SELECT r.provider_id, s.metric FROM plugin_cloud_series s
+					INNER JOIN plugin_cloud_resource r ON r.id = s.resource_id ORDER BY r.provider_id, s.metric'
+			)
+		),
+		'device_index' => array_column(
+			db_fetch_assoc(
+				"SELECT c.snmp_index, c.field_value FROM host_snmp_cache c INNER JOIN plugin_cloud_device d ON d.host_id = c.host_id
+					WHERE c.field_name = 'resourceName' ORDER BY c.snmp_index"
+			),
+			'field_value',
+			'snmp_index'
+		),
+	);
+}
+
 print json_encode(array(
 	'result'  => $result,
 	'output'  => $output,
@@ -362,6 +598,12 @@ print json_encode(array(
 		db_fetch_assoc("SELECT name FROM graph_templates WHERE name LIKE 'Cloud: %' ORDER BY name"),
 		'name'
 	),
+	'devices' => $device_state['devices'],
+	'device_queries' => $device_state['device_queries'],
+	'device_index' => $device_state['device_index'],
+	'device_reindex' => $device_state['device_reindex'],
+	'series' => $device_state['series'],
+	'hosts' => (int) db_fetch_cell('SELECT COUNT(*) FROM host'),
 	'templates_sha' => db_fetch_cell("SELECT value FROM settings WHERE name = 'cloud_templates_sha256'"),
 	'resource_files' => array_map(
 		'basename',

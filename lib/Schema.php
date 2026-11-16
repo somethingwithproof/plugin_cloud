@@ -34,11 +34,14 @@ namespace Somethingwithproof\Cloud;
  * the next run (REQ-LIFE-003). No migration calls a provider (REQ-LIFE-006).
  */
 final class Schema {
-	public const VERSION = 2;
+	public const VERSION = 3;
 
 	public const HOOKS = [
+		'api_device_new'       => 'cloud_device_saved',
+		'api_device_save'      => 'cloud_device_save',
 		'config_arrays'        => 'cloud_config_arrays',
 		'config_settings'      => 'cloud_config_settings',
+		'device_remove'        => 'cloud_device_remove',
 		'draw_navigation_text' => 'cloud_draw_navigation_text',
 		'poller_bottom'        => 'cloud_poller_bottom',
 	];
@@ -170,6 +173,8 @@ final class Schema {
 			1 => fn (): bool => $this->createTables(self::tables()),
 			// A fresh install already has the column from tables().
 			2 => fn (): bool => $this->addColumn('plugin_cloud_health', self::retryAtColumn()),
+			// A fresh install already has the table; the create skips it.
+			3 => fn (): bool => $this->createTables(['plugin_cloud_device' => self::tables()['plugin_cloud_device']]),
 		];
 	}
 
@@ -374,6 +379,17 @@ final class Schema {
 					$text('status', 16, 'never'),
 				],
 				'primary' => 'resource_id`,`metric',
+			],
+			// The Cacti scope device of each account (ADR 0010).
+			'plugin_cloud_device' => $innodb + [
+				'comment' => 'Cacti scope device per account',
+				'columns' => [
+					$id('host_id'),
+					$id('account_id'),
+					$time('created_at'),
+				],
+				'primary'     => 'host_id',
+				'unique_keys' => [['name' => 'account', 'columns' => ['account_id']]],
 			],
 			'plugin_cloud_lease' => $innodb + [
 				'comment' => 'Per-account collector leases',

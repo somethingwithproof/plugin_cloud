@@ -20,9 +20,13 @@
 // The version INFO declares, which Cacti records as the installed version.
 define('CLOUD_VERSION', (string) (parse_ini_file(dirname(__DIR__, 2) . '/INFO', true)['info']['version'] ?? ''));
 
+// Schema::VERSION; the integration process does not load the plugin classes.
+const CLOUD_SCHEMA = '3';
+
 const CLOUD_TABLES = [
 	'plugin_cloud_account',
 	'plugin_cloud_audit',
+	'plugin_cloud_device',
 	'plugin_cloud_health',
 	'plugin_cloud_lease',
 	'plugin_cloud_observation',
@@ -31,7 +35,15 @@ const CLOUD_TABLES = [
 	'plugin_cloud_series',
 ];
 
-const CLOUD_HOOKS = ['config_arrays', 'config_settings', 'draw_navigation_text', 'poller_bottom'];
+const CLOUD_HOOKS = [
+	'api_device_new',
+	'api_device_save',
+	'config_arrays',
+	'config_settings',
+	'device_remove',
+	'draw_navigation_text',
+	'poller_bottom',
+];
 
 beforeEach(function () {
 	lifecycle('reset');
@@ -46,7 +58,7 @@ it('installs fresh with tracked tables, hooks, and both realms, leaving the plug
 
 	expect($state['plugin']['status'])->toEqual('4')
 		->and($state['plugin']['version'])->toEqual(CLOUD_VERSION)
-		->and($state['schema'])->toEqual('2')
+		->and($state['schema'])->toEqual(CLOUD_SCHEMA)
 		->and(array_keys($state['tables']))->toBe(CLOUD_TABLES)
 		->and($state['tracked'])->toBe(CLOUD_TABLES)
 		->and(array_keys($state['hooks']))->toBe(CLOUD_HOOKS)
@@ -116,7 +128,7 @@ it('finishes an upgrade that was interrupted after creating only some tables', f
 	expect($state['result'])->toBeTrue()
 		->and(array_keys($state['tables']))->toBe(CLOUD_TABLES)
 		->and($state['tables']['plugin_cloud_account'])->toBe(1)
-		->and($state['schema'])->toEqual('2')
+		->and($state['schema'])->toEqual(CLOUD_SCHEMA)
 		->and($state['plugin']['version'])->toEqual(CLOUD_VERSION);
 });
 
@@ -129,7 +141,7 @@ it('does not advance past a migration that did not run', function () {
 		->and($stopped['schema'])->toEqual('0');
 
 	$finished = lifecycle('upgrade');
-	expect($finished['schema'])->toEqual('2');
+	expect($finished['schema'])->toEqual(CLOUD_SCHEMA);
 });
 
 it('adds the retry column to a version 1 database, and a kept uninstall keeps it', function () {
@@ -140,7 +152,7 @@ it('adds the retry column to a version 1 database, and a kept uninstall keeps it
 
 	$upgraded = lifecycle('upgrade');
 	expect($upgraded['result'])->toBeTrue()
-		->and($upgraded['schema'])->toEqual('2')
+		->and($upgraded['schema'])->toEqual(CLOUD_SCHEMA)
 		->and($upgraded['health_columns'])->toContain('retry_at')
 		->and($upgraded['tracked_columns'])->toBe(['plugin_cloud_health.retry_at'])
 		->and($upgraded['tables']['plugin_cloud_account'])->toBe(1);
@@ -151,8 +163,20 @@ it('adds the retry column to a version 1 database, and a kept uninstall keeps it
 		->and($kept['tracked_columns'])->toBe([]);
 
 	$reinstalled = lifecycle('install');
-	expect($reinstalled['schema'])->toEqual('2')
+	expect($reinstalled['schema'])->toEqual(CLOUD_SCHEMA)
 		->and($reinstalled['health_columns'])->toContain('retry_at');
+});
+
+it('creates the device table on a version 2 database and tracks it for uninstall', function () {
+	lifecycle('install');
+	lifecycle('drop_table', 'plugin_cloud_device');
+	lifecycle('set_schema', '2');
+
+	$upgraded = lifecycle('upgrade');
+	expect($upgraded['result'])->toBeTrue()
+		->and($upgraded['schema'])->toEqual(CLOUD_SCHEMA)
+		->and(array_keys($upgraded['tables']))->toContain('plugin_cloud_device')
+		->and($upgraded['tracked'])->toContain('plugin_cloud_device');
 });
 
 it('refuses a schema newer than the code and leaves the recorded version alone', function () {

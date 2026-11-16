@@ -31,11 +31,15 @@ if (!cloud_page_start()) {
 	exit;
 }
 
-cloud_require_post('cloud_accounts.php', array('save', 'delete', 'verify'));
+cloud_require_post('cloud_accounts.php', array('save', 'delete', 'verify', 'create_device'));
 
 $cloud_accounts    = cloud_accounts();
 $cloud_credentials = cloud_credentials();
-$cloud_page        = new \Somethingwithproof\Cloud\AccountsPage($cloud_accounts, $cloud_credentials);
+$cloud_page        = new \Somethingwithproof\Cloud\AccountsPage(
+	$cloud_accounts,
+	$cloud_credentials,
+	new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock())
+);
 $cloud_user        = isset($_SESSION['sess_user_id']) && is_numeric($_SESSION['sess_user_id'])
 	? (int) $_SESSION['sess_user_id']
 	: 0;
@@ -147,6 +151,23 @@ switch ($cloud_action) {
 				'cloud_verify',
 				$cloud_status->message(),
 				$cloud_status === \Somethingwithproof\Cloud\VerifyStatus::Ok ? MESSAGE_LEVEL_INFO : MESSAGE_LEVEL_WARN
+			);
+		}
+
+		header('Location: cloud_accounts.php');
+		exit;
+	case 'create_device':
+		$cloud_account = $cloud_accounts->find((int) get_filter_request_var('id'));
+
+		if ($cloud_account !== null) {
+			$cloud_host = cloud_scope_devices()->create($cloud_account);
+
+			raise_message(
+				'cloud_device',
+				$cloud_host > 0
+					? __('The Cacti device for %s is ready.', $cloud_account->name, 'cloud')
+					: __('The Cacti device was not created; see the Cacti log.', 'cloud'),
+				$cloud_host > 0 ? MESSAGE_LEVEL_INFO : MESSAGE_LEVEL_ERROR
 			);
 		}
 

@@ -399,6 +399,84 @@ function cloud_draw_navigation_text($nav) {
  * poller_bottom hook: start this poller's collector in the background
  * (REQ-COLL-001). The collector itself skips accounts of other pollers.
  */
+/**
+ * Cacti is deleting devices: forget any that were scope devices. Runs
+ * before the rows go, and receives the ids as an array.
+ *
+ * @param mixed $ids
+ * @return mixed the ids, unchanged, for the next plugin
+ */
+function cloud_device_remove($ids) {
+	if (!cloud_boot() || !is_array($ids)) {
+		return $ids;
+	}
+
+	$devices = new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+
+	foreach ($ids as $id) {
+		if (is_numeric($id)) {
+			$devices->unlink((int) $id);
+		}
+	}
+
+	return $ids;
+}
+
+/**
+ * Cacti is about to save a device: remember a scope device's reindex
+ * methods, which the save resets (see ScopeReindex).
+ *
+ * @param mixed $save
+ * @return mixed the device fields, unchanged, for the save
+ */
+function cloud_device_save($save) {
+	if (cloud_boot() && is_array($save) && isset($save['id']) && is_numeric($save['id']) && $save['id'] > 0) {
+		cloud_scope_reindex()->remember((int) $save['id']);
+	}
+
+	return $save;
+}
+
+/**
+ * Cacti saved a device, new or edited: put back the reindex methods of a
+ * scope device that the save reset.
+ *
+ * @param mixed $save
+ * @return mixed the device fields, unchanged
+ */
+function cloud_device_saved($save) {
+	if (cloud_boot() && is_array($save) && isset($save['id']) && is_numeric($save['id']) && $save['id'] > 0) {
+		cloud_scope_reindex()->restore((int) $save['id']);
+	}
+
+	return $save;
+}
+
+/**
+ * One instance per request, so the save hook's memory reaches the hook
+ * that runs after the save.
+ */
+function cloud_scope_reindex(): \Somethingwithproof\Cloud\ScopeReindex {
+	global $config;
+
+	static $keeper = null;
+
+	if ($keeper === null) {
+		foreach (array('api_device.php', 'data_query.php', 'poller.php', 'snmp.php') as $file) {
+			include_once($config['library_path'] . '/' . $file);
+		}
+
+		$keeper = new \Somethingwithproof\Cloud\ScopeReindex(
+			new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+			function (int $host, int $query, int $method): void {
+				api_device_dq_change($host, $query, $method);
+			}
+		);
+	}
+
+	return $keeper;
+}
+
 function cloud_poller_bottom(): void {
 	global $config;
 
@@ -431,6 +509,60 @@ function cloud_poller_bottom(): void {
 	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
 }
 
+function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\ScopeDevices {
+	global $config;
+
+	// The libraries host.php loads to save a device and run its data queries.
+	foreach (array(
+		'api_data_source.php', 'api_device.php', 'api_graph.php', 'data_query.php',
+		'ping.php', 'poller.php', 'snmp.php', 'template.php', 'utility.php'
+	) as $file) {
+		include_once($config['library_path'] . '/' . $file);
+	}
+
+	return new \Somethingwithproof\Cloud\ScopeDevices(
+		new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
+		new \Somethingwithproof\Cloud\TemplateRepository(false),
+		function (\Somethingwithproof\Cloud\Account $account, int $template): int {
+			$id = call_user_func_array(
+				'api_device_save',
+				\Somethingwithproof\Cloud\ScopeDevices::deviceFields($account, $template)
+			);
+
+			return is_numeric($id) ? (int) $id : 0;
+		},
+		function (int $host, int $query, int $method): void {
+			api_device_dq_change($host, $query, $method);
+		},
+		function (int $host, int $query): bool {
+			return (bool) run_data_query($host, $query);
+		},
+		function (int $host, int $query): void {
+			// Cacti's own cache update, with nothing present: it marks the
+			// query's rows stale and deletes them.
+			$none = array();
+			data_query_update_host_cache_from_buffer($host, $query, $none, $none);
+		},
+		function (int $host): void {
+			api_device_remove($host);
+		},
+		$lockTimeout
+	);
+}
+
+function cloud_script_server(): \Somethingwithproof\Cloud\ScriptServer {
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+
+	return new \Somethingwithproof\Cloud\ScriptServer(
+		new \Somethingwithproof\Cloud\DeviceRepository(false, $clock),
+		cloud_accounts(),
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\ObservationRepository(false),
+		new \Somethingwithproof\Cloud\FreshnessEvaluator($clock),
+		$clock
+	);
+}
+
 function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
 	$clock = new \Somethingwithproof\Cloud\SystemClock();
 
@@ -445,6 +577,8 @@ function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
 		new \Somethingwithproof\Cloud\HealthRepository(false),
 		new \Somethingwithproof\Cloud\Redactor(),
 		$clock,
-		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4))
+		'poller' . $pollerId . '-' . getmypid() . '-' . bin2hex(random_bytes(4)),
+		// Wait briefly for a device being created; the next discovery retries.
+		cloud_scope_devices(1)
 	);
 }
