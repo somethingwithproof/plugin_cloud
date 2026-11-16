@@ -111,7 +111,7 @@ $discover_drivers->register(
 $result = (new Collector(
 	new \Somethingwithproof\Cloud\AccountRepository(false, $discover_clock),
 	$discover_drivers,
-	new CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, $discover_clock), '/nonexistent'),
+	new CredentialStore(new \Somethingwithproof\Cloud\SecretRepository(false, $discover_clock), '/nonexistent', $discover_dir),
 	new \Somethingwithproof\Cloud\LeaseRepository(false, $discover_clock),
 	new \Somethingwithproof\Cloud\ResourceRepository(false, $discover_clock),
 	new \Somethingwithproof\Cloud\SeriesRepository(false),
