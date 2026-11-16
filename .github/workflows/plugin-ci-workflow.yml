@@ -112,6 +112,24 @@ jobs:
         persist-credentials: false
         path: cacti/plugins/cloud
 
+    # Alerting runs through Thold and Maint (ADR 0006). Their develop branches
+    # are the ones that declare Cacti 1.2.29 or later; pinned for repeatability.
+    - name: Checkout Thold
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        repository: Cacti/plugin_thold
+        ref: dc76952ee52e8b4877b2d5b830caab1f7c43dde9
+        path: cacti/plugins/thold
+
+    - name: Checkout Maint
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        repository: Cacti/plugin_maint
+        ref: 9422c7a4ce9916d0f0edf88b93afb194e0675b4a
+        path: cacti/plugins/maint
+
     - name: Install PHP ${{ matrix.php }}
       uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
@@ -270,6 +288,18 @@ jobs:
         if grep -E "Fatal error|Warning:|Uncaught" "$RUNNER_TEMP/php-perf.log"; then
           exit 1
         fi
+
+    # Thold alerts and restores on cloud values, the age threshold alerts when
+    # collection stops, and Maint on the scope device suppresses both (#46).
+    # Its own exit status is the check: Thold logs its alerts on purpose.
+    - name: Alert through Thold and Maint
+      working-directory: cacti
+      env:
+        CLOUD_TEST_DATABASE: disposable
+      run: |
+        php cli/plugin_manage.php --plugin=thold --install --enable
+        php cli/plugin_manage.php --plugin=maint --install --enable
+        php plugins/cloud/tests/bin/alerting.php
 
   # A 1.2.31 site may still run PHP 8.1. Enabling the plugin there must be
   # refused with a message and leave Cacti working, both on a fresh install
