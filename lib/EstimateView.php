@@ -43,6 +43,7 @@ final class EstimateView {
 			__('Selection', 'cloud'),
 			__('Resources', 'cloud'),
 			__('Requests per Hour, One Resource', 'cloud'),
+			__('Requests per Month, One Resource', 'cloud'),
 			__('Requests per Hour', 'cloud'),
 			__('Requests per Month', 'cloud'),
 			__('Cost per Month', 'cloud'),
@@ -113,8 +114,8 @@ final class EstimateView {
 		$collected = $this->cost->collected($account, $driver);
 		$all       = $this->cost->everything($account, $driver);
 		$rows      = [
-			self::row($account->name, __('Collected now', 'cloud'), '-', '-', $collected, $interval),
-			self::row('', __('Every graph on every resource', 'cloud'), '-', '-', $all, $interval),
+			self::row($account->name, __('Collected now', 'cloud'), '-', '-', '-', $collected, $interval),
+			self::row('', __('Every graph on every resource', 'cloud'), '-', '-', '-', $all, $interval),
 		];
 
 		foreach ($this->cost->graphs($account, $driver) as $graph) {
@@ -123,6 +124,7 @@ final class EstimateView {
 				self::typeLabel($graph['type']) . ': ' . $graph['title'],
 				(string) $graph['resources'],
 				number_format(CostPreview::perHour($graph['perResource'], $interval)),
+				number_format($graph['perResource']->requestsPerMonth),
 				$graph['all'],
 				$interval
 			);
@@ -144,6 +146,7 @@ final class EstimateView {
 			return null;
 		}
 
+		$wanted = CostPreview::perHour($this->cost->requested($account, $driver), $account->collectInterval);
 		$now = CostPreview::perHour($this->cost->collected($account, $driver), $account->collectInterval);
 		$all = CostPreview::perHour($this->cost->everything($account, $driver), $account->collectInterval);
 
@@ -156,8 +159,9 @@ final class EstimateView {
 				number_format($now),
 				number_format($all),
 				'cloud'
-			) . ($now > $share ? ' ' . __('Collection already exceeds the share; the rest reads U.', 'cloud') : ''),
-			$now > $share,
+			) . ($wanted > $now ? ' ' . __('Collection is capped; the remaining series read U.', 'cloud') : '')
+				. ' ' . __('Metric estimate between discovery runs; discovery requests reduce the collection allowance.', 'cloud'),
+			$wanted > $now,
 		];
 	}
 
@@ -169,6 +173,7 @@ final class EstimateView {
 		string $selection,
 		string $resources,
 		string $oneResource,
+		string $oneResourceMonth,
 		UsageEstimate $estimate,
 		int $interval
 	): array {
@@ -178,6 +183,7 @@ final class EstimateView {
 				$selection,
 				$resources,
 				$oneResource,
+				$oneResourceMonth,
 				number_format(CostPreview::perHour($estimate, $interval)),
 				number_format($estimate->requestsPerMonth),
 				$estimate->monthlyCost > 0

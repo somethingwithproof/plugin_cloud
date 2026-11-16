@@ -92,14 +92,14 @@ it('estimates each graph, everything, and what is collected now from the driver\
 	$none = 'No charge documented';
 
 	// Account, selection, resources, per hour on one resource, per hour, per month, cost.
-	expect($rows[0])->toBe(['Ops', 'Collected now', '-', '-', '24', '17,280', $none])
-		->and($rows[1])->toBe(['', 'Every graph on every resource', '-', '-', '624', '449,280', $none])
-		->and($by['Droplet: CPU'])->toBe(['', 'Droplet: CPU', '3', '12', '36', '25,920', $none])
-		->and($by['Droplet: Bandwidth'])->toBe(['', 'Droplet: Bandwidth', '3', '48', '144', '103,680', $none])
-		->and($by['Droplet: Load Average'])->toBe(['', 'Droplet: Load Average', '3', '36', '108', '77,760', $none])
-		->and($by['Droplet: Memory'])->toBe(['', 'Droplet: Memory', '3', '48', '144', '103,680', $none])
-		->and($by['Droplet: Collection Age'])->toBe(['', 'Droplet: Collection Age', '3', '0', '0', '0', $none])
-		->and($by['Load Balancer: Throughput'])->toBe(['', 'Load Balancer: Throughput', '1', '60', '60', '43,200', $none])
+	expect($rows[0])->toBe(['Ops', 'Collected now', '-', '-', '-', '24', '17,280', $none])
+		->and($rows[1])->toBe(['', 'Every graph on every resource', '-', '-', '-', '624', '449,280', $none])
+		->and($by['Droplet: CPU'])->toBe(['', 'Droplet: CPU', '3', '12', '8,640', '36', '25,920', $none])
+		->and($by['Droplet: Bandwidth'])->toBe(['', 'Droplet: Bandwidth', '3', '48', '34,560', '144', '103,680', $none])
+		->and($by['Droplet: Load Average'])->toBe(['', 'Droplet: Load Average', '3', '36', '25,920', '108', '77,760', $none])
+		->and($by['Droplet: Memory'])->toBe(['', 'Droplet: Memory', '3', '48', '34,560', '144', '103,680', $none])
+		->and($by['Droplet: Collection Age'])->toBe(['', 'Droplet: Collection Age', '3', '0', '0', '0', '0', $none])
+		->and($by['Load Balancer: Throughput'])->toBe(['', 'Load Balancer: Throughput', '1', '60', '43,200', '60', '43,200', $none])
 		->and($rows)->toHaveCount(2 + 15);
 });
 
@@ -107,7 +107,7 @@ it('agrees with the graphs: every graph on every resource is the sum of the grap
 	cloud_cost_world();
 
 	$rows  = array_column(cloud_cost_view()->rows(cloud_cost_account(), cloud_cost_driver()), 'cells');
-	$total = array_sum(array_map(fn (array $row): int => (int) str_replace(',', '', $row[4]), array_slice($rows, 2)));
+	$total = array_sum(array_map(fn (array $row): int => (int) str_replace(',', '', $row[5]), array_slice($rows, 2)));
 
 	expect($total)->toBe(624);
 });
@@ -132,15 +132,15 @@ it('names the price source and check date, and that estimates use list prices', 
 it('compares collection and everything with the account\'s request share', function () {
 	cloud_cost_world();
 	expect(cloud_cost_view()->budgetNote(cloud_cost_account(), cloud_cost_driver()))->toBe([
-		'Request share: 2,500 requests per hour, 50 percent of the token limit. Collected now: 24. Every graph: 624.',
+		'Request share: 2,500 requests per hour, 50 percent of the token limit. Collected now: 24. Every graph: 624. Metric estimate between discovery runs; discovery requests reduce the collection allowance.',
 		false,
 	]);
 
 	// 1% of 5,000 is 50 an hour; five series are 60.
 	cloud_cost_world(['do_cpu_pct', 'do_load_1', 'do_load_5', 'do_load_15', 'do_mem_free']);
 	expect(cloud_cost_view()->budgetNote(cloud_cost_account(['request_share' => 1]), cloud_cost_driver()))->toBe([
-		'Request share: 50 requests per hour, 1 percent of the token limit. Collected now: 60. Every graph: 624. '
-			. 'Collection already exceeds the share; the rest reads U.',
+		'Request share: 50 requests per hour, 1 percent of the token limit. Collected now: 24. Every graph: 624. '
+			. 'Collection is capped; the remaining series read U. Metric estimate between discovery runs; discovery requests reduce the collection allowance.',
 		true,
 	]);
 });
@@ -150,5 +150,16 @@ it('scales with the interval: every 60 s costs five times every 300 s', function
 	$view = cloud_cost_view();
 	$rows = array_column($view->rows(cloud_cost_account(['collect_interval' => 60]), cloud_cost_driver()), 'cells');
 
-	expect($rows[1])->toBe(['', 'Every graph on every resource', '-', '-', '3,120', '2,246,400', 'No charge documented']);
+	expect($rows[1])->toBe(['', 'Every graph on every resource', '-', '-', '-', '3,120', '2,246,400', 'No charge documented']);
+});
+
+
+it('uses the collector split after discovery spends part of the per-run cap', function () {
+	cloud_cost_world(['do_cpu_pct', 'do_load_1', 'do_load_5']);
+	$cost = new CostPreview(new ResourceRepository(false, new FixedClock(1_800_000_000)), new SeriesRepository(false));
+	$account = cloud_cost_account(['request_share' => 1]);
+	$driver = cloud_cost_driver();
+	expect(CostPreview::perHour($cost->collected($account, $driver), 300))->toBe(24)
+		->and(CostPreview::perHour($cost->collected($account, $driver, 1), 300))->toBe(12)
+		->and(CostPreview::perHour($cost->collected($account, $driver, 2), 300))->toBe(0);
 });

@@ -91,9 +91,16 @@ final class CostPreview {
 	}
 
 	/**
-	 * The series the collector reads for the account now.
+	 * The metric series that fit the collector budget. Discovery requests
+	 * already spent by a run reduce the allowance in exactly the same way.
 	 */
-	public function collected(Account $account, ProviderDriver $driver): UsageEstimate {
+	public function collected(Account $account, ProviderDriver $driver, int $discoveryRequests = 0): UsageEstimate {
+		[$fit] = RequestBudget::split($account, $driver, $this->series->enabledFor($account->id), $discoveryRequests);
+
+		return $driver->estimate($fit, $account->collectInterval);
+	}
+
+	public function requested(Account $account, ProviderDriver $driver): UsageEstimate {
 		return $driver->estimate($this->series->enabledFor($account->id), $account->collectInterval);
 	}
 

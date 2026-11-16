@@ -255,6 +255,10 @@ msgid "Requests per Hour, One Resource"
 msgstr ""
 
 #: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr ""
+
+#: lib/EstimateView.php
 msgid "Requests per Hour"
 msgstr ""
 
@@ -298,7 +302,11 @@ msgid "Request share: %s requests per hour, %s percent of the token limit. Colle
 msgstr ""
 
 #: lib/EstimateView.php
-msgid "Collection already exceeds the share; the rest reads U."
+msgid "Collection is capped; the remaining series read U."
+msgstr ""
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
 msgstr ""
 
 #: lib/EstimateView.php
