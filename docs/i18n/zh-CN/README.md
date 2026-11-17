@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: ebca8348e1591e22513f93127673c0dc53056ecbb80da3d47c8b6b266c40f570 -->
+<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](README.md) | [हिन्दी](../hi-IN/README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](../es-419/README.md) | [العربية](../ar-SA/README.md)
@@ -101,6 +101,7 @@ Cacti 设备权限仍限制各用户可用的行和操作；未映射对象需�
 <a id="design"></a>
 ## 设计
 
+- [docs/performance.md](docs/performance.md) 提供采集器和健康页面的测量结果，以及所用硬件和设置。
 - [docs/PLAN.md](../../PLAN.md) 是完整计划：架构、依赖的提供商和 Cacti 事实（含来源）、驱动契约、费用计算、安全边界、测试及风险。
 - [docs/decisions/](../../decisions) 保存已作出选择的架构决策记录。
 - [docs/REQUIREMENTS.md](../../REQUIREMENTS.md) 将各需求 ID 映射到对应议题。

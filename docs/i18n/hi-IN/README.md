@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: ebca8348e1591e22513f93127673c0dc53056ecbb80da3d47c8b6b266c40f570 -->
+<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](../zh-CN/README.md) | [हिन्दी](README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](../es-419/README.md) | [العربية](../ar-SA/README.md)
@@ -101,6 +101,7 @@ Cacti डिवाइस अनुमतियाँ अब भी प्रत�
 <a id="design"></a>
 ## डिज़ाइन
 
+- [docs/performance.md](docs/performance.md) में उपयोग किए हार्डवेयर और सेटिंग के साथ संग्राहक और स्वास्थ्य पृष्ठ के मापन हैं।
 - [docs/PLAN.md](../../PLAN.md) पूरा प्लान है: आर्किटेक्चर, उस पर निर्भर प्रदाता और Cacti तथ्य (स्रोतों सहित), ड्राइवर अनुबंध, लागत गणना, सुरक्षा सीमाएँ, परीक्षण और जोखिम।
 - [docs/decisions/](../../decisions) में पहले लिए गए विकल्पों के आर्किटेक्चर निर्णय रिकॉर्ड हैं।
 - [docs/REQUIREMENTS.md](../../REQUIREMENTS.md) प्रत्येक आवश्यकता ID को उसके मुद्दे से जोड़ता है।

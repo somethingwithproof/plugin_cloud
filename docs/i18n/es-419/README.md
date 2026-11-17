@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: ebca8348e1591e22513f93127673c0dc53056ecbb80da3d47c8b6b266c40f570 -->
+<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](../zh-CN/README.md) | [हिन्दी](../hi-IN/README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](README.md) | [العربية](../ar-SA/README.md)
@@ -101,6 +101,7 @@ Estos pasos instalan el código del hito 2 para evaluarlo. Requieren Cacti 1.2.3
 <a id="design"></a>
 ## Diseño
 
+- [docs/performance.md](docs/performance.md) contiene las mediciones del recolector y de la página de salud, con el hardware y los ajustes utilizados.
 - [docs/PLAN.md](../../PLAN.md) contiene el plan completo: arquitectura, los datos de los proveedores y de Cacti de los que depende (con fuentes), el contrato de los controladores, los cálculos de costos, los límites de seguridad, las pruebas y los riesgos.
 - [docs/decisions/](../../decisions) contiene las decisiones de arquitectura ya tomadas.
 - [docs/REQUIREMENTS.md](../../REQUIREMENTS.md) relaciona cada identificador de requisito con su incidencia.

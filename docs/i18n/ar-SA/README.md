@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: ebca8348e1591e22513f93127673c0dc53056ecbb80da3d47c8b6b266c40f570 -->
+<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](../zh-CN/README.md) | [हिन्दी](../hi-IN/README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](../es-419/README.md) | [العربية](README.md)
@@ -101,6 +101,7 @@
 <a id="design"></a>
 ## التصميم
 
+- يتضمن [docs/performance.md](docs/performance.md) قياسات أداة الجمع وصفحة السلامة، مع العتاد والإعدادات المستخدمة.
 - [docs/PLAN.md](../../PLAN.md) هو الخطة الكاملة: البنية، وحقائق المزوّدين وCacti التي تعتمد عليها مع المصادر، وعقد برامج التشغيل، وحساب التكلفة، وحدود الأمان، والاختبارات والمخاطر.
 - يحتفظ [docs/decisions/](../../decisions) بسجلات قرارات البنية للاختيارات المتخذة.
 - يربط [docs/REQUIREMENTS.md](../../REQUIREMENTS.md) كل معرّف متطلب بمسألته.
