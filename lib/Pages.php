@@ -28,6 +28,7 @@ namespace Somethingwithproof\Cloud;
  * Cloud Admin pages (REQ-UI-002).
  */
 final class Pages {
+	public const OPERATOR = ['cloud_operator.php'];
 	public const VIEW  = ['cloud_health.php'];
 	public const ADMIN = ['cloud_accounts.php'];
 
@@ -36,6 +37,7 @@ final class Pages {
 	 */
 	public static function realms(): array {
 		return [
+			['name' => __('Cloud Operator', 'cloud'), 'files' => self::OPERATOR],
 			['name' => __('Cloud View', 'cloud'), 'files' => self::VIEW],
 			['name' => __('Cloud Admin', 'cloud'), 'files' => self::ADMIN],
 		];
@@ -45,7 +47,7 @@ final class Pages {
 	 * @return list<string>
 	 */
 	public static function files(): array {
-		return array_merge(self::VIEW, self::ADMIN);
+		return array_merge(self::VIEW, self::ADMIN, self::OPERATOR);
 	}
 
 	/**
@@ -55,6 +57,7 @@ final class Pages {
 	 */
 	public static function menu(): array {
 		return [
+			'cloud_operator.php' => __('Cloud Operations', 'cloud'),
 			'cloud_accounts.php' => __('Cloud Accounts', 'cloud'),
 			'cloud_health.php'   => __('Cloud Health', 'cloud'),
 		];

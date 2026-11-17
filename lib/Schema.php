@@ -37,6 +37,7 @@ final class Schema {
 	public const VERSION = 3;
 
 	public const HOOKS = [
+		'auth_alternate_realms' => 'cloud_auth_alternate_realms',
 		'api_device_new'       => 'cloud_device_saved',
 		'api_device_save'      => 'cloud_device_save',
 		'config_arrays'        => 'cloud_config_arrays',
@@ -125,6 +126,10 @@ final class Schema {
 			true,
 			$this->connection
 		);
+	}
+
+	public function pluginEnabled(): bool {
+		return (int) db_fetch_cell_prepared('SELECT status FROM plugin_config WHERE directory = ?', [self::PLUGIN], '', true, $this->connection) === 1;
 	}
 
 	public function hooksRegistered(): bool {
