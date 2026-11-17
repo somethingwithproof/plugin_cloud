@@ -46,6 +46,22 @@ msgstr ""
 msgid "The Cacti device was not created; see the Cacti log."
 msgstr ""
 
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr ""
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr ""
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr ""
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr ""
+
 #: lib/AccountInput.php
 msgid "Provider: choose one of the listed providers."
 msgstr ""
@@ -128,7 +144,7 @@ msgstr ""
 msgid "Credential"
 msgstr ""
 
-#: lib/AccountsPage.php
+#: lib/AccountsPage.php lib/OperatorPage.php
 msgid "State"
 msgstr ""
 
@@ -140,7 +156,7 @@ msgstr ""
 msgid "Device"
 msgstr ""
 
-#: lib/AccountsPage.php
+#: lib/AccountsPage.php lib/OperatorPage.php
 msgid "Actions"
 msgstr ""
 
@@ -357,7 +373,7 @@ msgstr ""
 msgid "Data"
 msgstr ""
 
-#: lib/HealthPage.php
+#: lib/HealthPage.php lib/OperatorPage.php
 msgid "Never"
 msgstr ""
 
@@ -404,6 +420,46 @@ msgstr ""
 #: lib/HealthWarnings.php
 #, php-format
 msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr ""
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr ""
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr ""
+
+#: lib/Pages.php
+msgid "Cloud Operator"
 msgstr ""
 
 #: lib/Pages.php

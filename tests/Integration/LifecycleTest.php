@@ -35,16 +35,7 @@ const CLOUD_TABLES = [
 	'plugin_cloud_series',
 ];
 
-const CLOUD_HOOKS = [
-	'api_device_new',
-	'api_device_save',
-	'config_arrays',
-	'config_settings',
-	'device_remove',
-	'draw_navigation_text',
-	'graphs_new_top_links',
-	'poller_bottom',
-];
+const CLOUD_HOOKS = ['api_device_new', 'api_device_save', 'auth_alternate_realms', 'config_arrays', 'config_settings', 'device_remove', 'draw_navigation_text', 'graphs_new_top_links', 'poller_bottom'];
 
 beforeEach(function () {
 	lifecycle('reset');
@@ -54,7 +45,7 @@ afterAll(function () {
 	lifecycle('reset');
 });
 
-it('installs fresh with tracked tables, hooks, and both realms, leaving the plugin disabled', function () {
+it('installs fresh with tracked tables, hooks, and three realms, leaving the plugin disabled', function () {
 	$state = lifecycle('install');
 
 	expect($state['plugin']['status'])->toEqual('4')
@@ -65,7 +56,8 @@ it('installs fresh with tracked tables, hooks, and both realms, leaving the plug
 		->and(array_keys($state['hooks']))->toBe(CLOUD_HOOKS)
 		->and($state['realms'])->toEqual([
 			'cloud_accounts.php' => 'Cloud Admin',
-			'cloud_health.php'   => 'Cloud View',
+			'cloud_health.php' => 'Cloud View',
+			'cloud_operator.php' => 'Cloud Operator',
 		])
 		->and($state['admin'])->toBe(2);
 });
@@ -113,7 +105,7 @@ it('re-registers hooks and realms that went missing', function () {
 
 	expect($state['result'])->toBeTrue()
 		->and(array_keys($state['hooks']))->toBe(CLOUD_HOOKS)
-		->and($state['realms'])->toHaveCount(2);
+		->and($state['realms'])->toHaveCount(3);
 });
 
 it('finishes an upgrade that was interrupted after creating only some tables', function () {
@@ -295,7 +287,7 @@ it('grants realms on install but never on a repair a viewer triggers', function 
 	expect(lifecycle('install')['admin'])->toBe(2);
 
 	$repair = lifecycle('repair_as_viewer');
-	expect($repair['realms'])->toHaveCount(2)
+	expect($repair['realms'])->toHaveCount(3)
 		->and($repair['result'])->toBe(['viewer_realms' => 0]);
 });
 
@@ -327,4 +319,24 @@ it('leaves no partial result when a run is killed mid-account, and the next run 
 		->and($r['final']['observations'])->toEqual([
 			['metric' => 'cpu', 'value' => '7', 'observed_at' => '1799999940', 'status' => 'ok']
 		]);
+});
+
+it('preserves old grants and resolves the three roles through Cacti including groups', function () {
+	lifecycle('install');
+	lifecycle('enable');
+	$roles = lifecycle('operator_roles')['result'];
+	expect($roles['ids_preserved'])->toBeTrue()
+		->and($roles['viewer_grants'])->toBe([$roles['expected_view']])
+		->and($roles['hook_enabled'])->toBe(1)
+		->and($roles['viewer'])->toBe([true, false, false])
+		->and($roles['operator'])->toBe([true, true, false])
+		->and($roles['admin'])->toBe([true, true, true])
+		->and($roles['revoked'])->toBe([false, false, false])
+		->and($roles['group_operator'])->toBe([true, true, false])
+		->and($roles['disabled_group'])->toBe([false, false, false])
+		->and($roles['first_request']['viewer'])->toBe([[true, true, true], [true, false, true], [false, false, true]])
+		->and($roles['first_request']['operator'])->toBe([[true, true, true], [true, true, true], [false, false, true]])
+		->and($roles['first_request']['admin'])->toBe([[true, true, true], [true, true, true], [false, true, true]])
+		->and($roles['first_request']['revoked'])->toBe([false, false, false])
+		->and($roles['disabled_user'])->toBe([false, false, false]);
 });

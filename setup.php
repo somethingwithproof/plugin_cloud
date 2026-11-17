@@ -138,13 +138,18 @@ function plugin_cloud_check_config(): bool {
 }
 
 /**
- * Common start of every page script, after include/auth.php has authorized
- * the realm. Refuses on an unsupported runtime or a disabled plugin, because
- * Cacti keeps plugin realms registered while a plugin is disabled.
+ * Common start after include/auth.php establishes the user. Recheck the
+ * realm here because cookie and Basic login restore the user after the
+ * alternate-realms hook. Disabled plugins and unsupported runtimes refuse.
  */
 function cloud_page_start(): bool {
 	if (cloud_boot() && api_plugin_is_enabled('cloud')) {
-		return true;
+		if (cloud_page_allowed()) {
+			return true;
+		}
+		http_response_code(403);
+
+		return false;
 	}
 
 	top_header();
@@ -256,12 +261,14 @@ function cloud_setup_hooks(bool $grant = false): void {
 		include_once($config['library_path'] . '/poller.php');
 	}
 
+	$enabled = (new \Somethingwithproof\Cloud\Schema(false))->pluginEnabled();
+
 	foreach (\Somethingwithproof\Cloud\Schema::HOOKS as $hook => $function) {
-		api_plugin_register_hook('cloud', $hook, $function, 'setup.php');
+		api_plugin_register_hook('cloud', $hook, $function, 'setup.php', $enabled);
 	}
 
 	foreach (\Somethingwithproof\Cloud\Pages::realms() as $realm) {
-		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], $grant);
+		api_plugin_register_realm('cloud', implode(',', $realm['files']), $realm['name'], $grant && $realm['files'] !== \Somethingwithproof\Cloud\Pages::OPERATOR);
 	}
 }
 
@@ -375,6 +382,10 @@ function cloud_config_arrays(): void {
 
 function cloud_config_settings(): void {
 	global $tabs, $settings;
+
+	if (PHP_SAPI !== 'cli' && !api_plugin_user_realm_auth('cloud_accounts.php')) {
+		return;
+	}
 
 	if (!cloud_boot()) {
 		return;
@@ -629,4 +640,64 @@ function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
 		// Wait briefly for a device being created; the next discovery retries.
 		cloud_scope_devices(1)
 	);
+}
+
+/** Resolve role inheritance against Cacti's current user and group grants. */
+function cloud_auth_alternate_realms(): void {
+	global $user_auth_realm_filenames;
+
+	static $deferred = array();
+
+	foreach ($deferred as $file => $realm) {
+		$user_auth_realm_filenames[$file] = $realm;
+	}
+	$deferred = array();
+
+	if (!api_plugin_is_enabled('cloud')) {
+		return;
+	}
+
+	if (empty($_SESSION['sess_user_id'])) {
+		// Core restores cookie and Basic authentication after this hook. Only
+		// these entrypoints defer the realm check to their post-auth guard.
+		$page = get_current_page();
+
+		if (in_array($page, array('cloud_health.php', 'cloud_operator.php'), true) && isset($user_auth_realm_filenames[$page])) {
+			$deferred[$page]                  = $user_auth_realm_filenames[$page];
+			$user_auth_realm_filenames[$page] = -1;
+		}
+
+		return;
+	}
+	$operator = 'cloud_operator.php';
+	$admin = 'cloud_accounts.php';
+	$files = array('cloud_health.php');
+	$realm = $user_auth_realm_filenames[$admin] ?? 0;
+	if ($realm > 0 && is_realm_allowed($realm)) {
+		$files[] = $operator;
+	} else {
+		$realm = $user_auth_realm_filenames[$operator] ?? 0;
+		if ($realm <= 0 || !is_realm_allowed($realm)) {
+			return;
+		}
+	}
+	foreach ($files as $file) {
+		$user_auth_realm_filenames[$file] = $realm;
+	}
+}
+
+/** Recheck the authenticated user before a plugin page reads data or acts. */
+function cloud_page_allowed(): bool {
+	global $current_user;
+
+	cloud_auth_alternate_realms();
+	$userId    = $current_user['id'] ?? null;
+	$sessionId = $_SESSION['sess_user_id'] ?? null;
+
+	return (is_int($userId) || (is_string($userId) && ctype_digit($userId)))
+		&& (is_int($sessionId) || (is_string($sessionId) && ctype_digit($sessionId)))
+		&& (int) $userId > 0 && (int) $userId === (int) $sessionId
+		&& api_plugin_is_enabled('cloud')
+		&& ($current_user['enabled'] ?? '') === 'on'
+		&& api_plugin_user_realm_auth(get_current_page());
 }

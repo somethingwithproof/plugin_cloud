@@ -278,7 +278,7 @@ Short-lived tokens are cached per collector run. When a provider limits how ofte
 
 | Boundary | Control |
 |---|---|
-| Browser to Cacti | Cacti session, csrf-magic, two plugin realms (Cloud View, Cloud Admin), device and graph permissions, prepared queries, contextual escaping |
+| Browser to Cacti | Cacti session, csrf-magic, three plugin realms (Cloud View, Cloud Operator, Cloud Admin), device and graph permissions, prepared queries, contextual escaping |
 | Cacti to stored credentials | Vault encryption with a key file outside the database, file checks on credential and key files, secrets never returned to the browser or logged, redaction of known secrets and `Authorization` values from every error |
 | Cacti to provider APIs | Outbound allowlist built from fixed per-provider host tables and validated scope fields; HTTPS with verification; no redirects; size and time limits; operation allowlist ([ADR 0002](decisions/0002-read-only-with-operation-allowlist.md)) |
 | Cacti to instance metadata | Reachable only for an account whose credential source is instance identity, only at the provider's documented address, and only for the token path |

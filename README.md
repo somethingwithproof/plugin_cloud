@@ -1,8 +1,34 @@
+<!-- translations:start -->
+[English](README.md) | [简体中文](docs/i18n/zh-CN/README.md) | [हिन्दी](docs/i18n/hi-IN/README.md) | [Español (España)](docs/i18n/es-ES/README.md) | [Español (Latinoamérica)](docs/i18n/es-419/README.md) | [العربية](docs/i18n/ar-SA/README.md)
+<!-- translations:end -->
+
 # plugin_cloud
 
 A Cacti 1.2 plugin that brings resources and metrics from public cloud providers into Cacti as ordinary devices, data sources, and graphs. Cloud workloads then sit next to the network that carries them, under Cacti's permissions, and Thold and Maint can alert on and suppress them. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
 
 > **Status: milestone 3 (DigitalOcean and Cacti objects), in review.** The milestone adds the DigitalOcean driver, Cacti templates, a scope device per account with a data query per resource type, the script server input, and a request estimate on New Graphs and the health page. Initial checks against a live DigitalOcean account are recorded in [provider facts](docs/research/provider-facts.md). Do not run it in production.
+
+## Access roles
+
+| Realm | Access |
+| --- | --- |
+| Cloud View | Existing monitoring pages. |
+| Cloud Operator | Monitoring plus the Operations page and personal triage acknowledgments. |
+| Cloud Admin | Operator access plus the existing configuration and administrative actions. |
+
+After copying upgrade files, open the Plugins page as an administrator to register
+the new realm. Assign the Operator realm explicitly under **Configuration > Users** or user groups.
+Upgrades retain the existing View and Admin realm IDs and grants. Admin access
+inherits Operator access, and Operator access inherits View access on each request;
+this does not add stored grants to users or groups. Plugin settings also require
+Cloud Admin access in addition to Cacti's Settings permission.
+
+Cacti device permissions still limit the rows and actions available to each user; unmapped objects require an administrator. Operators can verify the stored credential for an account whose Cacti device they may access.
+Credentials, configuration, mapping, deletion and other administrative changes
+remain in the administrative pages. Acknowledgments last only in the current
+user's session, for at most one hour and only while the same observation remains
+fresh. New or changed observations invalidate them. They never mark a failed
+measurement healthy or suppress alerts.
 
 ## Why
 
@@ -38,7 +64,7 @@ Out of scope: changing cloud resources, creating or mirroring provider alarms, b
 
 - **A guarded install.** On PHP below 8.2, or without ext-openssl, install and enable are refused with a message, and the rest of Cacti keeps working.
 - **Lifecycle.** Install, upgrade, and uninstall through Cacti's Plugins page. Upgrades are ordered and survive interruption. Uninstall keeps the plugin's tables unless you clear *Keep Plugin Tables on Uninstall*.
-- **Two realms.** *Cloud Admin* opens **Cloud Accounts**; *Cloud View* opens **Cloud Health**. Both pages are under Management.
+- **Separate realms.** *Cloud Admin* opens **Cloud Accounts**; *Cloud View* opens **Cloud Health**. Both pages are under Management.
 - **Accounts and credentials.** Add, edit, verify, and delete accounts. A credential is either encrypted in the database with a key file kept outside it (AES-256-GCM), or read from a file on the poller. Credentials are write-only in the UI and are redacted from logs.
 - **The collector.** It starts from each poller run, one instance per poller, within a time budget. It takes a lease per account, runs discovery on its own interval, and reads metrics only for the plugin's own active data sources.
 - **Health.** Per-account collection, discovery, resource, and freshness state, plus warnings for an unusable vault key, unsafe credential files, and intervals the poller cannot honour.
