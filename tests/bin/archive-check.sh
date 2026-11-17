@@ -42,8 +42,33 @@ for required in INFO README.md LICENSE setup.php cloud_accounts.php cloud_health
 	fi
 done
 
-version=$(sed -n 's/^version[[:space:]]*=[[:space:]]*//p' "$repo/INFO" | head -n 1)
-if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]]; then
+version=$(tar -xOf "$archive" INFO | sed -n 's/^version[[:space:]]*=[[:space:]]*//p' | head -n 1)
+
+is_semver() {
+	local version=$1
+	local numeric='(0|[1-9][0-9]*)'
+	local prerelease_id='(0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)'
+	local prerelease="(-${prerelease_id}(\\.${prerelease_id})*)?"
+	local build='(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?'
+
+	[[ $version =~ ^${numeric}\.${numeric}\.${numeric}${prerelease}${build}$ ]]
+}
+
+for valid in 0.0.0 1.2.3-alpha.1 1.2.3+build.7 1.2.3-rc.1+build.7; do
+	if ! is_semver "$valid"; then
+		printf 'Valid semantic version rejected: %s\n' "$valid" >&2
+		exit 1
+	fi
+done
+
+for invalid in 01.2.3 1.02.3 1.2.03 1.2.3-alpha..1 1.2.3+build..7; do
+	if is_semver "$invalid"; then
+		printf 'Invalid semantic version accepted: %s\n' "$invalid" >&2
+		exit 1
+	fi
+done
+
+if ! is_semver "$version"; then
 	printf 'INFO version is not semantic: %s\n' "$version" >&2
 	exit 1
 fi
