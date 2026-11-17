@@ -343,6 +343,17 @@ switch ($action) {
 		$leases->release($account, $holder);
 
 		break;
+	case 'top_links':
+		// What New Graphs prints for a device, as user "<user id> <host id>".
+		include_once($config['base_path'] . '/plugins/cloud/setup.php');
+		list($user, $host) = explode(' ', $argument, 2);
+		$_SESSION['sess_user_id'] = (int) $user;
+		set_request_var('host_id', $host);
+		ob_start();
+		api_plugin_hook('graphs_new_top_links');
+		$result = (string) ob_get_clean();
+
+		break;
 	case 'drop_table':
 		db_execute('DROP TABLE IF EXISTS `' . preg_replace('/[^a-z_]/', '', $argument) . '`');
 
