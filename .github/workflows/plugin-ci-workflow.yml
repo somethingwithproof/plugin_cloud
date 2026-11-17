@@ -255,6 +255,25 @@ jobs:
           fi
         fi
 
+    # Fails only when 1,000 series do not finish within one poller interval
+    # (REQ-PERF-001). The timings are printed, not compared: runners vary.
+    # It runs after the log check, since its budget case logs a warning on
+    # purpose; its own exit status and the web server log are checked here.
+    - name: Measure collection and the health page
+      working-directory: cacti
+      env:
+        CLOUD_TEST_DATABASE: disposable
+      run: |
+        php -S 127.0.0.1:8081 -t "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/php-perf.log" 2>&1 &
+        for _ in 1 2 3 4 5 6 7 8 9 10; do
+          curl -fsS -o /dev/null http://127.0.0.1:8081/cacti/index.php && break
+          sleep 1
+        done
+        php plugins/cloud/tests/bin/perf.php http://127.0.0.1:8081/cacti/
+        if grep -E "Fatal error|Warning:|Uncaught" "$RUNNER_TEMP/php-perf.log"; then
+          exit 1
+        fi
+
   # A 1.2.31 site may still run PHP 8.1. Enabling the plugin there must be
   # refused with a message and leave Cacti working, both on a fresh install
   # and after an upgrade-in-place left the plugin's hooks registered.
