@@ -53,6 +53,9 @@ jobs:
       with:
         persist-credentials: false
 
+    - name: Check release archive contents and version
+      run: bash tests/bin/archive-check.sh
+
     - name: Install PHP 8.0
       uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
