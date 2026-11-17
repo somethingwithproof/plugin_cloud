@@ -22,7 +22,7 @@ No vector files are copied into this repository. Each check reads its source fro
 | [RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.txt), Appendix A.2 | RFC text | IETF Trust Legal Provisions | Read at test time from the RFC text |
 | [Microsoft identity platform: client credentials flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow) | page dated 2026-01-30 | Microsoft documentation | Read at test time from the saved page |
 
-Before milestone 2 adds these checks to CI, it should decide whether to download the AWS suite at the pinned commit in CI or vendor it under `tests/fixtures/` with its Apache-2.0 notice. Apache-2.0 files can be distributed with GPL-2.0-or-later test code but are not GPL-2.0-only compatible, so vendored files stay out of release archives.
+These vector scripts remain standalone research checks and are not wired into the current CI workflow. Before implementing an AWS signer, decide whether to download the AWS suite at the pinned commit in CI or vendor it under tests/fixtures/ with its Apache-2.0 notice. Apache-2.0 files can be distributed with GPL-2.0-or-later test code but are not GPL-2.0-only compatible, so vendored files stay out of release archives.
 
 ## Method
 

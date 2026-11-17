@@ -1,6 +1,6 @@
 # Contributing
 
-This project is in the proposal stage. Most useful contributions right now are evidence for the research issues in milestone 1 and review of the requirements and open decisions.
+This project has an in-progress DigitalOcean implementation and a roadmap for later providers. See the [README](README.md) for the current feature boundary and validation status. Contributions can improve the current code, add tests and live-provider evidence, or advance clearly scoped research for planned providers.
 
 ## Before you start
 
@@ -17,7 +17,7 @@ Use the issue forms:
 | Requirement | A testable behavior the plugin must have |
 | Research | A question that must be answered with evidence before design or code depends on it |
 | Decision | A choice between options that needs a recorded outcome |
-| Bug report | An error in the documents now, or in code later |
+| Bug report | An error in the documentation or current code |
 
 ### Writing requirements
 
@@ -55,7 +55,7 @@ Milestones match the plan. Each has an epic issue whose sub-issues are the miles
 - Sign off every commit (`git commit -s`) to certify the [Developer Certificate of Origin](https://developercertificate.org/).
 - Use [Conventional Commits](https://www.conventionalcommits.org/): `docs:`, `feat:`, `fix:`, `test:`, `chore:`, with the issue in the body (`Refs #12`, `Closes #12`).
 - Keep pull requests to one issue where practical. Pull requests are squash-merged.
-- Code, when it exists, follows Cacti conventions: tabs, single quotes, short array syntax, prepared queries, the `cloud` text domain, no Composer runtime dependencies for strings, and PHPStan at `phpVersion` 8.2.
+- PHP changes follow Cacti conventions: tabs, single quotes, short array syntax, prepared queries, the cloud text domain, no Composer runtime dependencies, and PHPStan at phpVersion 8.2. Keep entry points parseable on PHP 8.0 and application code compatible with PHP 8.2 and later. Add or update the relevant unit or integration coverage.
 
 ## Conduct
 

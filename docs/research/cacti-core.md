@@ -107,6 +107,16 @@ What this confirms (executed, 1.2.31, PHP 8.0.30): a script server data query wo
 
 What this does not confirm: Thold and Maint were not installed or run; the `1.2.x` branch was not run; Spine was not run (CMD PHP poller only; the `poller_output` hook point is common to both because it fires from `process_poller_output()`, which is inferred from reading). The first poller cycle logged `ERROR: RRD file ... does not exist for ownership assignment` lines for RRD files that were created in the same cycle; this is a first-run artefact of running the poller as root in a throwaway container and is unrelated to the question.
 
+## Later plugin integration coverage
+
+The earlier statement above that Thold and Maint were not installed or run describes the initial Cacti-core probe only. The plugin now has a disposable integration script, [tests/bin/alerting.php](../../tests/bin/alerting.php), that requires Cloud, Thold, and Maint enabled and asserts:
+
+- Polled cloud values reach Thold, alert on a threshold breach, and restore below the threshold.
+- A stale collection-age value alerts when collection stops; an unknown CPU sample does not create an alert or a false restoral.
+- A Maint schedule suppresses threshold counting and alerting for the scope device, and the same breach alerts after the schedule is removed.
+
+This is evidence encoded in the integration script. It does not establish that the script ran on every supported Cacti/PHP combination, nor does it validate a live DigitalOcean API.
+
 ## Plan corrections
 
 1. Maintenance row, section "Cacti core 1.2.31" (wrong). Replace the fact cell with:
@@ -138,4 +148,4 @@ What this does not confirm: Thold and Maint were not installed or run; the `1.2.
 
 ## Executed and read
 
-Executed: the script server data query run above (install, device with availability None, reindex, graph creation, poller run, RRD check), and the PHP 8.0.30 stream context timeout test. Every other row was read from source and not run, including hook argument shapes, capability gating, `api_plugin_valid_entrypoint()`, composer.json contents, `exec_background()` quoting, the 1.2.x differences, and the Thold and Maint registration and call sites. The class-method consequence of `api_plugin_valid_entrypoint()` and the `poller_bottom` remote gating are conclusions from the code, not tests. Thold, Maint, Spine, and the `1.2.x` branch were not run.
+Executed for this Cacti-core probe: the script server data query run above (install, device with availability None, reindex, graph creation, poller run, RRD check), and the PHP 8.0.30 stream context timeout test. Every other row was read from source and not run, including hook argument shapes, capability gating, api_plugin_valid_entrypoint(), composer.json contents, exec_background() quoting, and the 1.2.x differences. The class-method consequence of api_plugin_valid_entrypoint() and poller_bottom remote gating are conclusions from code, not tests. Thold/Maint execution belongs to the later plugin integration script described above, not this probe; Spine and the 1.2.x branch were not run.

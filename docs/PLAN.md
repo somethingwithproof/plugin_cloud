@@ -1,8 +1,8 @@
 # Cacti 1.2 Cloud Plugin Plan
 
-Status: proposal, revision 2 (2026-11-14). Nothing described here as a plugin capability exists yet. Statements about cloud providers, Cacti core, Thold, and Maint describe current upstream behavior and cite the page or file that was checked. Revision 2 applies the milestone 1 documentation checks and spikes in [`docs/research/`](research/); facts that need a live provider account are still marked and listed under [live checks](research/provider-facts.md#live-checks). Estimates are in [research/estimates.md](research/estimates.md).
+Status: implementation and roadmap, revision 3 (2026-11-16). The current checkout contains the milestone 2 foundation and milestone 3 DigitalOcean implementation, including Cacti graph integration and request estimates. The DigitalOcean API has not been validated against a live account. This document records the intended architecture and later phases; [README.md](../README.md) summarizes the implementation and links to its code and test evidence. Statements about providers and Cacti core describe the cited upstream behavior. Live-account checks remain listed under [provider facts](research/provider-facts.md#live-checks), and estimates are in [research/estimates.md](research/estimates.md).
 
-`plugin_cloud` brings resources and metrics from public cloud providers into Cacti 1.2 as ordinary Cacti devices, data sources, and graphs. Operators see cloud workloads next to the network that carries them, under Cacti's permissions, and alert on them with Thold and Maint. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
+The cloud plugin is designed to bring resources and metrics from public cloud providers into Cacti 1.2 as ordinary Cacti devices, data sources, and graphs. Operators can see cloud workloads next to the network that carries them, under Cacti's permissions, and use Thold and Maint. The current implementation supports DigitalOcean; AWS, Google Cloud, and Azure remain planned drivers.
 
 ## Why this plugin
 
@@ -14,7 +14,7 @@ Each provider has its own monitoring console. Running it next to Cacti leaves th
 
 The Cacti GitHub organization has no cloud provider plugin today (checked 2026-11-14). [plugin_cloudflare](https://github.com/somethingwithproof/plugin_cloudflare) covers Cloudflare Tunnels and is the source of this plan's credential and outbound request design.
 
-The plugin closes these gaps by reading each provider's monitoring API on a Cacti poller, caching the latest datapoints, and serving them to Cacti's script server. Cacti's poller writes the RRD files, so graphing, permissions, Thold, Maint, boost, and remote data collectors work as they do for any Cacti data.
+The current DigitalOcean driver closes these gaps by reading the provider's monitoring API on a Cacti poller, caching the latest datapoints, and serving them to Cacti's script server. Additional providers remain roadmap work. Cacti's poller writes the RRD files, so graphing, permissions, Thold, Maint, boost, and remote data collectors work as they do for any Cacti data.
 
 ## Goals and non-goals
 
@@ -36,6 +36,10 @@ The plugin closes these gaps by reading each provider's monitoring API on a Cact
 - Logs, traces, and custom application metrics.
 - Kubernetes workloads inside a cluster. Managed cluster nodes appear as the provider's virtual machines; anything deeper is research.
 - A plugin-owned alerting engine, a public HTTP API, or a CLI in the first releases.
+
+## Current implementation boundary
+
+Only DigitalOcean has a provider driver in the current code. AWS, Google Cloud, Azure, remote collectors, and later provider integrations remain roadmap work. The Thold and Maint path uses Cacti data sources and is exercised by the disposable integration script [tests/bin/alerting.php](../tests/bin/alerting.php); that fixture-backed check does not establish live-provider behavior.
 
 ## Release phases
 
@@ -184,29 +188,9 @@ flowchart TB
 
 ### Provider driver contract
 
-A driver is one class per provider implementing an interface along these lines. Names are illustrative; milestone 2 fixes them.
+The current interface and exact method signatures are in [lib/ProviderDriver.php](../lib/ProviderDriver.php). [DigitalOceanDriver.php](../lib/DigitalOceanDriver.php) is the only implemented provider driver; future drivers must follow this interface.
 
-```php
-interface ProviderDriver
-{
-	public function provider(): Provider;
-
-	/** Hosts this account may reach, built from fixed tables and validated account fields. */
-	public function endpoints(Account $account): EndpointPolicy;
-
-	public function verify(Account $account, CredentialSet $credentials): VerifyResult;
-
-	public function discover(Account $account, CredentialSet $credentials): Inventory;
-
-	/** @param list<MetricRequest> $requests */
-	public function collect(Account $account, CredentialSet $credentials, array $requests): CollectResult;
-
-	/** @param list<MetricRequest> $requests */
-	public function estimate(array $requests, int $intervalSeconds): UsageEstimate;
-}
-```
-
-Each driver also ships a metric catalog: for each resource type, the metrics it supports, with provider metric name, statistic, native period, publication delay, unit, conversion to a per-second or absolute value, data source name, and RRD minimum and maximum. Templates, data source names, and the script server's fields come from the catalog, so they cannot drift apart.
+The current DigitalOcean metric catalog defines supported resources, request parameters, units, conversions, data-source names, and RRD bounds in [lib/DigitalOceanCatalog.php](../lib/DigitalOceanCatalog.php). The generic catalog requirements below remain the target for future providers.
 
 ### HTTP transport
 
@@ -304,7 +288,7 @@ Plugin code is object-oriented wherever Cacti's plugin contract allows it, follo
 - Settings use the `config_settings` hook. Logging uses `cacti_log()` with a `CLOUD` tag. Forms rely on Cacti's csrf-magic.
 - Strings use the `cloud` text domain, with a `locales/` directory and POT file.
 
-**Planned classes.** Names are illustrative; milestone 2 settles the final set.
+**Future-provider design examples.** Shared classes such as Account, MetricRequest, and UsageEstimate exist in the current code. AWS, Google Cloud, and Azure driver and signer examples below are roadmap work; use [lib/](../lib/) for the current class names.
 
 | Kind | Examples | Notes |
 |---|---|---|
@@ -412,4 +396,4 @@ Not scheduled; revisited after phase 1:
 
 ## Upstream process
 
-This repository holds the proposal and tracks its requirements as GitHub issues and milestones. Before code is proposed for the Cacti organization, open an issue there describing the problem, the phase plan, and the open decisions, and ask maintainers about the repository, name, object model, and test harness. No Thold or Maint change is needed.
+This repository holds the plugin implementation and tracks its roadmap and requirements as GitHub issues and milestones. Before code is proposed for the Cacti organization, open an issue there describing the problem, the phase plan, and the open decisions, and ask maintainers about the repository, name, object model, and test harness. No Thold or Maint change is needed.

@@ -1,8 +1,8 @@
 # plugin_cloud
 
-A proposed Cacti 1.2 plugin that brings resources and metrics from public cloud providers into Cacti as ordinary devices, data sources, and graphs. Cloud workloads then sit next to the network that carries them, under Cacti's permissions, and Thold and Maint can alert on and suppress them. One plugin covers every provider, with a driver per provider: DigitalOcean, AWS, Google Cloud, and Azure first.
+A Cacti 1.2 plugin that brings cloud resources and metrics into Cacti as devices, data sources, and graphs. The current implementation has a DigitalOcean driver; AWS, Google Cloud, and Azure remain planned providers. Cacti's poller stores the observations in RRDs, so cloud graphs use Cacti permissions and can feed existing Thold and Maint workflows.
 
-> **Status: milestone 3 (DigitalOcean and Cacti objects), in review.** The milestone adds the DigitalOcean driver, Cacti templates, a scope device per account with a data query per resource type, the script server input, and a request estimate on New Graphs and the health page. It has not yet been checked against a live DigitalOcean account. Do not run it in production.
+> **Status: milestone 2 and milestone 3 code are present in this checkout.** The code includes DigitalOcean collection, Cacti scope devices and graph templates, request estimates, and a disposable-stack test of Thold alerts and Maint suppression. The DigitalOcean API has not been checked against a live account, so this code snapshot is not production-validated.
 
 ## Why
 
@@ -19,14 +19,14 @@ The plugin reads each provider's monitoring API on a Cacti poller, caches the la
 - **Read-only.** Each driver can build only the provider operations on its allowlist; the plugin never changes a cloud resource. ([ADR 0002](docs/decisions/0002-read-only-with-operation-allowlist.md))
 - **PHP only, no SDKs.** Signing and token exchange are implemented in PHP with the extensions Cacti already requires. No Composer runtime dependencies. ([ADR 0003](docs/decisions/0003-php-only-without-sdks.md))
 - **Cost before collection.** The plugin reads only metrics that have a Cacti data source, shows the expected request count and list-price cost before graphs are created, and enforces a monthly ceiling. ([ADR 0005](docs/decisions/0005-collect-only-what-is-graphed.md))
-- **No plaintext credentials in the database.** Credentials come from an encrypted vault keyed by a file outside the database, from a credential file, or from the provider's instance identity. ([ADR 0007](docs/decisions/0007-credentials-outside-the-database-in-the-clear.md))
+- **No plaintext credentials in the database.** The implemented DigitalOcean driver uses an encrypted vault keyed by a file outside the database or a credential file. Instance identity is reserved for future providers that support it. ([ADR 0007](docs/decisions/0007-credentials-outside-the-database-in-the-clear.md))
 
 ## Scope and status
 
 | Phase | Scope | Milestones | Status |
 |---|---|---|---|
 | 0, research | Provider fact confirmation, metric catalogs, cost and rate model, signing test vectors, transport spike | [M1](https://github.com/somethingwithproof/plugin_cloud/milestone/1) | Done, except the checks that need a live provider account |
-| 1, core and DigitalOcean | Accounts, credential vault, transport, collector, observation cache, Cacti objects, health page, DigitalOcean Droplets and load balancers | [M2](https://github.com/somethingwithproof/plugin_cloud/milestone/2), [M3](https://github.com/somethingwithproof/plugin_cloud/milestone/3), [M4](https://github.com/somethingwithproof/plugin_cloud/milestone/4) | M2 done ([#81](https://github.com/somethingwithproof/plugin_cloud/pull/81)); M3 in review ([#82](https://github.com/somethingwithproof/plugin_cloud/pull/82), [#84](https://github.com/somethingwithproof/plugin_cloud/pull/84), [#85](https://github.com/somethingwithproof/plugin_cloud/pull/85) and the cost preview stacked on them); M4 not started |
+| 1, core and DigitalOcean | Accounts, credential vault, transport, collector, observation cache, Cacti objects, health page, DigitalOcean Droplets and load balancers | [M2](https://github.com/somethingwithproof/plugin_cloud/milestone/2), [M3](https://github.com/somethingwithproof/plugin_cloud/milestone/3), [M4](https://github.com/somethingwithproof/plugin_cloud/milestone/4) | M2 and M3 implementation is present in this checkout; live-account validation remains; M4 is not started |
 | 2, AWS | Signature Version 4, `AssumeRole`, instance roles, CloudWatch `GetMetricData`, regional inventory | [M5](https://github.com/somethingwithproof/plugin_cloud/milestone/5) | Not started |
 | 3, Google Cloud | Service account JWT, metadata server, Cloud Monitoring `timeSeries.list` | [M6](https://github.com/somethingwithproof/plugin_cloud/milestone/6) | Not started |
 | 4, Azure | Entra client credentials, managed identity, Resource Graph, `metrics:getBatch` | [M7](https://github.com/somethingwithproof/plugin_cloud/milestone/7) | Not started |
@@ -34,7 +34,7 @@ The plugin reads each provider's monitoring API on a Cacti poller, caches the la
 
 Out of scope: changing cloud resources, creating or mirroring provider alarms, billing reports, logs and traces, and a plugin-owned alerting engine. Further providers (Hetzner Cloud, Akamai Cloud, Oracle Cloud, and others) are research issues.
 
-## What milestone 2 ships
+## Milestone 2 foundation
 
 - **A guarded install.** On PHP below 8.2, or without ext-openssl, install and enable are refused with a message, and the rest of Cacti keeps working.
 - **Lifecycle.** Install, upgrade, and uninstall through Cacti's Plugins page. Upgrades are ordered and survive interruption. Uninstall keeps the plugin's tables unless you clear *Keep Plugin Tables on Uninstall*.
@@ -43,9 +43,24 @@ Out of scope: changing cloud resources, creating or mirroring provider alarms, b
 - **The collector.** It starts from each poller run, one instance per poller, within a time budget. It takes a lease per account, runs discovery on its own interval, and reads metrics only for the plugin's own active data sources.
 - **Health.** Per-account collection, discovery, resource, and freshness state, plus warnings for an unusable vault key, unsafe credential files, and intervals the poller cannot honour.
 
+## Milestone 3: DigitalOcean graphs and alert flow
+
+The current code adds the DigitalOcean driver for Droplets and load balancers, Cacti data-query and graph templates, a scope device for each account, and a script-server input that serves cached observations. New Graphs and Cloud Health show the expected request count and estimated API cost before collection. Provider operations are read-only and limited by the driver's operation allowlist.
+
+The repository includes source-level and disposable-Cacti evidence for these paths:
+
+| Behavior | Implementation | Evidence in the repository |
+|---|---|---|
+| DigitalOcean requests and metric mapping | [DigitalOceanDriver.php](lib/DigitalOceanDriver.php), [DigitalOceanCatalog.php](lib/DigitalOceanCatalog.php) | [DigitalOceanDriverTest.php](tests/Unit/DigitalOceanDriverTest.php) |
+| Cacti scope devices, data queries, and graph templates | [DeviceRepository.php](lib/DeviceRepository.php), [Templates.php](lib/Templates.php), [templates/](templates/) | [ScopeDeviceTest.php](tests/Integration/ScopeDeviceTest.php), [TemplatesTest.php](tests/Integration/TemplatesTest.php) |
+| Request estimates and collection cost limits | [UsageEstimate.php](lib/UsageEstimate.php), [EstimateView.php](lib/EstimateView.php) | [CostPreviewTest.php](tests/Unit/CostPreviewTest.php) |
+| Thold alert/restoral and Maint suppression through normal poller values | [alerting.php](tests/bin/alerting.php) | Disposable Cacti integration script; requires Cloud, Thold, and Maint installed and enabled |
+
+The alerting script exercises Cacti's poller and Thold checker with test observations. It does not call a live DigitalOcean account. The performance results and fixture setup are in [docs/performance.md](docs/performance.md).
+
 ## Install and configure
 
-These steps install the milestone 2 code for evaluation. They require Cacti 1.2.31 or later on PHP 8.2 or later.
+These steps install the code in this checkout for evaluation. They require Cacti 1.2.31 or later on PHP 8.2 or later.
 
 1. Copy the repository to `plugins/cloud` under your Cacti directory. The directory must be named `cloud`.
 2. Create the vault key outside the web root. Put it in a directory that only root and the Cacti user can write, and make the file readable only by the user that runs the web server and the poller. The plugin never creates or writes this file:
