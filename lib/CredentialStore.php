@@ -30,6 +30,7 @@ final class CredentialStore {
 	public function __construct(
 		private readonly SecretRepository $secrets,
 		private readonly string $keyFile,
+		private readonly string $credentialDir,
 	) {
 	}
 
@@ -38,7 +39,7 @@ final class CredentialStore {
 	 */
 	public function credentialFor(Account $account): Secret {
 		return match ($account->credentialSource) {
-			CredentialSource::File     => CredentialFile::read($account->credentialFile),
+			CredentialSource::File     => $this->fromFile($account->credentialFile),
 			CredentialSource::Vault    => $this->fromVault($account->id),
 			CredentialSource::Instance => throw CredentialError::because('instance identity is not available for this provider'),
 		};
@@ -72,6 +73,20 @@ final class CredentialStore {
 	/**
 	 * @throws CredentialError
 	 */
+	/**
+	 * @throws CredentialError
+	 */
+	private function fromFile(string $path): Secret {
+		// The vault key may share the directory; it is never a credential.
+		$file = realpath($path);
+
+		if ($file !== false && $file === realpath($this->keyFile)) {
+			throw CredentialError::because('the file is the vault key file');
+		}
+
+		return CredentialFile::read($path, $this->credentialDir);
+	}
+
 	private function fromVault(int $accountId): Secret {
 		$entry = $this->secrets->load($accountId, SecretRepository::CREDENTIAL);
 

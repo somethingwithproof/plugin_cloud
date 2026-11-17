@@ -447,6 +447,14 @@ msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create
 msgstr ""
 
 #: lib/Settings.php
+msgid "Credential File Directory"
+msgstr ""
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr ""
+
+#: lib/Settings.php
 msgid "Collector"
 msgstr ""
 
