@@ -68,12 +68,29 @@ final class SecretRepository {
 		) > 0;
 	}
 
-	public function delete(int $accountId, string $purpose): void {
-		db_execute_prepared(
+	public function delete(int $accountId, string $purpose): bool {
+		return db_execute_prepared(
 			'DELETE FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
 			[$accountId, $purpose],
 			true,
 			$this->connection
-		);
+		) !== false;
+	}
+
+	/**
+	 * Deletes the row only while the account does not keep its credential in
+	 * the vault. The check and the delete are one statement, so a concurrent
+	 * save that switches the account to the vault cannot lose its credential
+	 * to a cleanup that began before the switch.
+	 */
+	public function deleteUnlessVault(int $accountId, string $purpose): bool {
+		return db_execute_prepared(
+			'DELETE s FROM plugin_cloud_secret s
+				INNER JOIN plugin_cloud_account a ON a.id = s.account_id
+				WHERE s.account_id = ? AND s.purpose = ? AND a.credential_source <> ?',
+			[$accountId, $purpose, CredentialSource::Vault->value],
+			true,
+			$this->connection
+		) !== false;
 	}
 }

@@ -100,15 +100,22 @@ switch ($cloud_action) {
 			exit;
 		}
 
-		$cloud_saved = $cloud_accounts->save($cloud_parsed->account, $cloud_user);
+		$cloud_cleanup_failed = false;
+		$cloud_saved          = $cloud_accounts->save($cloud_parsed->account, $cloud_user);
 		$cloud_raw   = trim((string) get_nfilter_request_var('credential'));
 
 		if ($cloud_saved > 0 && $cloud_parsed->account->credentialSource !== \Somethingwithproof\Cloud\CredentialSource::Vault) {
 			// A credential kept in the vault would come back, unprompted, if the
 			// account were switched back to it with the box left empty.
 			if ($cloud_credentials->hasVaultCredential($cloud_saved)) {
-				$cloud_credentials->forget($cloud_saved);
-				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
+				// The delete skips an account a concurrent save has moved
+				// back to the vault, so only a credential that is gone is
+				// recorded as removed.
+				if (!$cloud_credentials->forgetUnlessVault($cloud_saved)) {
+					$cloud_cleanup_failed = true;
+				} elseif (!$cloud_credentials->hasVaultCredential($cloud_saved)) {
+					$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
+				}
 			}
 		} elseif ($cloud_saved > 0 && $cloud_raw !== '') {
 			try {
@@ -125,7 +132,13 @@ switch ($cloud_action) {
 
 		unset($cloud_raw);
 
-		if ($cloud_saved > 0) {
+		if ($cloud_saved > 0 && $cloud_cleanup_failed) {
+			raise_message(
+				'cloud_saved',
+				__('The account was saved, but the stored credential could not be removed.', 'cloud'),
+				MESSAGE_LEVEL_ERROR
+			);
+		} elseif ($cloud_saved > 0) {
 			raise_message('cloud_saved', __('The account was saved.', 'cloud'), MESSAGE_LEVEL_INFO);
 		} else {
 			raise_message('cloud_saved', __('The account could not be saved.', 'cloud'), MESSAGE_LEVEL_ERROR);

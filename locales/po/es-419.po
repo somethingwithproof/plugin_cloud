@@ -24,6 +24,10 @@ msgid "The account was saved, but the credential was not stored: %s"
 msgstr "La cuenta se ha guardado, pero no se ha almacenado la credencial: %s"
 
 #: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "La cuenta se guardó, pero no se pudo eliminar la credencial almacenada."
+
+#: cloud_accounts.php
 msgid "The account was saved."
 msgstr "La cuenta se ha guardado."
 

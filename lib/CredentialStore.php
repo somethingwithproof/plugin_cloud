@@ -66,8 +66,21 @@ final class CredentialStore {
 		}
 	}
 
-	public function forget(int $accountId): void {
-		$this->secrets->delete($accountId, SecretRepository::CREDENTIAL);
+	/**
+	 * @return bool whether the delete ran; false means the credential may remain
+	 */
+	public function forget(int $accountId): bool {
+		return $this->secrets->delete($accountId, SecretRepository::CREDENTIAL);
+	}
+
+	/**
+	 * Drops the vault credential of an account that has moved to another
+	 * source. An account that is on the vault again keeps it.
+	 *
+	 * @return bool whether the delete ran; false means the credential may remain
+	 */
+	public function forgetUnlessVault(int $accountId): bool {
+		return $this->secrets->deleteUnlessVault($accountId, SecretRepository::CREDENTIAL);
 	}
 
 	/**
