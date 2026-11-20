@@ -30,8 +30,10 @@
  * Then it saves an account with a vault credential through the form and
  * searches every response, the Cacti log, and every plugin table for the
  * credential (#32). Last (#45), it views a cloud graph as users allowed and
- * denied by Cacti's graph and device permissions, checks that ss_cloud.php
- * serves nothing over HTTP, and revokes each realm from a logged-in user.
+ * denied by Cacti's graph and device permissions, checks that Cloud Health
+ * lists the graph's account only to viewers allowed its device, checks that
+ * ss_cloud.php serves nothing over HTTP, and revokes each realm from a
+ * logged-in user.
  * Disposable databases only: it resets the admin password and adds users.
  * Must parse on PHP 8.0.
  *
@@ -363,6 +365,29 @@ foreach (array('graphs' => true, 'nographs' => false, 'deviceonly' => true) as $
 
 	perm_expect($shown === $allowed, "$user " . ($allowed ? 'sees' : 'is denied') . " the cloud graph (HTTP $code)");
 	unlink($graphJar);
+}
+
+// Cloud Health, its warnings and its estimate list an account to a viewer
+// only when Cacti's device permissions allow its scope device.
+perm_user('healthdenied', array(8, $view), 2);
+db_execute_prepared(
+	'INSERT INTO user_auth_perms (user_id, item_id, type) VALUES (?, ?, 3)',
+	array(perm_user('healthdevice', array(8, $view), 2), $host)
+);
+
+foreach (array('admin' => true, 'viewer' => true, 'healthdevice' => true, 'healthdenied' => false) as $user => $allowed) {
+	$healthJar = $user === 'admin' ? $jar : perm_login($user);
+	list($code, $body) = perm_http($base . 'cloud_health.php', $healthJar);
+
+	perm_expect(
+		strpos($body, 'Cloud Warnings') !== false && strpos($body, 'Cloud Request Estimate') !== false
+			&& (strpos($body, 'Graph probe') !== false) === $allowed,
+		"$user " . ($allowed ? 'sees' : 'does not see') . " the scope device's account on cloud_health.php (HTTP $code)"
+	);
+
+	if ($healthJar !== $jar) {
+		unlink($healthJar);
+	}
 }
 
 // The script server entry point serves nothing over the web, even to an administrator.

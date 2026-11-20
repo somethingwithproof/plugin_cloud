@@ -196,6 +196,28 @@ function cloud_accounts(): \Somethingwithproof\Cloud\AccountRepository {
 	return new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\SystemClock());
 }
 
+/**
+ * The accounts whose scope device the current user may see under Cacti's
+ * device permissions. An account without a scope device is left out: only
+ * Cloud Admin sees unmapped accounts.
+ *
+ * @return list<\Somethingwithproof\Cloud\Account>
+ */
+function cloud_device_allowed_accounts(): array {
+	$devices  = new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+	$accounts = array();
+
+	foreach (cloud_accounts()->all() as $account) {
+		$host = $devices->hostFor($account->id);
+
+		if ($host !== null && is_device_allowed($host)) {
+			$accounts[] = $account;
+		}
+	}
+
+	return $accounts;
+}
+
 function cloud_settings(): \Somethingwithproof\Cloud\Settings {
 	return (new \Somethingwithproof\Cloud\SettingsRepository(false))->load();
 }
@@ -515,7 +537,8 @@ function cloud_graphs_new_top_links(): void {
 
 	$host = get_request_var('host_id');
 
-	if (!is_numeric($host) || !cloud_boot() || !api_user_realm_auth('cloud_health.php')) {
+	if (!is_numeric($host) || !cloud_boot() || !api_user_realm_auth('cloud_health.php')
+		|| (!api_user_realm_auth('cloud_accounts.php') && !is_device_allowed((int) $host))) {
 		return;
 	}
 

@@ -18,24 +18,15 @@
  */
 
 use Somethingwithproof\Cloud\HealthRepository;
-use Somethingwithproof\Cloud\DeviceRepository;
-use Somethingwithproof\Cloud\SystemClock;
 use Somethingwithproof\Cloud\Verifier;
 use Somethingwithproof\Cloud\Drivers;
 
 /** @return list<array{id: string, name: string, state: string, observed: int, interval: int, detail: string}> */
 function cloud_operator_rows(): array {
-	$rows     = [];
-	$accounts = cloud_accounts();
-	$devices  = new DeviceRepository(false, new SystemClock());
-	$health   = new HealthRepository(false);
+	$rows   = [];
+	$health = new HealthRepository(false);
 
-	foreach ($accounts->all() as $account) {
-		$host = $devices->hostFor($account->id);
-
-		if ($host === null || !is_device_allowed($host)) {
-			continue;
-		}
+	foreach (cloud_device_allowed_accounts() as $account) {
 		$h      = $health->find($account->id);
 		$rows[] = [
 			'id' => (string) $account->id,
