@@ -24,6 +24,10 @@ msgid "The account was saved, but the credential was not stored: %s"
 msgstr "账户已保存，但凭据未存储：%s"
 
 #: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "账户已保存，但无法删除已存储的凭据。"
+
+#: cloud_accounts.php
 msgid "The account was saved."
 msgstr "账户已保存。"
 

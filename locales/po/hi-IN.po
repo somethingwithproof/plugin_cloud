@@ -24,6 +24,10 @@ msgid "The account was saved, but the credential was not stored: %s"
 msgstr "खाता सहेजा गया, लेकिन क्रेडेंशियल संग्रहीत नहीं हुआ: %s"
 
 #: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "खाता सहेज लिया गया, लेकिन संग्रहीत क्रेडेंशियल हटाया नहीं जा सका।"
+
+#: cloud_accounts.php
 msgid "The account was saved."
 msgstr "खाता सहेज दिया गया।"
 

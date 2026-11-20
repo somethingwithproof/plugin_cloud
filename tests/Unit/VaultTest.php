@@ -369,3 +369,34 @@ it('pins vault rows with missing, wrongly sized, and malformed fields', function
 		->and(VaultEntry::fromRow(['nonce' => 12] + $row))->toBeNull()
 		->and(VaultEntry::fromRow([]))->toBeNull();
 });
+
+it('reports whether the credential delete ran', function () {
+	$store = new CredentialStore(new SecretRepository(false, new FixedClock(1)), '/nonexistent', $this->dir);
+
+	$GLOBALS['__cloud_db_exec'] = [];
+	$GLOBALS['__cloud_db_fail'] = [];
+
+	expect($store->forget(7))->toBeTrue()
+		->and($store->forgetUnlessVault(7))->toBeTrue();
+
+	$GLOBALS['__cloud_db_fail'] = ['DELETE FROM plugin_cloud_secret', 'DELETE s FROM plugin_cloud_secret'];
+
+	expect($store->forget(7))->toBeFalse()
+		->and($store->forgetUnlessVault(7))->toBeFalse();
+
+	$GLOBALS['__cloud_db_fail'] = [];
+});
+
+it('deletes a credential only while its account is off the vault, in one statement', function () {
+	$store = new CredentialStore(new SecretRepository(false, new FixedClock(1)), '/nonexistent', $this->dir);
+
+	$GLOBALS['__cloud_db_exec'] = [];
+	$store->forgetUnlessVault(7);
+
+	$statement = $GLOBALS['__cloud_db_exec'][0];
+
+	expect($GLOBALS['__cloud_db_exec'])->toHaveCount(1)
+		->and($statement['sql'])->toContain('INNER JOIN plugin_cloud_account')
+		->and($statement['sql'])->toContain('a.credential_source <> ?')
+		->and($statement['params'])->toBe([7, 'credential', 'vault']);
+});
