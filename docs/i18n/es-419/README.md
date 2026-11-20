@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
+<!-- Source: README.md; SHA256: 7c621642e5f1a46bac66e4bc744f70aebb014c610d22de034088845fdc170405 -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](../zh-CN/README.md) | [हिन्दी](../hi-IN/README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](README.md) | [العربية](../ar-SA/README.md)
@@ -62,7 +62,7 @@ Quedan fuera del alcance: modificar recursos de nube, crear o replicar alarmas d
 
 - **Instalación protegida.** Con PHP anterior a 8.2 o sin ext-openssl, se rechazan la instalación y la activación con un mensaje, y el resto de Cacti sigue funcionando.
 - **Ciclo de vida.** Instalación, actualización y desinstalación desde la página de complementos de Cacti. Las actualizaciones siguen un orden y sobreviven a interrupciones. La desinstalación conserva las tablas del complemento salvo que desmarque *Keep Plugin Tables on Uninstall*.
-- **Ámbitos separados.** *Cloud Admin* abre **Cloud Accounts**; *Cloud View* abre **Cloud Health**. Ambas páginas están en Management.
+- **Ámbitos separados.** *Cloud Admin* abre **Cloud Accounts**; *Cloud Operator* abre **Cloud Operations**; *Cloud View* abre **Cloud Health**. Admin hereda Operator, y Operator hereda View. Las tres páginas están en Management.
 - **Cuentas y credenciales.** Añadir, editar, verificar y eliminar cuentas. Las credenciales se cifran en la base de datos con un archivo de clave externo (AES-256-GCM), o se leen desde un archivo en el sondeador. En la interfaz solo pueden escribirse y se ocultan en los registros.
 - **El recopilador.** Se inicia en cada ejecución del sondeador, una instancia por sondeador, dentro de un presupuesto de tiempo. Adquiere una concesión temporal por cuenta, ejecuta el descubrimiento con su propio intervalo y solo lee métricas de las fuentes de datos activas que pertenecen al complemento.
 - **Salud.** Estado de recopilación, descubrimiento, recursos y vigencia por cuenta, junto con advertencias sobre claves de bóveda inutilizables, archivos de credenciales inseguros e intervalos que el sondeador no puede cumplir.
@@ -85,7 +85,7 @@ Estos pasos instalan el código del hito 2 para evaluarlo. Requieren Cacti 1.2.3
    Sustituya `cacti` por el usuario que ejecuta el servidor web y el sondeador. El archivo contiene 32 bytes sin procesar o 64 caracteres hexadecimales. Haga una copia de seguridad junto con la base de datos; sin él tendrá que volver a introducir las credenciales almacenadas.
 3. En Cacti, abra **Configuration > Plugins** e instale y active *Cloud*.
 4. En **Configuration > Settings > Cloud**, configure *Vault Key File* si ha utilizado otra ruta. *Collector Time Budget* (240 segundos de forma predeterminada) debe ser menor que el intervalo del sondeador.
-5. Conceda *Cloud Admin* o *Cloud View* a usuarios y grupos en **Configuration > Users**. La instalación concede ambos ámbitos al administrador.
+5. Conceda *Cloud Admin*, *Cloud Operator* o *Cloud View* a usuarios y grupos en **Configuration > Users**. La instalación concede Cloud Admin y Cloud View al administrador; Cloud Admin incluye el acceso de Operator, así que el administrador no necesita una concesión aparte de Operator.
 6. Añada cuentas en **Management > Cloud Accounts** y compruebe si hay advertencias en **Management > Cloud Health**.
 
 <a id="compatibility-targets"></a>

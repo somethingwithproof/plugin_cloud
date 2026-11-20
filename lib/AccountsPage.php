@@ -183,6 +183,29 @@ final class AccountsPage {
 			. '</form>';
 	}
 
+	/**
+	 * The step before a delete: the account's name, what deleting removes,
+	 * and a form that repeats the delete with confirm=1.
+	 */
+	public function renderDeleteConfirm(Account $account): void {
+		html_start_box(__('Delete', 'cloud'), '100%', '', '3', 'center', '');
+
+		print '<tr><td>' . html_escape(__(
+			'Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place.',
+			$account->name,
+			'cloud'
+		)) . '</td></tr>';
+
+		print '<tr><td><form method="post" action="' . html_escape(self::FILE) . '" style="display:inline">'
+			. '<input type="hidden" name="action" value="delete">'
+			. '<input type="hidden" name="id" value="' . $account->id . '">'
+			. '<input type="hidden" name="confirm" value="1">'
+			. '<input type="submit" class="ui-button" value="' . html_escape(__('Delete', 'cloud')) . '">'
+			. '</form> <a class="ui-button" href="' . html_escape(self::FILE) . '">' . html_escape(__('Cancel', 'cloud')) . '</a></td></tr>';
+
+		html_end_box();
+	}
+
 	private function credentialSummary(Account $account): string {
 		return match ($account->credentialSource) {
 			CredentialSource::Vault    => $this->credentials->hasVaultCredential($account->id)

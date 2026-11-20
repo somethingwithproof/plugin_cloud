@@ -103,7 +103,14 @@ switch ($cloud_action) {
 		$cloud_saved = $cloud_accounts->save($cloud_parsed->account, $cloud_user);
 		$cloud_raw   = trim((string) get_nfilter_request_var('credential'));
 
-		if ($cloud_saved > 0 && $cloud_raw !== '') {
+		if ($cloud_saved > 0 && $cloud_parsed->account->credentialSource !== \Somethingwithproof\Cloud\CredentialSource::Vault) {
+			// A credential kept in the vault would come back, unprompted, if the
+			// account were switched back to it with the box left empty.
+			if ($cloud_credentials->hasVaultCredential($cloud_saved)) {
+				$cloud_credentials->forget($cloud_saved);
+				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
+			}
+		} elseif ($cloud_saved > 0 && $cloud_raw !== '') {
 			try {
 				$cloud_credentials->storeVaultCredential($cloud_saved, new \Somethingwithproof\Cloud\Secret($cloud_raw));
 				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
@@ -127,7 +134,25 @@ switch ($cloud_action) {
 		header('Location: cloud_accounts.php');
 		exit;
 	case 'delete':
-		if ($cloud_accounts->delete((int) get_filter_request_var('id'), $cloud_user)) {
+		$cloud_id = (int) get_filter_request_var('id');
+
+		// Deleting drops the stored credential and collected data for good,
+		// so the first POST only asks; the confirmation form sends the second.
+		if ((string) get_nfilter_request_var('confirm') !== '1') {
+			$cloud_account = $cloud_accounts->find($cloud_id);
+
+			if ($cloud_account !== null) {
+				top_header();
+				$cloud_page->renderDeleteConfirm($cloud_account);
+				bottom_footer();
+				exit;
+			}
+
+			header('Location: cloud_accounts.php');
+			exit;
+		}
+
+		if ($cloud_accounts->delete($cloud_id, $cloud_user)) {
 			raise_message(
 				'cloud_deleted',
 				__('The account and its collected data were deleted. Its Cacti devices and graphs were left in place.', 'cloud'),

@@ -64,7 +64,7 @@ Out of scope: changing cloud resources, creating or mirroring provider alarms, b
 
 - **A guarded install.** On PHP below 8.2, or without ext-openssl, install and enable are refused with a message, and the rest of Cacti keeps working.
 - **Lifecycle.** Install, upgrade, and uninstall through Cacti's Plugins page. Upgrades are ordered and survive interruption. Uninstall keeps the plugin's tables unless you clear *Keep Plugin Tables on Uninstall*.
-- **Separate realms.** *Cloud Admin* opens **Cloud Accounts**; *Cloud View* opens **Cloud Health**. Both pages are under Management.
+- **Separate realms.** *Cloud Admin* opens **Cloud Accounts**; *Cloud Operator* opens **Cloud Operations**; *Cloud View* opens **Cloud Health**. Admin inherits Operator, and Operator inherits View. All three pages are under Management.
 - **Accounts and credentials.** Add, edit, verify, and delete accounts. A credential is either encrypted in the database with a key file kept outside it (AES-256-GCM), or read from a file on the poller. Credentials are write-only in the UI and are redacted from logs.
 - **The collector.** It starts from each poller run, one instance per poller, within a time budget. It takes a lease per account, runs discovery on its own interval, and reads metrics only for the plugin's own active data sources.
 - **Health.** Per-account collection, discovery, resource, and freshness state, plus warnings for an unusable vault key, unsafe credential files, and intervals the poller cannot honour.
@@ -86,7 +86,7 @@ These steps install the milestone 2 code for evaluation. They require Cacti 1.2.
    Replace `cacti` with the user that runs your web server and poller. The file holds 32 raw bytes or 64 hexadecimal characters. Back it up with the database; without it, stored credentials must be entered again.
 3. In Cacti, open **Configuration > Plugins**, then install and enable *Cloud*.
 4. Under **Configuration > Settings > Cloud**, set *Vault Key File* if you used another path. *Collector Time Budget* (default 240 seconds) must stay below the poller interval.
-5. Grant *Cloud Admin* or *Cloud View* to users and groups under **Configuration > Users**. Installing grants both realms to the administrator.
+5. Grant *Cloud Admin*, *Cloud Operator* or *Cloud View* to users and groups under **Configuration > Users**. Installing grants Cloud Admin and Cloud View to the administrator; Cloud Admin includes Operator access, so the administrator needs no separate Operator grant.
 6. Add accounts under **Management > Cloud Accounts**, then check **Management > Cloud Health** for warnings.
 
 ## Compatibility targets
