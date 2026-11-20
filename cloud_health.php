@@ -30,9 +30,11 @@ if (!cloud_page_start()) {
 	exit;
 }
 
-$cloud_clock = new \Somethingwithproof\Cloud\SystemClock();
-$cloud_page  = new \Somethingwithproof\Cloud\HealthPage(
-	cloud_accounts(),
+// Without Cloud Admin, Cacti's device permissions decide which accounts show.
+$cloud_admin    = api_user_realm_auth('cloud_accounts.php');
+$cloud_accounts = $cloud_admin ? cloud_accounts()->all() : cloud_device_allowed_accounts();
+$cloud_clock    = new \Somethingwithproof\Cloud\SystemClock();
+$cloud_page     = new \Somethingwithproof\Cloud\HealthPage(
 	new \Somethingwithproof\Cloud\HealthRepository(false),
 	new \Somethingwithproof\Cloud\ResourceRepository(false, $cloud_clock),
 	new \Somethingwithproof\Cloud\ObservationRepository(false),
@@ -44,8 +46,9 @@ $cloud_page  = new \Somethingwithproof\Cloud\HealthPage(
 top_header();
 $cloud_page->render(
 	cloud_settings(),
-	api_user_realm_auth('cloud_accounts.php'),
-	(int) read_config_option('poller_interval')
+	$cloud_admin,
+	(int) read_config_option('poller_interval'),
+	$cloud_accounts
 );
-cloud_estimate_view()->render(cloud_accounts()->all());
+cloud_estimate_view()->render($cloud_accounts);
 bottom_footer();
