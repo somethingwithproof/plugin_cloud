@@ -103,7 +103,14 @@ switch ($cloud_action) {
 		$cloud_saved = $cloud_accounts->save($cloud_parsed->account, $cloud_user);
 		$cloud_raw   = trim((string) get_nfilter_request_var('credential'));
 
-		if ($cloud_saved > 0 && $cloud_raw !== '') {
+		if ($cloud_saved > 0 && $cloud_parsed->account->credentialSource !== \Somethingwithproof\Cloud\CredentialSource::Vault) {
+			// A credential kept in the vault would come back, unprompted, if the
+			// account were switched back to it with the box left empty.
+			if ($cloud_credentials->hasVaultCredential($cloud_saved)) {
+				$cloud_credentials->forget($cloud_saved);
+				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);
+			}
+		} elseif ($cloud_saved > 0 && $cloud_raw !== '') {
 			try {
 				$cloud_credentials->storeVaultCredential($cloud_saved, new \Somethingwithproof\Cloud\Secret($cloud_raw));
 				$cloud_accounts->recordCredentialChange($cloud_saved, $cloud_user);

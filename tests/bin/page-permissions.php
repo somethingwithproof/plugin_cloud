@@ -311,6 +311,21 @@ foreach (db_fetch_assoc(
 	}
 }
 
+// Moving the account to a credential file drops the vault copy, so
+// switching back later cannot revive it.
+list(, $edit) = perm_http($base . 'cloud_accounts.php?action=edit&id=' . $account, $jar);
+perm_http($base . 'cloud_accounts.php', $jar, array(
+	'__csrf_magic' => perm_token($edit), 'action' => 'save', 'id' => $account, 'provider' => 'digitalocean',
+	'name' => $probeName, 'poller_id' => 1,
+	'credential_source' => 'file', 'credential_file' => '/etc/cacti/cloud-probe.json', 'collect_interval' => 300,
+	'discover_interval' => 3600, 'request_share' => 50, 'enabled' => 'on',
+));
+perm_expect(
+	db_fetch_cell_prepared('SELECT credential_source FROM plugin_cloud_account WHERE id = ?', array($account)) === 'file'
+		&& (int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ?', array($account)) === 0,
+	'switching an account from the vault to a credential file removes the stored credential'
+);
+
 perm_expect(
 	count($responses) === 6 && $leaks === array(),
 	'the credential appears in no response, log, or table' . ($leaks === array() ? '' : ': ' . implode(
