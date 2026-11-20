@@ -32,7 +32,6 @@ final class HealthPage {
 	public const FILE = 'cloud_health.php';
 
 	public function __construct(
-		private readonly AccountRepository $accounts,
 		private readonly HealthRepository $health,
 		private readonly ResourceRepository $resources,
 		private readonly ObservationRepository $observations,
@@ -43,12 +42,12 @@ final class HealthPage {
 	}
 
 	/**
-	 * @param bool $admin whether the viewer has Cloud Admin, which alone sees
-	 *                    credential state and credential warnings
+	 * @param bool          $admin    whether the viewer has Cloud Admin, which alone sees
+	 *                                credential state and credential warnings
+	 * @param list<Account> $accounts the accounts the viewer may see; the caller
+	 *                                applies Cacti's device permissions
 	 */
-	public function render(Settings $settings, bool $admin, int $pollerInterval): void {
-		$accounts = $this->accounts->all();
-
+	public function render(Settings $settings, bool $admin, int $pollerInterval, array $accounts): void {
 		html_start_box(__('Cloud Warnings', 'cloud'), '100%', '', '3', 'center', '');
 
 		$shown = 0;

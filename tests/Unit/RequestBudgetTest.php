@@ -171,7 +171,6 @@ it('shows a budget run, and how long a throttled account waits, on the health pa
 	];
 
 	$page = new \Somethingwithproof\Cloud\HealthPage(
-		new \Somethingwithproof\Cloud\AccountRepository(false, $clock),
 		new \Somethingwithproof\Cloud\HealthRepository(false),
 		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
 		new \Somethingwithproof\Cloud\ObservationRepository(false),
