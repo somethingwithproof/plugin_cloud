@@ -21,6 +21,7 @@ use Somethingwithproof\Cloud\HealthRepository;
 use Somethingwithproof\Cloud\DeviceRepository;
 use Somethingwithproof\Cloud\SystemClock;
 use Somethingwithproof\Cloud\Verifier;
+use Somethingwithproof\Cloud\VerifyStatus;
 use Somethingwithproof\Cloud\Drivers;
 
 /** @return list<array{id: string, name: string, state: string, observed: int, interval: int, detail: string}> */
@@ -59,5 +60,5 @@ function cloud_operator_verify(int $id, int $user): void {
 		throw new RuntimeException('Account unavailable');
 	}
 	$status = (new Verifier(Drivers::production(), cloud_credentials(), $accounts))->verify($account, $user);
-	raise_message('cloud_operator_verify', $status->message(), MESSAGE_LEVEL_INFO);
+	raise_message('cloud_operator_verify', $status->message(), $status === VerifyStatus::Ok ? MESSAGE_LEVEL_INFO : MESSAGE_LEVEL_WARN);
 }
