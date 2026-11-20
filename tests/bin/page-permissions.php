@@ -26,7 +26,8 @@
  *   norealm  Console only: both pages are denied
  *
  * Then shows that a delete sent as GET, or as POST without the csrf-magic
- * token, has no effect, and that the same delete as a proper POST works.
+ * token, has no effect, that a proper POST asks for confirmation, and that
+ * the confirmed delete works.
  * Then it saves an account with a vault credential through the form and
  * searches every response, the Cacti log, and every plugin table for the
  * credential (#32). Last (#45), it views a cloud graph as users allowed and
@@ -208,12 +209,23 @@ perm_http($base . 'cloud_accounts.php', $jar, array('action' => 'delete', 'id' =
 perm_expect($exists(), 'a delete POST without the csrf-magic token has no effect');
 
 list(, $list) = perm_http($base . 'cloud_accounts.php', $jar);
-perm_http(
+list(, $confirm) = perm_http(
 	$base . 'cloud_accounts.php',
 	$jar,
 	array('__csrf_magic' => perm_token($list), 'action' => 'delete', 'id' => $probe)
 );
-perm_expect(!$exists(), 'the same delete as a POST with the token removes the account');
+perm_expect(
+	$exists() && strpos($confirm, 'name="confirm" value="1"') !== false
+		&& strpos($confirm, '<b id="cloudprobe">') === false,
+	'a delete POST with the token asks for confirmation, escapes the name, and removes nothing'
+);
+
+perm_http(
+	$base . 'cloud_accounts.php',
+	$jar,
+	array('__csrf_magic' => perm_token($confirm), 'action' => 'delete', 'id' => $probe, 'confirm' => '1')
+);
+perm_expect(!$exists(), 'the confirmed delete removes the account');
 
 // A credential saved through the form must come back in no response, no
 // log line, and no plugin table.
@@ -404,7 +416,7 @@ foreach (array('cloud_health.php' => array('revoked', $view), 'cloud_accounts.ph
 		perm_http(
 			$base . 'cloud_accounts.php',
 			$revokedJar,
-			array('__csrf_magic' => perm_token($before), 'action' => 'delete', 'id' => $graphAccount)
+			array('__csrf_magic' => perm_token($before), 'action' => 'delete', 'id' => $graphAccount, 'confirm' => '1')
 		);
 		perm_expect(
 			(int) db_fetch_cell_prepared('SELECT COUNT(*) FROM plugin_cloud_account WHERE id = ?', array($graphAccount)) === 1,

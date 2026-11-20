@@ -127,7 +127,25 @@ switch ($cloud_action) {
 		header('Location: cloud_accounts.php');
 		exit;
 	case 'delete':
-		if ($cloud_accounts->delete((int) get_filter_request_var('id'), $cloud_user)) {
+		$cloud_id = (int) get_filter_request_var('id');
+
+		// Deleting drops the stored credential and collected data for good,
+		// so the first POST only asks; the confirmation form sends the second.
+		if ((string) get_nfilter_request_var('confirm') !== '1') {
+			$cloud_account = $cloud_accounts->find($cloud_id);
+
+			if ($cloud_account !== null) {
+				top_header();
+				$cloud_page->renderDeleteConfirm($cloud_account);
+				bottom_footer();
+				exit;
+			}
+
+			header('Location: cloud_accounts.php');
+			exit;
+		}
+
+		if ($cloud_accounts->delete($cloud_id, $cloud_user)) {
 			raise_message(
 				'cloud_deleted',
 				__('The account and its collected data were deleted. Its Cacti devices and graphs were left in place.', 'cloud'),

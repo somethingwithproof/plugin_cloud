@@ -212,6 +212,15 @@ msgid "Save"
 msgstr "حفظ"
 
 #: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "هل تريد حذف %s؟ سيؤدي ذلك إلى حذف الحساب وبيانات الاعتماد المخزّنة وتعيينات السلاسل والموارد والملاحظات، ولا يمكن التراجع عنه. ستُبقى أجهزته ورسومه البيانية في Cacti."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: lib/AccountsPage.php
 msgid "Stored in the vault"
 msgstr "مخزّنة في الخزنة"
 

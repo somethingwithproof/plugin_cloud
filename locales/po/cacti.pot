@@ -214,6 +214,15 @@ msgid "Save"
 msgstr ""
 
 #: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr ""
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr ""
+
+#: lib/AccountsPage.php
 msgid "Stored in the vault"
 msgstr ""
 
