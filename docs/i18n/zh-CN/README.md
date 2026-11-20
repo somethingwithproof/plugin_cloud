@@ -1,4 +1,4 @@
-<!-- Source: README.md; SHA256: 28233d119b7717913db9bd6f3aec4c710993ab8cdac54f0fd5a8394394adf41c -->
+<!-- Source: README.md; SHA256: 7c621642e5f1a46bac66e4bc744f70aebb014c610d22de034088845fdc170405 -->
 
 <!-- translations:start -->
 [English](../../../README.md) | [简体中文](README.md) | [हिन्दी](../hi-IN/README.md) | [Español (España)](../es-ES/README.md) | [Español (Latinoamérica)](../es-419/README.md) | [العربية](../ar-SA/README.md)
@@ -62,7 +62,7 @@ Cacti 设备权限仍限制各用户可用的行和操作；未映射对象需�
 
 - **带保护检查的安装。** PHP 低于 8.2 或缺少 ext-openssl 时，会拒绝安装和启用并给出提示，Cacti 的其他部分继续工作。
 - **生命周期。** 通过 Cacti 插件页面安装、升级和卸载。升级按顺序执行，并可从中断中恢复。除非取消 *Keep Plugin Tables on Uninstall*，否则卸载会保留插件表。
-- **独立权限域。** *Cloud Admin* 打开 **Cloud Accounts**；*Cloud View* 打开 **Cloud Health**。两个页面均位于 Management 下。
+- **独立权限域。** *Cloud Admin* 打开 **Cloud Accounts**；*Cloud Operator* 打开 **Cloud Operations**；*Cloud View* 打开 **Cloud Health**。Admin 继承 Operator，Operator 继承 View。三个页面均位于 Management 下。
 - **账户和凭据。** 添加、编辑、验证和删除账户。凭据使用保存在数据库外的密钥文件在数据库内加密（AES-256-GCM），或从轮询器上的文件读取。界面中凭据只能写入，日志中会对其进行遮蔽。
 - **采集器。** 每次轮询器运行时启动，每个轮询器一个实例，并受时间预算约束。它为每个账户取得租约，以独立间隔执行发现，并仅读取插件自有的活动数据源对应的指标。
 - **健康状态。** 显示每账户的采集、发现、资源和新鲜度状态，并对不可用的凭据库密钥、不安全的凭据文件，以及轮询器无法满足的间隔发出警告。
@@ -85,7 +85,7 @@ Cacti 设备权限仍限制各用户可用的行和操作；未映射对象需�
    将 `cacti` 替换为运行 Web 服务器和轮询器的用户。文件包含 32 个原始字节或 64 个十六进制字符。请将其与数据库一同备份；没有它，必须重新输入已存储的凭据。
 3. 在 Cacti 中打开 **Configuration > Plugins**，然后安装并启用 *Cloud*。
 4. 在 **Configuration > Settings > Cloud** 中，如果使用了其他路径，请设置 *Vault Key File*。*Collector Time Budget*（默认 240 秒）必须小于轮询器间隔。
-5. 在 **Configuration > Users** 中向用户和组授予 *Cloud Admin* 或 *Cloud View*。安装会向管理员授予这两个权限域。
+5. 在 **Configuration > Users** 中向用户和组授予 *Cloud Admin*、*Cloud Operator* 或 *Cloud View*。安装会向管理员授予 Cloud Admin 和 Cloud View；Cloud Admin 包含 Operator 访问权限，因此管理员无需单独授予 Operator。
 6. 在 **Management > Cloud Accounts** 下添加账户，然后在 **Management > Cloud Health** 中检查警告。
 
 <a id="compatibility-targets"></a>
