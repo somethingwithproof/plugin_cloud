@@ -218,7 +218,7 @@ msgstr "保存"
 #: lib/AccountsPage.php
 #, php-format
 msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
-msgstr "删除 %s？这将删除该账户、其已存储的凭据、序列映射、资源和观测数据，且无法撤销。其 Cacti 设备和图表将保留。"
+msgstr "删除 %s？这将删除该账户、其已存储的凭据、序列映射、资源和观测结果，且无法撤销。其 Cacti 设备和图表将保留。"
 
 #: lib/AccountsPage.php
 msgid "Cancel"
