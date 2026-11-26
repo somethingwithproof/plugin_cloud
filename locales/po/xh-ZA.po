@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: xh-ZA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Igama: enye iakhawunti sele ilisebenzisa eli gama."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Iakhawunti igciniwe, kodwa isiqinisekiso asigcinwanga: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Iakhawunti igciniwe, kodwa isiqinisekiso esigciniweyo asikwazanga ukususwa."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Iakhawunti igciniwe."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Iakhawunti ayikwazanga ukugcinwa."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Iakhawunti nedatha yayo eqokelelweyo zicinyiwe. Izixhobo zayo zeCacti neegrafu zishiywe endaweni yazo."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Isixhobo seCacti se-%s silungile."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Isixhobo seCacti asidalwanga; jonga ilogi yeCacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Qinisekisa isiqinisekiso esigciniweyo"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Imboniselo yokubeka iliso"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Iingqwalaselo azikwazanga ukufundwa. Cela umlawuli ajonge ilogi ye-plugin."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Jonga iigrafu zeakhawunti nobutsha bengqokelela. Ukuqinisekisa kuvavanya isiqinisekiso esigciniweyo; akunakusitshintsha okanye kutshintshe uqwalaselo lomboneleli."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Umboneleli: khetha omnye wababoneleli abakuluhlu."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Igama: faka oonobumba abayi-1 ukuya kwabayi-100 ngaphandle koonobumba bolawulo."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "I-Poller: yi-poller ephambili kuphela enokuqokelela iiakhawunti ze-cloud kolu khupho."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: ixabiso alinalo uhlobo olusetyenziswa ngulo mboneleli."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Umthombo wesiQinisekiso: khetha omnye oxhaswa ngulo mboneleli."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Ifayile yesiQinisekiso: faka umendo opheleleyo ngaphandle koonobumba bolawulo, ubuninzi boonobumba abayi-512."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: faka imizuzwana epheleleyo ukusuka kwi-%d ukuya kwi-%d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Ithuba lokuQokelela"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Ithuba lokuFumanisa"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Isabelo seZicelo: faka ipesenti epheleleyo ukusuka kwi-1 ukuya kwi-100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Umda weNyanga: faka isixa esingu-zero okanye ngaphezulu, okanye usishiye singenanto xa kungekho mda."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "I-ID yeAkhawunti ye-AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Imimandla"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "I-ID yeProjekthi"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "I-ID yoMqeshi"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "I-ID yoBhaliso"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Iiakhawunti ze-Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Igama"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Umboneleli"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Isiqinisekiso"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Imeko"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Qinisekisa"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Isixhobo"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Iintshukumo"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Akukho iiakhawunti ze-cloud okwangoku."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Ikhubaziwe"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Ivuliwe"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Cima"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Iakhawunti ye-Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Iakhawunti eNtsha ye-Cloud"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Umthombo wesiQinisekiso"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Ifayile yesiQinisekiso"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Isiqinisekiso sigciniwe. Shiya kungenanto ukuze usigcine."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Ncamathisela ithokheni okanye isitshixo ukuze sigcinwe kwivolt."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Isabelo seZicelo"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Umda weNyanga"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Gcina"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Ucime u-%s? Oku kususa iakhawunti, isiqinisekiso sayo esigciniweyo, ulungelelaniso lothotho, izibonelelo neengqwalaselo, kwaye akunakulungiswa emva koko. Izixhobo zayo zeCacti neegrafu zishiywe endaweni yazo."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Rhoxisa"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Igcinwe kwivolt"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Akukho nto igciniweyo"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Ifayile kwi-poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Ubuni be-instance"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Isixhobo %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Yenza iSixhobo seCacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Igcinwe kwivolt ye-plugin"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Ifayile yesiqinisekiso kwi-poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Ubuni be-instance be-poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Uqikelelo lweZicelo ze-Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Iakhawunti"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Ukhetho"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Izibonelelo"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Izicelo ngeYure, iSibonelelo esiNye"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Izicelo ngeNyanga, iSibonelelo esiNye"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Izicelo ngeYure"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Izicelo ngeNyanga"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Iindleko ngeNyanga"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Akukho iiakhawunti zokuqikelela."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Uqikelelo lusebenzisa amaxabiso oluhlu kwaye alubandakanyi izaphulelo namanqanaba asimahla ekwabelwana ngawo."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Amaxabiso e-%s ukusuka"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "ijongiwe nge-%s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Iqokelelwe ngoku"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Zonke iigrafu kwisibonelelo ngasinye"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Isabelo sezicelo: izicelo ezi-%s ngeyure, ipesenti ezi-%s zomda wethokheni. Iqokelelwe ngoku: %s. Zonke iigrafu: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Ukuqokelela kunomda; uthotho oluseleyo lufunda U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Uqikelelo lweemetriki phakathi kokuqhuba kofumaniso; izicelo zofumaniso zinciphisa isibonelelo sokuqokelela."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Akukho ntlawulo ibhaliweyo"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Load Balancer"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Izilumkiso ze-Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Akukho zilumkiso."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Ukuqokelela kwe-Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Ukuqokelela"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Ukuqhuba kokuGqibela"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Uthotho oluFundiweyo"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Izicelo"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Ufumaniso"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Idatha"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Akuzange"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "zama kwakhona nge-%d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "kwimizuzwana eyi-%d edlulileyo"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "kwimizuzu eyi-%d edlulileyo"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "kwiiyure ezi-%d ezidlulileyo"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "kwiintsuku ezi-%d ezidlulileyo"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Ifayile yesitshixo sevolt ayinakusetyenziswa: %s. Iiakhawunti ezigcina iziqinisekiso kwivolt azinakuqinisekiswa okanye ziqokelelwe apha."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: ifayile yesiqinisekiso ayinakusetyenziswa: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: ithuba lokuqokelela lemizuzwana eyi-%d lifutshane kunethuba le-poller lemizuzwana eyi-%d, ngoko iqokelelwa rhoqo kwimizuzwana eyi-%d."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: ithuba lokuqokelela lemizuzwana eyi-%d aliyiyo imaphindaphindo yethuba le-poller lemizuzwana eyi-%d, ngoko iqokelelwa rhoqo kwimizuzwana eyi-%d."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Jonga kwakhona iingqwalaselo ezirekhodiweyo ngezantsi. Ukuvuma kokwakho kule seshoni kuphela, kuphelelwa xa iingqwalaselo zitshintsha, kwaye akuzange kucinezela izilumkiso okanye kutshintshe impilo."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Imisebenzi ye-Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Uphando"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Into"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Kuqwalaselwe (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Akwaziwa okanye kuphelelwe lixesha"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Kuvunyiwe; impilo ayitshintshanga."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Vuma"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Akukho zingqwalaselo zikhoyo zezixhobo onokufikelela kuzo."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Umqhubi we-Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Imboniselo ye-Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Umlawuli we-Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Impilo ye-Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Ivolt yeziQinisekiso"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Ifayile yesiTshixo seVolt"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Umendo opheleleyo kwisitshixo see-32-byte esifihla iziqinisekiso ezigciniweyo. Zenzele sona, ngaphandle kwe-web root, sifundeke kuphela yi-web server nomsebenzisi we-poller, kwisikhombisi ekunokubhala kuso i-root naloo msebenzisi kuphela (okufanayo kuyasebenza kwiifayile zeziqinisekiso); i-plugin ayize iyenze okanye iyibhale. Yenzele ikopi yokugcina kunye ne-database: ngaphandle kwayo, iziqinisekiso ezigciniweyo kufuneka zifakwe kwakhona."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "IsiKhombisi seFayile yesiQinisekiso"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Umendo opheleleyo kwisikhombisi esigcina iifayile zeziqinisekiso. Iakhawunti inokufunda isiqinisekiso sayo kwifayile ekuso kuphela, ingaze ibe yifayile yesitshixo sevolt. Ukuba ayinanto, okusisiseko, iyazala iifayile zeziqinisekiso. Umlawuli we-Cloud ukhetha ifayile, ngoko gcina iziqinisekiso ze-cloud kuphela apha."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Umqokeleli"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Uhlahlo-lwabiwo lweXesha loMqokeleli"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Imizuzwana enokuchithwa luhambo olunye lomqokeleli phambi kokuba luyeke ukuqala umsebenzi omtsha. Yigcine ngaphantsi kwethuba le-poller; iiakhawunti ezingagqitywanga ziyaqhubeka kuhambo olulandelayo."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Khupha"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Gcina iiTheyibhile ze-Plugin xa uKhupha"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Xa kukhethiwe, ukukhupha i-plugin kugcina iiakhawunti zayo, iziqinisekiso ezifihliweyo, ne-cache. Yisuse ukuze ukukhupha kuzilahle. Izibonelelo ze-Cloud azize zichukunyiswe nangayiphi na indlela."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Ayikaqinisekiswa okwangoku."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Isiqinisekiso siyasebenza kwaye sinazo iimvume ezifunwa yile akhawunti."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Umboneleli usikhabile isiqinisekiso. Kusenokwenzeka ukuba asichanekanga, siphelelwe lixesha, okanye sirhoxisiwe."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Isiqinisekiso siyasebenza kodwa siswele imvume efunwa yile akhawunti."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Umboneleli akakwazanga ukufikelelwa. Jonga umendo womnatha nomgaqo-nkqubo ophumayo ukusuka kwi-poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Umboneleli uyazinciphisa izicelo. Zama kwakhona kamva."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Umboneleli uthumele impendulo engakwazanga ukufundwa yi-plugin."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Iakhawunti okanye isiqinisekiso sayo asiqwalaselwanga ngokuchanekileyo."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "I-plugin ye-Cloud ifuna i-PHP %s okanye entsha. Le seva isebenzisa i-PHP %s, ngoko i-plugin ayifakwanga okanye ayivulwanga."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "I-plugin ye-Cloud ifuna izongezo ze-PHP %s, ezingalayishwa yile seva, ngoko i-plugin ayifakwanga okanye ayivulwanga."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "I-plugin ye-Cloud ayivulwanga."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "I-plugin ye-Cloud ifuna i-PHP %s okanye entsha."
+
+#: setup.php
+msgid "Management"
+msgstr "Ulawulo"

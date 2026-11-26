@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: ig-NG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Aha: akaụntụ ọzọ na-eji aha a ugbu a."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Echekwara akaụntụ ahụ, mana echekwaghị nzere ahụ: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Echekwara akaụntụ ahụ, mana enweghị ike iwepụ nzere echekwara."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Echekwara akaụntụ ahụ."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Enweghị ike ichekwa akaụntụ ahụ."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Ehichapụrụ akaụntụ ahụ na data ya anakọtara. E hapụrụ ngwaọrụ Cacti na eserese ya n'ebe ha dị."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Ngwaọrụ Cacti maka %s adịla njikere."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Emepụtaghị ngwaọrụ Cacti ahụ; lee ndekọ Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Nyochaa nzere echekwara"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Nlere nleba anya"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Enweghị ike ịgụ nchọpụta ndị ahụ. Gwa onye nchịkwa ka ọ lelee ndekọ mgbakwunye ahụ."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Lelee eserese akaụntụ na ọhụrụ nke nchịkọta. Nyochaa na-anwale nzere echekwara; ọ pụghị idochie ya ma ọ bụ gbanwee nhazi onye na-enye ọrụ."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Onye na-enye ọrụ: họrọ otu n'ime ndị na-enye ọrụ edepụtara."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Aha: tinye mkpụrụedemede 1 ruo 100 na-enweghị mkpụrụedemede njikwa."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: naanị isi poller nwere ike ịchịkọta akaụntụ cloud na ntọhapụ a."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: uru ahụ enweghị ụdị nke onye na-enye ọrụ a na-eji."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Isi Nzere: họrọ nke onye na-enye ọrụ a na-akwado."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Faịlụ Nzere: tinye ụzọ zuru oke na-enweghị mkpụrụedemede njikwa, nke na-akarịghị mkpụrụedemede 512."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: tinye sekọnd zuru ezu site na %d ruo %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Oge Etiti Nchịkọta"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Oge Etiti Nchọpụta"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Oke Arịrịọ: tinye pasentị zuru ezu site na 1 ruo 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Oke Kwa Ọnwa: tinye ego nke dị efu ma ọ bụ karịa, ma ọ bụ hapụ ya n'efu ma ọ bụrụ na ọ dịghị."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID Akaụntụ AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Mpaghara"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID Ọrụ"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID Tenant"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID Ndebanye Aha"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Akaụntụ Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Aha"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Onye na-enye ọrụ"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Nzere"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Ọnọdụ"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Nyochaa"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Ngwaọrụ"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Omume"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Enweghị akaụntụ cloud ugbu a."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Agbanyụrụ"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Agbanyere"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Hichapụ"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Akaụntụ Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Akaụntụ Cloud Ọhụrụ"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Isi Nzere"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Faịlụ Nzere"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Echekwara nzere. Hapụ ya n'efu ka ị debe ya."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Tinye token ma ọ bụ igodo iji chekwaa n'ime ebe nchekwa nzuzo."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Oke Arịrịọ"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Oke Kwa Ọnwa"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Chekwaa"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Hichapụ %s? Nke a na-ewepụ akaụntụ ahụ, nzere ya echekwara, njikọ usoro, akụrụngwa na nchọpụta, ma enweghị ike ịlaghachi azụ. A ga-ahapụ ngwaọrụ Cacti na eserese ya n'ebe ha dị."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Kagbuo"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Echekwara n'ebe nchekwa nzuzo"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Ọ dịghị nke echekwara"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Faịlụ dị na poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Njirimara instance"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Ngwaọrụ %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Mepụta Ngwaọrụ Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Echekwara n'ebe nchekwa nzuzo nke mgbakwunye"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Faịlụ nzere dị na poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Njirimara instance nke poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Atụmatụ Arịrịọ Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Akaụntụ"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Nhọrọ"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Akụrụngwa"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Arịrịọ kwa Elekere, Otu Akụrụngwa"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Arịrịọ kwa Ọnwa, Otu Akụrụngwa"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Arịrịọ kwa Elekere"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Arịrịọ kwa Ọnwa"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Ọnụahịa kwa Ọnwa"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Enweghị akaụntụ a ga-atụ atụmatụ."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Atụmatụ na-eji ọnụahịa ndepụta ma wepụ mbelata ọnụahịa na ọkwa n'efu ekere."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Ọnụahịa %s sitere na"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "enyochara %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Achịkọtara ugbu a"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Eserese niile dị na akụrụngwa niile"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Oke arịrịọ: arịrịọ %s kwa elekere, pasentị %s nke oke token. Achịkọtara ugbu a: %s. Eserese niile: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Enyere nchịkọta oke; usoro ndị fọdụrụ na-agụ U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Atụmatụ metrik n'etiti oge nchọpụta; arịrịọ nchọpụta na-ebelata oke nchịkọta."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Enweghị ụgwọ edere"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Load Balancer"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Ịdọ Aka Ná Ntị Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Enweghị ịdọ aka ná ntị."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Nchịkọta Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Nchịkọta"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Ọrụ Ikpeazụ"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Usoro Agụrụ"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Arịrịọ"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Nchọpụta"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Data"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Ọ dịtụbeghị"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "nwaa ọzọ n'ime %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "sekọnd %d gara aga"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "nkeji %d gara aga"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "elekere %d gara aga"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "ụbọchị %d gara aga"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Enweghị ike iji faịlụ igodo ebe nchekwa nzuzo: %s. Enweghị ike inyocha ma ọ bụ chịkọta akaụntụ ndị na-echekwa nzere n'ebe nchekwa nzuzo ebe a."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: enweghị ike iji faịlụ nzere ahụ: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: oge etiti nchịkọta nke sekọnd %d dị mkpụmkpụ karịa oge etiti poller nke sekọnd %d, yabụ a na-achịkọta ya kwa sekọnd %d."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: oge etiti nchịkọta nke sekọnd %d abụghị ọnụọgụgụ nke oge etiti poller nke sekọnd %d, yabụ a na-achịkọta ya kwa sekọnd %d."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Nyochaa nchọpụta edere n'okpuru ebe a. Nkweta bụ maka oge nnọkọ a naanị, ha na-agwụ mgbe nchọpụta gbanwere, ma ha anaghị egbochi ọkwa ịdọ aka ná ntị ma ọ bụ gbanwee ahụike."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Ọrụ Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Nnyocha"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Ihe"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Achọpụtara (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Amaghị ma ọ bụ ochie"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Ekwetala; ahụike agbanweghị."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Kweta"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Enweghị nchọpụta dị maka ngwaọrụ ndị ị nwere ike ịnweta."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Onye Ọrụ Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Nlere Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Onye Nchịkwa Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Ahụike Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Ebe Nchekwa Nzere Nzuzo"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Faịlụ Igodo Ebe Nchekwa Nzuzo"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Ụzọ zuru oke gaa na igodo 32-byte nke na-ezochi nzere echekwara. Mepụta ya n'onwe gị, n'èzí web root, nke naanị sava web na onye ọrụ poller nwere ike ịgụ, n'ime ndekọ faịlụ nke naanị root na onye ọrụ ahụ nwere ike ide na ya (otu ihe ahụ metụtara faịlụ nzere); mgbakwunye ahụ anaghị emepụta ma ọ bụ dee ya. Chekwaa nkwado ya yana nchekwa data: n'enweghị ya, a ga-etinyerịrị nzere echekwara ọzọ."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Ndekọ Faịlụ Nzere"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Ụzọ zuru oke gaa na ndekọ faịlụ nke nwere faịlụ nzere. Akaụntụ nwere ike ịgụ nzere ya site na faịlụ naanị n'ime ya, ọ bụghị faịlụ igodo ebe nchekwa nzuzo ma ọlị. Nke tọgbọrọ chakoo, nke bụ ntọala mbụ, na-ajụ faịlụ nzere. Onye Nchịkwa Cloud na-ahọrọ faịlụ ahụ, yabụ debe naanị nzere cloud ebe a."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Onye Nchịkọta"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Oke Oge Onye Nchịkọta"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Sekọnd nke otu ọrụ onye nchịkọta nwere ike iji tupu ọ kwụsị ịmalite ọrụ ọhụrụ. Debe ya n'okpuru oge etiti poller; akaụntụ ndị na-agwụchabeghị ga-amaliteghachi n'ọrụ na-esote."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Wepụ"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Debe Tebụl Mgbakwunye Mgbe A Na-ewepụ"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Mgbe ahọpụtara ya, iwepụ mgbakwunye ahụ na-edebe akaụntụ ya, nzere ezochiri ezo, na cache. Hichapụ akara ahụ ka iwepụ ahụ wepụ ha. A naghị emetụ akụrụngwa Cloud aka n'ụzọ ọ bụla."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Enyochabeghị ya."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Nzere ahụ na-arụ ọrụ ma nwee ikike ndị akaụntụ a chọrọ."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Onye na-enye ọrụ jụrụ nzere ahụ. O nwere ike ịbụ nke ezighị ezi, nke kubiri, ma ọ bụ nke kagburu."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Nzere ahụ na-arụ ọrụ mana o nweghị otu ikike akaụntụ a chọrọ."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Enweghị ike iru onye na-enye ọrụ. Lelee ụzọ netwọk na iwu mpụga site na poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Onye na-enye ọrụ na-ebelata arịrịọ. Nwaa ọzọ ma emechaa."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Onye na-enye ọrụ zitere nzaghachi nke mgbakwunye ahụ enweghị ike ịgụ."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Ahazighị akaụntụ ahụ ma ọ bụ nzere ya nke ọma."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Mgbakwunye Cloud chọrọ PHP %s ma ọ bụ karịa. Sava a na-agba PHP %s, yabụ etinyereghị ma ọ bụ agbanyeghị mgbakwunye ahụ."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Mgbakwunye Cloud chọrọ mgbakwunye PHP %s, nke sava a na-ebughị, yabụ etinyereghị ma ọ bụ agbanyeghị mgbakwunye ahụ."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Agbanyeghị mgbakwunye Cloud."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Mgbakwunye Cloud chọrọ PHP %s ma ọ bụ karịa."
+
+#: setup.php
+msgid "Management"
+msgstr "Njikwa"

@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: mr-IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "नाव: दुसरे खाते आधीच हे नाव वापरत आहे."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "खाते जतन केले गेले, परंतु क्रेडेन्शियल साठवले गेले नाही: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "खाते जतन केले गेले, परंतु साठवलेले क्रेडेन्शियल काढता आले नाही."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "खाते जतन केले गेले."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "खाते जतन करता आले नाही."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "खाते आणि त्याचा संकलित डेटा हटवला गेला. त्याची Cacti डिव्हाइसेस आणि आलेख तसेच ठेवले गेले आहेत."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "%s साठी Cacti डिव्हाइस तयार आहे."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Cacti डिव्हाइस तयार केले गेले नाही; Cacti लॉग पहा."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "साठवलेले क्रेडेन्शियल सत्यापित करा"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "निरीक्षण दृश्य"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "निरीक्षणे वाचता आली नाहीत. प्रशासकाला प्लगइन लॉग तपासण्यास सांगा."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "खात्याचे आलेख आणि संकलनाचा ताजेपणा तपासा. सत्यापित करा हे साठवलेल्या क्रेडेन्शियलची चाचणी करते; ते बदलू शकत नाही किंवा प्रदाता कॉन्फिगरेशनमध्ये बदल करू शकत नाही."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "प्रदाता: सूचीबद्ध केलेल्या प्रदात्यांपैकी एक निवडा."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "नाव: नियंत्रण वर्णाशिवाय 1 ते 100 वर्ण प्रविष्ट करा."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "पोलर: या आवृत्तीमध्ये फक्त मुख्य पोलर क्लाउड खाती संकलित करू शकतो."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: मूल्याचे स्वरूप या प्रदात्याद्वारे वापरल्या जाणार्‍या स्वरूपासारखे नाही."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "क्रेडेन्शियल स्रोत: हा प्रदाता समर्थन देतो असा एक निवडा."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "क्रेडेन्शियल फाइल: नियंत्रण वर्णाशिवाय, कमाल 512 वर्णांचा पूर्ण मार्ग प्रविष्ट करा."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: %d ते %d पर्यंत पूर्ण सेकंद प्रविष्ट करा."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "संकलन अंतराल"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "शोध अंतराल"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "विनंती हिस्सा: 1 ते 100 पर्यंत पूर्ण टक्केवारी प्रविष्ट करा."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "मासिक कमाल मर्यादा: शून्य किंवा अधिक रक्कम प्रविष्ट करा, किंवा काहीही नसण्यासाठी रिकामे ठेवा."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS खाते ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "प्रदेश"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "प्रकल्प ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "टेनंट ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "सदस्यता ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Cloud खाती"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "नाव"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "प्रदाता"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "क्रेडेन्शियल"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "स्थिती"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "सत्यापित करा"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "डिव्हाइस"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "क्रिया"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "अद्याप कोणतीही क्लाउड खाती नाहीत."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "अक्षम"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "सक्षम"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "हटवा"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Cloud खाते: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "नवीन Cloud खाते"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "क्रेडेन्शियल स्रोत"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "क्रेडेन्शियल फाइल"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "एक क्रेडेन्शियल साठवलेले आहे. ते तसेच ठेवण्यासाठी रिकामे सोडा."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "व्हॉल्टमध्ये साठवण्यासाठी टोकन किंवा की पेस्ट करा."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "विनंती हिस्सा"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "मासिक कमाल मर्यादा"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "जतन करा"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "%s हटवायचे का? हे खाते, त्याचे साठवलेले क्रेडेन्शियल, मालिका मॅपिंग्ज, संसाधने आणि निरीक्षणे काढून टाकते आणि पूर्ववत करता येत नाही. त्याची Cacti डिव्हाइसेस आणि आलेख तसेच ठेवले जातात."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "रद्द करा"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "व्हॉल्टमध्ये साठवलेले"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "काहीही साठवलेले नाही"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "पोलरवरील फाइल"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "इन्स्टन्स ओळख"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "डिव्हाइस %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Cacti डिव्हाइस तयार करा"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "प्लगइन व्हॉल्टमध्ये साठवलेले"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "पोलरवरील क्रेडेन्शियल फाइल"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "पोलरची इन्स्टन्स ओळख"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Cloud विनंती अंदाज"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "खाते"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "निवड"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "संसाधने"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "प्रति तास विनंत्या, एक संसाधन"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "प्रति महिना विनंत्या, एक संसाधन"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "प्रति तास विनंत्या"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "प्रति महिना विनंत्या"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "प्रति महिना खर्च"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "अंदाज लावण्यासाठी कोणतीही खाती नाहीत."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "अंदाज सूचीबद्ध किमती वापरतात आणि सूट व सामायिक मोफत स्तर वगळतात."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s किमती येथून"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "%s रोजी तपासलेले."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "सध्या संकलित केलेले"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "प्रत्येक संसाधनावरील प्रत्येक आलेख"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "विनंती हिस्सा: प्रति तास %s विनंत्या, टोकन मर्यादेच्या %s टक्के. सध्या संकलित: %s. प्रत्येक आलेख: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "संकलन मर्यादित केले आहे; उर्वरित मालिका U वाचतात."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "शोध रनमधील मेट्रिक अंदाज; शोध विनंत्या संकलन मर्यादा कमी करतात."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "कोणतेही शुल्क नोंदवलेले नाही"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "लोड बॅलन्सर"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cloud इशारे"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "कोणतेही इशारे नाहीत."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Cloud संकलन"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "संकलन"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "शेवटचा रन"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "वाचलेल्या मालिका"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "विनंत्या"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "शोध"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "डेटा"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "कधीही नाही"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "%d सेकंदात पुन्हा प्रयत्न करा"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d सेकंदांपूर्वी"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d मिनिटांपूर्वी"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d तासांपूर्वी"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d दिवसांपूर्वी"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "व्हॉल्ट की फाइल वापरता येत नाही: %s. व्हॉल्टमध्ये क्रेडेन्शियल्स साठवणारी खाती येथे सत्यापित किंवा संकलित केली जाऊ शकत नाहीत."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: क्रेडेन्शियल फाइल वापरता येत नाही: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: %d सेकंदांचा संकलन अंतराल %d सेकंदांच्या पोलर अंतरालापेक्षा कमी आहे, म्हणून ते दर %d सेकंदांनी संकलित केले जाते."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: %d सेकंदांचा संकलन अंतराल %d सेकंदांच्या पोलर अंतरालाच्या पटीत नाही, म्हणून ते दर %d सेकंदांनी संकलित केले जाते."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "खाली नोंदवलेल्या निरीक्षणांचे पुनरावलोकन करा. पोचपावत्या या सत्रासाठी वैयक्तिक आहेत, निरीक्षणे बदलल्यावर कालबाह्य होतात आणि कधीही सूचना दाबत नाहीत किंवा स्थिती बदलत नाहीत."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Cloud ऑपरेशन्स"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "तपास"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "ऑब्जेक्ट"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "निरीक्षित (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "अज्ञात किंवा जुने"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "पोचपावती दिली; आरोग्य स्थिती अपरिवर्तित."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "पोचपावती द्या"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "तुम्ही प्रवेश करू शकता अशा डिव्हाइसेससाठी कोणतीही निरीक्षणे उपलब्ध नाहीत."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Cloud ऑपरेटर"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Cloud दृश्य"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Cloud प्रशासक"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Cloud आरोग्य"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "क्रेडेन्शियल व्हॉल्ट"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "व्हॉल्ट की फाइल"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "साठवलेली क्रेडेन्शियल्स एनक्रिप्ट करणार्‍या 32-बाइट कीचा पूर्ण मार्ग. ती स्वतः तयार करा, वेब रूटच्या बाहेर, फक्त वेब सर्व्हर आणि पोलर वापरकर्त्याद्वारे वाचण्यायोग्य, अशा निर्देशिकेत जिथे फक्त root आणि तो वापरकर्ता लिहू शकतो (हेच क्रेडेन्शियल फाइल्सनाही लागू होते); प्लगइन ती कधीही तयार करत नाही किंवा लिहित नाही. डेटाबेससह तिचा बॅकअप घ्या: तिच्याशिवाय, साठवलेली क्रेडेन्शियल्स पुन्हा प्रविष्ट करावी लागतील."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "क्रेडेन्शियल फाइल निर्देशिका"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "क्रेडेन्शियल फाइल्स ठेवलेल्या निर्देशिकेचा पूर्ण मार्ग. खाते फक्त तिच्या आतील फाइलमधून आपले क्रेडेन्शियल वाचू शकते, व्हॉल्ट की फाइल कधीही नाही. रिकामे असणे, जे डीफॉल्ट आहे, क्रेडेन्शियल फाइल्स नाकारते. Cloud प्रशासक फाइल निवडतो, म्हणून येथे फक्त क्लाउड क्रेडेन्शियल्स ठेवा."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "कलेक्टर"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "कलेक्टर वेळ मर्यादा"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "नवीन काम सुरू करणे थांबवण्यापूर्वी एक कलेक्टर रन किती सेकंद खर्च करू शकतो. हे पोलर अंतरालापेक्षा कमी ठेवा; अपूर्ण खाती पुढील रनमध्ये पुन्हा सुरू होतात."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "अनइंस्टॉल करा"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "अनइंस्टॉल करताना प्लगइन सारण्या ठेवा"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "निवडलेले असताना, प्लगइन अनइंस्टॉल केल्यास त्याची खाती, एनक्रिप्ट केलेली क्रेडेन्शियल्स आणि कॅशे ठेवले जातात. अनइंस्टॉल करताना ते काढून टाकण्यासाठी निवड काढा. कोणत्याही परिस्थितीत क्लाउड संसाधनांना हात लावला जात नाही."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "अद्याप सत्यापित केलेले नाही."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "क्रेडेन्शियल कार्य करते आणि त्याकडे या खात्याला आवश्यक असलेल्या परवानग्या आहेत."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "प्रदात्याने क्रेडेन्शियल नाकारले. ते चुकीचे, कालबाह्य किंवा रद्द केलेले असू शकते."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "क्रेडेन्शियल कार्य करते परंतु त्याकडे या खात्याला आवश्यक असलेली परवानगी नाही."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "प्रदात्यापर्यंत पोहोचता आले नाही. पोलरवरून नेटवर्क मार्ग आणि आउटबाउंड धोरण तपासा."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "प्रदाता विनंत्या मर्यादित करत आहे. नंतर पुन्हा प्रयत्न करा."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "प्रदात्याने असा प्रतिसाद पाठवला जो प्लगइन वाचू शकला नाही."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "खाते किंवा त्याचे क्रेडेन्शियल योग्यरित्या कॉन्फिगर केलेले नाही."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Cloud प्लगइनसाठी PHP %s किंवा त्यापुढील आवृत्ती आवश्यक आहे. या सर्व्हरवर PHP %s चालत आहे, म्हणून प्लगइन इंस्टॉल किंवा सक्षम केले गेले नाही."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Cloud प्लगइनसाठी %s हे PHP एक्स्टेंशन्स आवश्यक आहेत, जे हा सर्व्हर लोड करत नाही, म्हणून प्लगइन इंस्टॉल किंवा सक्षम केले गेले नाही."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Cloud प्लगइन सक्षम केलेले नाही."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Cloud प्लगइनसाठी PHP %s किंवा त्यापुढील आवृत्ती आवश्यक आहे."
+
+#: setup.php
+msgid "Management"
+msgstr "व्यवस्थापन"

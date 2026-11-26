@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: am-ET\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "ስም፦ ሌላ መለያ ይህን ስም አስቀድሞ ይጠቀማል።"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "መለያው ተቀምጧል፣ ነገር ግን ምስክርነቱ አልተከማቸም፦ %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "መለያው ተቀምጧል፣ ነገር ግን የተከማቸው ምስክርነት ሊወገድ አልቻለም።"
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "መለያው ተቀምጧል።"
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "መለያው ሊቀመጥ አልቻለም።"
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "መለያው እና የተሰበሰበው ውሂቡ ተሰርዘዋል። የCacti መሣሪያዎቹ እና ግራፎቹ እንዳሉ ተተውተዋል።"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "ለ%s የሆነው የCacti መሣሪያ ዝግጁ ነው።"
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "የCacti መሣሪያው አልተፈጠረም፤ የCacti መዝገብን ይመልከቱ።"
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "የተከማቸ ምስክርነትን አረጋግጥ"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "የክትትል እይታ"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "ምልከታዎቹን ማንበብ አልተቻለም። አስተዳዳሪ የተሰኪውን መዝገብ እንዲያረጋግጥ ይጠይቁ።"
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "የመለያውን ግራፎች እና የስብስቡን ወቅታዊነት ያረጋግጡ። ማረጋገጫ የተከማቸውን ምስክርነት ይፈትሻል፤ ሊተካው ወይም የአቅራቢውን ውቅር ሊለውጥ አይችልም።"
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "አቅራቢ፦ ከተዘረዘሩት አቅራቢዎች አንዱን ይምረጡ።"
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "ስም፦ ያለ መቆጣጠሪያ ቁምፊዎች ከ1 እስከ 100 ቁምፊዎችን ያስገቡ።"
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "ፖለር፦ በዚህ እትም ውስጥ የክላውድ መለያዎችን መሰብሰብ የሚችለው ዋናው ፖለር ብቻ ነው።"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s፦ እሴቱ ይህ አቅራቢ የሚጠቀምበት ቅርጽ የለውም።"
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "የምስክርነት ምንጭ፦ ይህ አቅራቢ የሚደግፈውን አንዱን ይምረጡ።"
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "የምስክርነት ፋይል፦ ያለ መቆጣጠሪያ ቁምፊዎች ፍጹም ዱካ (ቢበዛ 512 ቁምፊዎች) ያስገቡ።"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s፦ ከ%d እስከ %d ያሉ ሙሉ ሰከንዶችን ያስገቡ።"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "የስብስብ ክፍተት"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "የግኝት ክፍተት"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "የጥያቄ ድርሻ፦ ከ1 እስከ 100 ያለ ሙሉ መቶኛ ያስገቡ።"
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "ወርሃዊ ገደብ፦ ዜሮ ወይም ከዚያ በላይ መጠን ያስገቡ፣ ወይም ምንም እንዳይኖር ባዶ ይተዉት።"
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "የAWS መለያ መታወቂያ"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "ክልሎች"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "የፕሮጀክት መታወቂያ"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "የተከራይ መታወቂያ"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "የደንበኝነት ምዝገባ መታወቂያ"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "የCloud መለያዎች"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "ስም"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "አቅራቢ"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "ምስክርነት"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "ሁኔታ"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "አረጋግጥ"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "መሣሪያ"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "እርምጃዎች"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "እስካሁን ምንም የክላውድ መለያዎች የሉም።"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "ተሰናክሏል"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "ነቅቷል"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "ሰርዝ"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "የCloud መለያ፦ %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "አዲስ የCloud መለያ"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "የምስክርነት ምንጭ"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "የምስክርነት ፋይል"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "ምስክርነት ተከማችቷል። እሱን ለማቆየት ባዶ ይተዉት።"
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "በካዝናው ውስጥ ለማከማቸት ቶከኑን ወይም ቁልፉን ይለጥፉ።"
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "የጥያቄ ድርሻ"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "ወርሃዊ ገደብ"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "አስቀምጥ"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "%s ይሰረዝ? ይህ መለያውን፣ የተከማቸውን ምስክርነቱን፣ የተከታታይ ካርታዎቹን፣ ሀብቶቹን እና ምልከታዎቹን ያስወግዳል፣ እንዲሁም ሊቀለበስ አይችልም። የCacti መሣሪያዎቹ እና ግራፎቹ እንዳሉ ይቀራሉ።"
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "ተወው"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "በካዝናው ውስጥ ተከማችቷል"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "ምንም አልተከማቸም"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "በፖለሩ ላይ ያለ ፋይል"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "የኢንስታንስ ማንነት"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "መሣሪያ %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "የCacti መሣሪያ ፍጠር"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "በተሰኪው ካዝና ውስጥ ተከማችቷል"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "በፖለሩ ላይ ያለ የምስክርነት ፋይል"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "የፖለሩ የኢንስታንስ ማንነት"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "የCloud ጥያቄ ግምት"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "መለያ"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "ምርጫ"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "ሀብቶች"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "በሰዓት ጥያቄዎች፣ አንድ ሀብት"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "በወር ጥያቄዎች፣ አንድ ሀብት"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "በሰዓት ጥያቄዎች"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "በወር ጥያቄዎች"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "ወርሃዊ ወጪ"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "የሚገመቱ መለያዎች የሉም።"
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "ግምቶች የዝርዝር ዋጋዎችን ይጠቀማሉ እንዲሁም ቅናሾችን እና የተጋሩ ነፃ ደረጃዎችን አያካትቱም።"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "የ%s ዋጋዎች ከ"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "በ%s ተረጋግጧል።"
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "አሁን የተሰበሰበ"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "በእያንዳንዱ ሀብት ላይ ያለ እያንዳንዱ ግራፍ"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "የጥያቄ ድርሻ፦ በሰዓት %s ጥያቄዎች፣ ከቶከን ገደቡ %s በመቶ። አሁን የተሰበሰበ፦ %s። እያንዳንዱ ግራፍ፦ %s።"
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "ስብስቡ ተገድቧል፤ የቀሩት ተከታታዮች U ያነባሉ።"
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "በግኝት ሩጫዎች መካከል ያለ የሜትሪክ ግምት፤ የግኝት ጥያቄዎች የስብስብ አበልን ይቀንሳሉ።"
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "ምንም ክፍያ አልተመዘገበም"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "የጭነት አመጣጣኝ"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "የCloud ማስጠንቀቂያዎች"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "ምንም ማስጠንቀቂያዎች የሉም።"
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "የCloud ስብስብ"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "ስብስብ"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "የመጨረሻ ሩጫ"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "የተነበቡ ተከታታዮች"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "ጥያቄዎች"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "ግኝት"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "ውሂብ"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "በፍጹም"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "በ%d ሰከንድ ውስጥ እንደገና ሞክር"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "ከ%d ሰከንዶች በፊት"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "ከ%d ደቂቃዎች በፊት"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "ከ%d ሰዓታት በፊት"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "ከ%d ቀናት በፊት"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "የካዝናው ቁልፍ ፋይል ጥቅም ላይ ሊውል አይችልም፦ %s። ምስክርነቶችን በካዝና ውስጥ የሚያከማቹ መለያዎች እዚህ ሊረጋገጡ ወይም ሊሰበሰቡ አይችሉም።"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s፦ የምስክርነት ፋይሉ ጥቅም ላይ ሊውል አይችልም፦ %s።"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s፦ የ%d ሰከንዶች የስብስብ ክፍተት ከ%d ሰከንዶች የፖለር ክፍተት ያነሰ ነው፣ ስለዚህ በየ%d ሰከንዶች ይሰበሰባል።"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s፦ የ%d ሰከንዶች የስብስብ ክፍተት የ%d ሰከንዶች የፖለር ክፍተት ብዜት አይደለም፣ ስለዚህ በየ%d ሰከንዶች ይሰበሰባል።"
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "ከዚህ በታች የተመዘገቡትን ምልከታዎች ይገምግሙ። እውቅናዎች ለዚህ ክፍለ ጊዜ ግላዊ ናቸው፣ ምልከታዎች ሲለወጡ ጊዜያቸው ያልፋል፣ እና ማንቂያዎችን አያፍኑም ወይም ጤናን አይለውጡም።"
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "የCloud ክዋኔዎች"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "ምርመራ"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "ነገር"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "የታየበት (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "ያልታወቀ ወይም ያረጀ"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "እውቅና ተሰጥቷል፤ ጤና አልተለወጠም።"
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "እውቅና ስጥ"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "መድረስ ለሚችሉባቸው መሣሪያዎች ምንም ምልከታዎች የሉም።"
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "የCloud ኦፕሬተር"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "የCloud እይታ"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "የCloud አስተዳዳሪ"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "የCloud ጤና"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "የምስክርነት ካዝና"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "የካዝና ቁልፍ ፋይል"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "የተከማቹ ምስክርነቶችን ወደሚያመሰጥረው ባለ 32-ባይት ቁልፍ የሚወስድ ፍጹም ዱካ። ከድር ሥር ውጭ፣ በድር አገልጋዩ እና በፖለር ተጠቃሚው ብቻ ሊነበብ የሚችል፣ root እና ያ ተጠቃሚ ብቻ ሊጽፉበት በሚችሉት ማውጫ ውስጥ (ለምስክርነት ፋይሎችም ተመሳሳይ ነው) ራስዎ ይፍጠሩት፤ ተሰኪው በፍጹም አይፈጥረውም ወይም አይጽፍበትም። ከውሂብ ጎታው ጋር መጠባበቂያ ቅጂ ይውሰዱለት፦ ያለ እሱ የተከማቹ ምስክርነቶች እንደገና መግባት አለባቸው።"
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "የምስክርነት ፋይል ማውጫ"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "የምስክርነት ፋይሎችን ወደያዘው ማውጫ የሚወስድ ፍጹም ዱካ። አንድ መለያ ምስክርነቱን ከፋይል ማንበብ የሚችለው በውስጡ ካለ ፋይል ብቻ ነው፣ የካዝና ቁልፍ ፋይሉን በፍጹም አያነብም። ባዶ መሆኑ (ነባሪው) የምስክርነት ፋይሎችን አይቀበልም። ፋይሉን የCloud አስተዳዳሪ ስለሚመርጥ እዚህ የክላውድ ምስክርነቶችን ብቻ ያስቀምጡ።"
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "ሰብሳቢ"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "የሰብሳቢ ጊዜ በጀት"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "አንድ የሰብሳቢ ሩጫ አዲስ ሥራ መጀመር ከማቆሙ በፊት ሊያጠፋ የሚችለው ሰከንዶች። ከፖለር ክፍተቱ በታች ያድርጉት፤ ያልተጠናቀቁ መለያዎች በሚቀጥለው ሩጫ ይቀጥላሉ።"
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "አራግፍ"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "ሲራገፍ የተሰኪ ሰንጠረዦችን አቆይ"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "ምልክት ሲደረግበት፣ ተሰኪውን ማራገፍ መለያዎቹን፣ የተመሰጠሩ ምስክርነቶቹን እና መሸጎጫውን ያቆያል። ማራገፉ እንዲጥላቸው ምልክቱን ያጥፉ። በሁለቱም መንገድ የክላውድ ሀብቶች በፍጹም አይነኩም።"
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "ገና አልተረጋገጠም።"
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "ምስክርነቱ ይሰራል እና ይህ መለያ የሚፈልጋቸውን ፈቃዶች አሉት።"
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "አቅራቢው ምስክርነቱን ውድቅ አድርጓል። የተሳሳተ፣ ጊዜው ያለፈበት ወይም የተሻረ ሊሆን ይችላል።"
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "ምስክርነቱ ይሰራል ነገር ግን ይህ መለያ የሚፈልገው ፈቃድ የለውም።"
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "አቅራቢው ላይ መድረስ አልተቻለም። የአውታረ መረብ መንገዱን እና ከፖለሩ የሚወጣውን ፖሊሲ ያረጋግጡ።"
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "አቅራቢው ጥያቄዎችን እየገደበ ነው። በኋላ እንደገና ይሞክሩ።"
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "አቅራቢው ተሰኪው ሊያነበው ያልቻለ ምላሽ ልኳል።"
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "መለያው ወይም ምስክርነቱ በትክክል አልተዋቀረም።"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "የCloud ተሰኪው PHP %s ወይም ከዚያ በላይ ይፈልጋል። ይህ አገልጋይ PHP %s ስለሚያሄድ ተሰኪው አልተጫነም ወይም አልነቃም።"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "የCloud ተሰኪው %s የPHP ቅጥያዎችን ይፈልጋል፣ ይህ አገልጋይ ስለማይጭናቸው ተሰኪው አልተጫነም ወይም አልነቃም።"
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "የCloud ተሰኪው አልነቃም።"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "የCloud ተሰኪው PHP %s ወይም ከዚያ በላይ ይፈልጋል።"
+
+#: setup.php
+msgid "Management"
+msgstr "አስተዳደር"

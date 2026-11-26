@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: he-IL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && n % 10 == 0) ? 2 : 3));\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "שם: חשבון אחר כבר משתמש בשם זה."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "החשבון נשמר, אך פרטי האימות לא נשמרו: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "החשבון נשמר, אך לא ניתן היה להסיר את פרטי האימות השמורים."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "החשבון נשמר."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "לא ניתן היה לשמור את החשבון."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "החשבון והנתונים שנאספו עבורו נמחקו. התקני ה-Cacti והגרפים שלו נותרו במקומם."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "התקן ה-Cacti עבור %s מוכן."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "התקן ה-Cacti לא נוצר; עיין ביומן של Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "אמת פרטי אימות שמורים"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "תצוגת ניטור"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "לא ניתן היה לקרוא תצפיות. בקש ממנהל המערכת לבדוק את יומן התוסף."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "בדוק את גרפי החשבון ואת עדכניות האיסוף. אימות בודק את פרטי האימות השמורים; הוא אינו יכול להחליף אותם או לשנות את תצורת הספק."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "ספק: בחר אחד מהספקים הרשומים."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "שם: הזן 1 עד 100 תווים ללא תווי בקרה."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "דוגם: רק הדוגם הראשי יכול לאסוף חשבונות ענן בגרסה זו."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: הערך אינו בתבנית שבה ספק זה משתמש."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "מקור פרטי אימות: בחר מקור שספק זה תומך בו."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "קובץ פרטי אימות: הזן נתיב מוחלט ללא תווי בקרה, באורך של עד 512 תווים."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: הזן מספר שלם של שניות מ-%d עד %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "מרווח איסוף"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "מרווח גילוי"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "נתח בקשות: הזן אחוז שלם מ-1 עד 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "תקרה חודשית: הזן סכום של אפס ומעלה, או השאר ריק ללא הגבלה."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "מזהה חשבון AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "אזורים"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "מזהה פרויקט"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "מזהה דייר"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "מזהה מנוי"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "חשבונות Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "שם"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "ספק"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "פרטי אימות"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "מצב"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "אמת"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "התקן"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "פעולות"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "אין עדיין חשבונות ענן."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "מושבת"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "מופעל"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "מחק"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "חשבון Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "חשבון Cloud חדש"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "מקור פרטי אימות"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "קובץ פרטי אימות"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "פרטי אימות שמורים. השאר ריק כדי לשמור עליהם."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "הדבק את האסימון או המפתח לשמירה בכספת."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "נתח בקשות"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "תקרה חודשית"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "שמור"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "למחוק את %s? פעולה זו מסירה את החשבון, פרטי האימות השמורים שלו, מיפויי הסדרות, המשאבים והתצפיות, ואינה ניתנת לביטול. התקני ה-Cacti והגרפים שלו נותרים במקומם."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "ביטול"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "שמורים בכספת"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "לא שמורים"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "קובץ בדוגם"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "זהות מופע"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "התקן %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "צור התקן Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "שמורים בכספת התוסף"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "קובץ פרטי אימות בדוגם"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "זהות המופע של הדוגם"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "אומדן בקשות Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "חשבון"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "בחירה"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "משאבים"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "בקשות לשעה, משאב אחד"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "בקשות לחודש, משאב אחד"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "בקשות לשעה"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "בקשות לחודש"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "עלות לחודש"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "אין חשבונות לאומדן."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "האומדנים מבוססים על מחירי מחירון ואינם כוללים הנחות ומכסות חינמיות משותפות."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "מחירי %s מתוך"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "נבדק ב-%s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "נאסף כעת"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "כל גרף בכל משאב"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "נתח בקשות: %s בקשות לשעה, %s אחוזים ממגבלת האסימון. נאסף כעת: %s. כל גרף: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "האיסוף מוגבל בתקרה; יתר הסדרות קוראות U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "אומדן מדדים בין ריצות גילוי; בקשות גילוי מפחיתות את מכסת האיסוף."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "לא תועד חיוב"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "מאזן עומסים"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "אזהרות Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "אין אזהרות."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "איסוף Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "איסוף"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "ריצה אחרונה"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "סדרות שנקראו"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "בקשות"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "גילוי"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "נתונים"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "אף פעם"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "ניסיון חוזר בעוד %d שנ'"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "לפני %d שניות"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "לפני %d דקות"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "לפני %d שעות"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "לפני %d ימים"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "לא ניתן להשתמש בקובץ מפתח הכספת: %s. לא ניתן לאמת או לאסוף כאן חשבונות השומרים פרטי אימות בכספת."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: לא ניתן להשתמש בקובץ פרטי האימות: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: מרווח האיסוף של %d שניות קצר ממרווח הדוגם של %d שניות, ולכן האיסוף מתבצע כל %d שניות."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: מרווח האיסוף של %d שניות אינו כפולה של מרווח הדוגם של %d שניות, ולכן האיסוף מתבצע כל %d שניות."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "עיין בתצפיות המתועדות להלן. אישורי צפייה הם אישיים להפעלה זו, פגים כאשר התצפיות משתנות, ולעולם אינם משתיקים התראות או משנים את מצב התקינות."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "פעולות Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "חקירה"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "אובייקט"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "נצפה (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "לא ידוע או מיושן"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "אושר; התקינות לא השתנתה."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "אשר"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "אין תצפיות זמינות עבור התקנים שיש לך גישה אליהם."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "מפעיל Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "תצוגת Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "מנהל Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "תקינות Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "כספת פרטי אימות"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "קובץ מפתח כספת"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "נתיב מוחלט למפתח בן 32 בתים המצפין את פרטי האימות השמורים. צור אותו בעצמך, מחוץ לתיקיית השורש של שרת האינטרנט, לקריאה בלבד עבור שרת האינטרנט ומשתמש הדוגם, בתיקייה שרק root ואותו משתמש יכולים לכתוב אליה (אותו כלל חל על קובצי פרטי אימות); התוסף לעולם אינו יוצר או כותב אותו. גבה אותו יחד עם מסד הנתונים: בלעדיו, יהיה צורך להזין מחדש את פרטי האימות השמורים."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "תיקיית קובצי פרטי אימות"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "נתיב מוחלט לתיקייה המכילה קובצי פרטי אימות. חשבון יכול לקרוא את פרטי האימות שלו מקובץ רק בתוך תיקייה זו, ולעולם לא מקובץ מפתח הכספת. ערך ריק, שהוא ברירת המחדל, דוחה קובצי פרטי אימות. מנהל Cloud בוחר את הקובץ, לכן שמור כאן רק פרטי אימות לענן."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "אוסף"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "תקציב זמן לאוסף"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "מספר השניות שריצת אוסף אחת רשאית לצרוך לפני שתפסיק להתחיל עבודה חדשה. שמור ערך נמוך ממרווח הדוגם; חשבונות שלא הושלמו ממשיכים בריצה הבאה."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "הסרת התקנה"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "שמור את טבלאות התוסף בעת הסרת ההתקנה"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "כאשר אפשרות זו מסומנת, הסרת ההתקנה של התוסף שומרת את החשבונות, פרטי האימות המוצפנים והמטמון שלו. בטל את הסימון כדי שהסרת ההתקנה תסיר אותם. משאבי הענן אינם נפגעים בכל מקרה."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "טרם אומת."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "פרטי האימות תקינים וכוללים את ההרשאות הדרושות לחשבון זה."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "הספק דחה את פרטי האימות. ייתכן שהם שגויים, פגי תוקף או בוטלו."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "פרטי האימות תקינים אך חסרה להם הרשאה הדרושה לחשבון זה."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "לא ניתן היה להגיע אל הספק. בדוק את נתיב הרשת ואת מדיניות התעבורה היוצאת מהדוגם."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "הספק מגביל את קצב הבקשות. נסה שוב מאוחר יותר."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "הספק שלח תגובה שהתוסף לא יכול היה לקרוא."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "החשבון או פרטי האימות שלו אינם מוגדרים כראוי."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "תוסף Cloud דורש PHP %s ומעלה. שרת זה מריץ PHP %s, ולכן התוסף לא הותקן ולא הופעל."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "תוסף Cloud דורש את הרחבות ה-PHP %s, ששרת זה אינו טוען, ולכן התוסף לא הותקן ולא הופעל."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "תוסף Cloud אינו מופעל."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "תוסף Cloud דורש PHP %s ומעלה."
+
+#: setup.php
+msgid "Management"
+msgstr "ניהול"
