@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: ta-IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "பெயர்: மற்றொரு கணக்கு ஏற்கனவே இந்தப் பெயரைப் பயன்படுத்துகிறது."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "கணக்கு சேமிக்கப்பட்டது, ஆனால் நற்சான்றிதழ் சேமிக்கப்படவில்லை: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "கணக்கு சேமிக்கப்பட்டது, ஆனால் சேமிக்கப்பட்ட நற்சான்றிதழை அகற்ற முடியவில்லை."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "கணக்கு சேமிக்கப்பட்டது."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "கணக்கைச் சேமிக்க முடியவில்லை."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "கணக்கும் அதன் சேகரிக்கப்பட்ட தரவும் நீக்கப்பட்டன. அதன் Cacti சாதனங்களும் வரைபடங்களும் அப்படியே விடப்பட்டன."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "%s க்கான Cacti சாதனம் தயாராக உள்ளது."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Cacti சாதனம் உருவாக்கப்படவில்லை; Cacti பதிவைப் பார்க்கவும்."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "சேமிக்கப்பட்ட நற்சான்றிதழைச் சரிபார்"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "கண்காணிப்புப் பார்வை"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "அவதானிப்புகளைப் படிக்க முடியவில்லை. செருகுநிரல் பதிவைச் சரிபார்க்க நிர்வாகியிடம் கேளுங்கள்."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "கணக்கு வரைபடங்களையும் சேகரிப்புப் புதுமையையும் சரிபார்க்கவும். சரிபார்த்தல் சேமிக்கப்பட்ட நற்சான்றிதழைச் சோதிக்கும்; அதனால் அதை மாற்றவோ வழங்குநர் உள்ளமைவை மாற்றவோ முடியாது."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "வழங்குநர்: பட்டியலிடப்பட்ட வழங்குநர்களில் ஒன்றைத் தேர்ந்தெடுக்கவும்."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "பெயர்: கட்டுப்பாட்டு எழுத்துகள் இல்லாமல் 1 முதல் 100 எழுத்துகள் வரை உள்ளிடவும்."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "போல்லர்: இந்த வெளியீட்டில் முதன்மை போல்லரால் மட்டுமே கிளவுட் கணக்குகளைச் சேகரிக்க முடியும்."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: இந்த வழங்குநர் பயன்படுத்தும் வடிவத்தில் மதிப்பு இல்லை."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "நற்சான்றிதழ் மூலம்: இந்த வழங்குநர் ஆதரிக்கும் ஒன்றைத் தேர்ந்தெடுக்கவும்."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "நற்சான்றிதழ் கோப்பு: கட்டுப்பாட்டு எழுத்துகள் இல்லாமல், அதிகபட்சம் 512 எழுத்துகள் கொண்ட முழுமையான பாதையை உள்ளிடவும்."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: %d முதல் %d வரையிலான முழு விநாடிகளை உள்ளிடவும்."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "சேகரிப்பு இடைவெளி"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "கண்டறிதல் இடைவெளி"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "கோரிக்கைப் பங்கு: 1 முதல் 100 வரையிலான முழு சதவீதத்தை உள்ளிடவும்."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "மாதாந்திர உச்சவரம்பு: பூஜ்ஜியம் அல்லது அதற்கு மேற்பட்ட தொகையை உள்ளிடவும், அல்லது எதுவுமில்லை எனில் காலியாக விடவும்."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS கணக்கு ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "பிராந்தியங்கள்"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "திட்ட ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "குத்தகைதாரர் ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "சந்தா ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Cloud கணக்குகள்"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "பெயர்"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "வழங்குநர்"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "நற்சான்றிதழ்"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "நிலை"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "சரிபார்"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "சாதனம்"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "செயல்கள்"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "இதுவரை கிளவுட் கணக்குகள் இல்லை."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "முடக்கப்பட்டது"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "இயக்கப்பட்டது"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "நீக்கு"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Cloud கணக்கு: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "புதிய Cloud கணக்கு"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "நற்சான்றிதழ் மூலம்"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "நற்சான்றிதழ் கோப்பு"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "ஒரு நற்சான்றிதழ் சேமிக்கப்பட்டுள்ளது. அதை வைத்திருக்க காலியாக விடவும்."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "பெட்டகத்தில் சேமிக்க டோக்கன் அல்லது விசையை ஒட்டவும்."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "கோரிக்கைப் பங்கு"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "மாதாந்திர உச்சவரம்பு"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "சேமி"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "%s ஐ நீக்கவா? இது கணக்கு, அதன் சேமிக்கப்பட்ட நற்சான்றிதழ், தொடர் இணைப்புகள், வளங்கள் மற்றும் அவதானிப்புகளை அகற்றும்; இதைத் திரும்பப் பெற முடியாது. அதன் Cacti சாதனங்களும் வரைபடங்களும் அப்படியே விடப்படும்."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "ரத்து செய்"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "பெட்டகத்தில் சேமிக்கப்பட்டது"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "எதுவும் சேமிக்கப்படவில்லை"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "போல்லரில் உள்ள கோப்பு"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "நிகழ்வு அடையாளம்"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "சாதனம் %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Cacti சாதனத்தை உருவாக்கு"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "செருகுநிரல் பெட்டகத்தில் சேமிக்கப்பட்டது"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "போல்லரில் உள்ள நற்சான்றிதழ் கோப்பு"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "போல்லரின் நிகழ்வு அடையாளம்"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Cloud கோரிக்கை மதிப்பீடு"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "கணக்கு"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "தேர்வு"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "வளங்கள்"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "மணிநேரத்திற்கான கோரிக்கைகள், ஒரு வளம்"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "மாதத்திற்கான கோரிக்கைகள், ஒரு வளம்"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "மணிநேரத்திற்கான கோரிக்கைகள்"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "மாதத்திற்கான கோரிக்கைகள்"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "மாதத்திற்கான செலவு"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "மதிப்பிடுவதற்குக் கணக்குகள் இல்லை."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "மதிப்பீடுகள் பட்டியல் விலைகளைப் பயன்படுத்துகின்றன; தள்ளுபடிகள் மற்றும் பகிரப்பட்ட இலவச அடுக்குகளைத் தவிர்க்கின்றன."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s விலைகள் பெறப்பட்ட மூலம்"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "%s அன்று சரிபார்க்கப்பட்டது."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "இப்போது சேகரிக்கப்படுபவை"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "ஒவ்வொரு வளத்திலும் உள்ள ஒவ்வொரு வரைபடமும்"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "கோரிக்கைப் பங்கு: மணிநேரத்திற்கு %s கோரிக்கைகள், டோக்கன் வரம்பில் %s சதவீதம். இப்போது சேகரிக்கப்படுபவை: %s. ஒவ்வொரு வரைபடமும்: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "சேகரிப்பு வரம்பிடப்பட்டுள்ளது; மீதமுள்ள தொடர்கள் U எனப் படிக்கப்படும்."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "கண்டறிதல் இயக்கங்களுக்கு இடையிலான அளவீட்டு மதிப்பீடு; கண்டறிதல் கோரிக்கைகள் சேகரிப்பு ஒதுக்கீட்டைக் குறைக்கின்றன."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "கட்டணம் எதுவும் ஆவணப்படுத்தப்படவில்லை"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "சுமை சமநிலைப்படுத்தி"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cloud எச்சரிக்கைகள்"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "எச்சரிக்கைகள் இல்லை."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Cloud சேகரிப்பு"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "சேகரிப்பு"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "கடைசி இயக்கம்"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "படிக்கப்பட்ட தொடர்கள்"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "கோரிக்கைகள்"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "கண்டறிதல்"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "தரவு"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "ஒருபோதும் இல்லை"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "%d விநாடிகளில் மீண்டும் முயற்சி"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d விநாடிகளுக்கு முன்"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d நிமிடங்களுக்கு முன்"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d மணிநேரங்களுக்கு முன்"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d நாட்களுக்கு முன்"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "பெட்டக விசைக் கோப்பைப் பயன்படுத்த முடியவில்லை: %s. பெட்டகத்தில் நற்சான்றிதழ்களைச் சேமிக்கும் கணக்குகளை இங்கே சரிபார்க்கவோ சேகரிக்கவோ முடியாது."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: நற்சான்றிதழ் கோப்பைப் பயன்படுத்த முடியவில்லை: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: %d விநாடிகள் கொண்ட சேகரிப்பு இடைவெளி %d விநாடிகள் கொண்ட போல்லர் இடைவெளியை விடக் குறைவாக உள்ளதால், இது ஒவ்வொரு %d விநாடிகளுக்கும் சேகரிக்கப்படுகிறது."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: %d விநாடிகள் கொண்ட சேகரிப்பு இடைவெளி %d விநாடிகள் கொண்ட போல்லர் இடைவெளியின் மடங்காக இல்லாததால், இது ஒவ்வொரு %d விநாடிகளுக்கும் சேகரிக்கப்படுகிறது."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "கீழே பதிவுசெய்யப்பட்ட அவதானிப்புகளை மதிப்பாய்வு செய்யவும். ஒப்புதல்கள் இந்த அமர்வுக்குத் தனிப்பட்டவை, அவதானிப்புகள் மாறும்போது காலாவதியாகும், மேலும் எச்சரிக்கைகளைத் தடுக்கவோ நலநிலையை மாற்றவோ செய்யாது."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Cloud செயல்பாடுகள்"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "ஆய்வு"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "பொருள்"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "அவதானிக்கப்பட்டது (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "தெரியாதது அல்லது பழமையானது"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "ஒப்புக்கொள்ளப்பட்டது; நலநிலை மாறவில்லை."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "ஒப்புக்கொள்"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "நீங்கள் அணுகக்கூடிய சாதனங்களுக்கு அவதானிப்புகள் எதுவும் இல்லை."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Cloud இயக்குபவர்"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Cloud பார்வை"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Cloud நிர்வாகி"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Cloud நலநிலை"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "நற்சான்றிதழ் பெட்டகம்"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "பெட்டக விசைக் கோப்பு"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "சேமிக்கப்பட்ட நற்சான்றிதழ்களைக் குறியாக்கம் செய்யும் 32-பைட் விசைக்கான முழுமையான பாதை. வலை மூலத்திற்கு வெளியே, வலை சேவையகம் மற்றும் போல்லர் பயனரால் மட்டுமே படிக்கக்கூடியதாகவும், root மற்றும் அந்தப் பயனர் மட்டுமே எழுதக்கூடிய கோப்பகத்திலும் நீங்களே இதை உருவாக்கவும் (நற்சான்றிதழ் கோப்புகளுக்கும் இதுவே பொருந்தும்); செருகுநிரல் இதை ஒருபோதும் உருவாக்காது அல்லது எழுதாது. தரவுத்தளத்துடன் இதையும் காப்புப்பிரதி எடுக்கவும்: இது இல்லாமல், சேமிக்கப்பட்ட நற்சான்றிதழ்களை மீண்டும் உள்ளிட வேண்டியிருக்கும்."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "நற்சான்றிதழ் கோப்புக் கோப்பகம்"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "நற்சான்றிதழ் கோப்புகளைக் கொண்ட கோப்பகத்திற்கான முழுமையான பாதை. ஒரு கணக்கு அதன் நற்சான்றிதழை அதற்குள் உள்ள கோப்பிலிருந்து மட்டுமே படிக்க முடியும், பெட்டக விசைக் கோப்பிலிருந்து ஒருபோதும் படிக்க முடியாது. இயல்புநிலையாகக் காலியாக இருந்தால் நற்சான்றிதழ் கோப்புகள் மறுக்கப்படும். Cloud நிர்வாகி கோப்பைத் தேர்ந்தெடுப்பதால், இங்கே கிளவுட் நற்சான்றிதழ்களை மட்டுமே வைத்திருக்கவும்."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "சேகரிப்பான்"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "சேகரிப்பான் நேர வரம்பு"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "புதிய பணியைத் தொடங்குவதை நிறுத்துவதற்கு முன்பு ஒரு சேகரிப்பான் இயக்கம் செலவிடக்கூடிய விநாடிகள். இதை போல்லர் இடைவெளிக்குக் கீழே வைத்திருக்கவும்; முடிக்கப்படாத கணக்குகள் அடுத்த இயக்கத்தில் தொடரும்."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "நிறுவல் நீக்கு"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "நிறுவல் நீக்கும்போது செருகுநிரல் அட்டவணைகளை வைத்திரு"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "தேர்ந்தெடுக்கப்பட்டால், செருகுநிரலை நிறுவல் நீக்கும்போது அதன் கணக்குகள், குறியாக்கப்பட்ட நற்சான்றிதழ்கள் மற்றும் தற்காலிக சேமிப்பு ஆகியவை வைத்திருக்கப்படும். நிறுவல் நீக்கம் அவற்றை நீக்க வேண்டுமெனில் தேர்வுநீக்கவும். எந்த வகையிலும் கிளவுட் வளங்கள் தொடப்படாது."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "இன்னும் சரிபார்க்கப்படவில்லை."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "நற்சான்றிதழ் செயல்படுகிறது மற்றும் இந்தக் கணக்குக்குத் தேவையான அனுமதிகளைக் கொண்டுள்ளது."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "வழங்குநர் நற்சான்றிதழை நிராகரித்தார். அது தவறானதாகவோ, காலாவதியானதாகவோ அல்லது ரத்துசெய்யப்பட்டதாகவோ இருக்கலாம்."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "நற்சான்றிதழ் செயல்படுகிறது ஆனால் இந்தக் கணக்குக்குத் தேவையான அனுமதி இல்லை."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "வழங்குநரை அணுக முடியவில்லை. போல்லரிலிருந்து பிணையப் பாதையையும் வெளிச்செல்லும் கொள்கையையும் சரிபார்க்கவும்."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "வழங்குநர் கோரிக்கைகளைக் கட்டுப்படுத்துகிறார். பின்னர் மீண்டும் முயற்சிக்கவும்."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "செருகுநிரலால் படிக்க முடியாத பதிலை வழங்குநர் அனுப்பினார்."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "கணக்கு அல்லது அதன் நற்சான்றிதழ் சரியாக உள்ளமைக்கப்படவில்லை."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Cloud செருகுநிரலுக்கு PHP %s அல்லது அதற்குப் பிந்தைய பதிப்பு தேவை. இந்தச் சேவையகம் PHP %s ஐ இயக்குகிறது, எனவே செருகுநிரல் நிறுவப்படவில்லை அல்லது இயக்கப்படவில்லை."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Cloud செருகுநிரலுக்கு PHP நீட்டிப்புகள் %s தேவை, ஆனால் இந்தச் சேவையகம் அவற்றை ஏற்றவில்லை, எனவே செருகுநிரல் நிறுவப்படவில்லை அல்லது இயக்கப்படவில்லை."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Cloud செருகுநிரல் இயக்கப்படவில்லை."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Cloud செருகுநிரலுக்கு PHP %s அல்லது அதற்குப் பிந்தைய பதிப்பு தேவை."
+
+#: setup.php
+msgid "Management"
+msgstr "மேலாண்மை"

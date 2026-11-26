@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: th-TH\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "ชื่อ: มีบัญชีอื่นใช้ชื่อนี้อยู่แล้ว"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "บันทึกบัญชีแล้ว แต่ไม่สามารถจัดเก็บข้อมูลรับรองได้: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "บันทึกบัญชีแล้ว แต่ไม่สามารถลบข้อมูลรับรองที่จัดเก็บไว้ได้"
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "บันทึกบัญชีแล้ว"
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "ไม่สามารถบันทึกบัญชีได้"
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "ลบบัญชีและข้อมูลที่เก็บได้แล้ว ส่วนอุปกรณ์และกราฟของ Cacti ยังคงอยู่ตามเดิม"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "อุปกรณ์ Cacti สำหรับ %s พร้อมใช้งานแล้ว"
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "ไม่ได้สร้างอุปกรณ์ Cacti โปรดดูบันทึกของ Cacti"
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "ตรวจสอบข้อมูลรับรองที่จัดเก็บไว้"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "มุมมองการติดตามตรวจสอบ"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "ไม่สามารถอ่านผลการสังเกตการณ์ได้ โปรดแจ้งผู้ดูแลระบบให้ตรวจสอบบันทึกของปลั๊กอิน"
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "ตรวจสอบกราฟของบัญชีและความเป็นปัจจุบันของการเก็บข้อมูล การตรวจสอบจะทดสอบข้อมูลรับรองที่จัดเก็บไว้เท่านั้น ไม่สามารถแทนที่หรือเปลี่ยนแปลงการตั้งค่าของผู้ให้บริการได้"
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "ผู้ให้บริการ: โปรดเลือกจากรายชื่อผู้ให้บริการที่กำหนด"
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "ชื่อ: ป้อนอักขระ 1 ถึง 100 ตัวโดยไม่มีอักขระควบคุม"
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "โพลเลอร์: ในรุ่นนี้เฉพาะโพลเลอร์หลักเท่านั้นที่สามารถเก็บข้อมูลบัญชี Cloud ได้"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: ค่าที่ป้อนไม่ตรงตามรูปแบบที่ผู้ให้บริการรายนี้ใช้"
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "แหล่งที่มาของข้อมูลรับรอง: โปรดเลือกรูปแบบที่ผู้ให้บริการรายนี้รองรับ"
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "ไฟล์ข้อมูลรับรอง: ป้อนพาธแบบเต็มโดยไม่มีอักขระควบคุม ความยาวไม่เกิน 512 อักขระ"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: ป้อนจำนวนเต็มเป็นวินาทีตั้งแต่ %d ถึง %d"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "ช่วงเวลาการเก็บข้อมูล"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "ช่วงเวลาการค้นหา"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "สัดส่วนคำขอ: ป้อนเปอร์เซ็นต์เป็นจำนวนเต็มตั้งแต่ 1 ถึง 100"
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "เพดานรายเดือน: ป้อนจำนวนตั้งแต่ศูนย์ขึ้นไป หรือเว้นว่างไว้หากไม่ต้องการกำหนด"
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "รหัสบัญชี AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "ภูมิภาค"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "รหัสโปรเจกต์"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "รหัส Tenant"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "รหัส Subscription"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "บัญชี Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "ชื่อ"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "ผู้ให้บริการ"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "ข้อมูลรับรอง"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "สถานะ"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "ตรวจสอบ"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "อุปกรณ์"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "การดำเนินการ"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "ยังไม่มีบัญชี Cloud"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "ปิดใช้งาน"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "เปิดใช้งาน"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "ลบ"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "บัญชี Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "บัญชี Cloud ใหม่"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "แหล่งที่มาของข้อมูลรับรอง"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "ไฟล์ข้อมูลรับรอง"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "มีข้อมูลรับรองที่จัดเก็บไว้แล้ว เว้นว่างไว้หากต้องการคงค่าเดิม"
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "วางโทเคนหรือคีย์เพื่อจัดเก็บในคลังข้อมูลลับ"
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "สัดส่วนคำขอ"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "เพดานรายเดือน"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "บันทึก"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "ลบ %s หรือไม่ การดำเนินการนี้จะลบบัญชี ข้อมูลรับรองที่จัดเก็บไว้ การจับคู่ชุดข้อมูล ทรัพยากร และผลการสังเกตการณ์ออกทั้งหมด และไม่สามารถย้อนกลับได้ ส่วนอุปกรณ์และกราฟของ Cacti จะยังคงอยู่ตามเดิม"
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "จัดเก็บในคลังข้อมูลลับ"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "ไม่ได้จัดเก็บไว้"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "ไฟล์บนโพลเลอร์"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "ข้อมูลระบุตัวตนของอินสแตนซ์"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "อุปกรณ์ %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "สร้างอุปกรณ์ Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "จัดเก็บในคลังข้อมูลลับของปลั๊กอิน"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "ไฟล์ข้อมูลรับรองบนโพลเลอร์"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "ข้อมูลระบุตัวตนอินสแตนซ์ของโพลเลอร์"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "ประมาณการคำขอ Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "บัญชี"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "รายการที่เลือก"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "ทรัพยากร"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "คำขอต่อชั่วโมง (หนึ่งทรัพยากร)"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "คำขอต่อเดือน (หนึ่งทรัพยากร)"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "คำขอต่อชั่วโมง"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "คำขอต่อเดือน"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "ค่าใช้จ่ายต่อเดือน"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "ไม่มีบัญชีสำหรับประมาณการ"
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "การประมาณการใช้อัตราค่าบริการปกติ โดยไม่รวมส่วนลดและโควตาใช้งานฟรีที่ใช้ร่วมกัน"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "ราคาของ %s จาก"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "ตรวจสอบเมื่อ %s"
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "เก็บข้อมูลอยู่ในปัจจุบัน"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "ทุกกราฟในทุกทรัพยากร"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "สัดส่วนคำขอ: %s คำขอต่อชั่วโมง (%s เปอร์เซ็นต์ของขีดจำกัดโทเคน) เก็บข้อมูลอยู่ในปัจจุบัน: %s ทุกกราฟ: %s"
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "การเก็บข้อมูลถึงขีดจำกัดที่กำหนดไว้ ชุดข้อมูลที่เหลือจะอ่านค่าเป็น U"
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "ประมาณการเมทริกระหว่างรอบการค้นหา คำขอค้นหาจะลดโควตาสำหรับการเก็บข้อมูล"
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "ไม่มีระบุค่าบริการ"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Load Balancer"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "คำเตือน Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "ไม่มีคำเตือน"
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "การเก็บข้อมูล Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "การเก็บข้อมูล"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "การทำงานล่าสุด"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "ชุดข้อมูลที่อ่าน"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "คำขอ"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "การค้นหา"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "ข้อมูล"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "ไม่เคย"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "ลองใหม่ใน %d วินาที"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d วินาทีที่แล้ว"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d นาทีที่แล้ว"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d ชั่วโมงที่แล้ว"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d วันที่แล้ว"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "ไม่สามารถใช้ไฟล์คีย์คลังข้อมูลลับได้: %s บัญชีที่จัดเก็บข้อมูลรับรองในคลังข้อมูลลับจึงไม่สามารถตรวจสอบหรือเก็บข้อมูลที่นี่ได้"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: ไม่สามารถใช้ไฟล์ข้อมูลรับรองได้: %s"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: ช่วงเวลาการเก็บข้อมูล %d วินาทีสั้นกว่าช่วงเวลาของโพลเลอร์ %d วินาที ดังนั้นระบบจะเก็บข้อมูลทุก %d วินาที"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: ช่วงเวลาการเก็บข้อมูล %d วินาทีไม่เป็นพหุคูณของช่วงเวลาโพลเลอร์ %d วินาที ดังนั้นระบบจะเก็บข้อมูลทุก %d วินาที"
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "ตรวจสอบผลการสังเกตการณ์ที่บันทึกไว้ด้านล่าง การรับทราบมีผลเฉพาะในเซสชันนี้ จะหมดอายุเมื่อผลการสังเกตการณ์เปลี่ยนแปลง และจะไม่ระงับการแจ้งเตือนหรือเปลี่ยนสถานะสุขภาพ"
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "การปฏิบัติการ Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "การตรวจสอบเชิงลึก"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "ออบเจ็กต์"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "เวลาที่สังเกตการณ์ (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "ไม่ทราบค่าหรือข้อมูลเก่า"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "รับทราบแล้ว สถานะสุขภาพยังคงเดิม"
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "รับทราบ"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "ไม่มีผลการสังเกตการณ์สำหรับอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง"
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "ผู้ปฏิบัติการ Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "มุมมอง Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "ผู้ดูแลระบบ Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "สถานะสุขภาพ Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "คลังข้อมูลรับรองลับ"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "ไฟล์คีย์คลังข้อมูลลับ"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "พาธแบบเต็มไปยังคีย์ขนาด 32 ไบต์ที่ใช้เข้ารหัสข้อมูลรับรองที่จัดเก็บไว้ คุณต้องสร้างไฟล์นี้เองนอกไดเรกทอรีรากของเว็บ โดยให้เฉพาะผู้ใช้เว็บเซิร์ฟเวอร์และโพลเลอร์อ่านได้ ในไดเรกทอรีที่มีเพียง root และผู้ใช้นั้นเท่านั้นที่เขียนได้ (ใช้หลักการเดียวกันกับไฟล์ข้อมูลรับรอง) ปลั๊กอินจะไม่สร้างหรือเขียนไฟล์นี้ โปรดสำรองข้อมูลไฟล์นี้พร้อมกับฐานข้อมูล หากไม่มีไฟล์นี้จะต้องป้อนข้อมูลรับรองที่จัดเก็บไว้ใหม่อีกครั้ง"
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "ไดเรกทอรีไฟล์ข้อมูลรับรอง"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "พาธแบบเต็มไปยังไดเรกทอรีที่เก็บไฟล์ข้อมูลรับรอง บัญชีสามารถอ่านข้อมูลรับรองได้จากไฟล์ภายในไดเรกทอรีนี้เท่านั้น และห้ามใช้ไฟล์คีย์คลังข้อมูลลับ หากเว้นว่างไว้ (ค่าเริ่มต้น) ระบบจะไม่อนุญาตให้ใช้ไฟล์ข้อมูลรับรอง ผู้ดูแลระบบ Cloud เป็นผู้เลือกไฟล์ ดังนั้นโปรดเก็บเฉพาะข้อมูลรับรองของ Cloud ไว้ที่นี่"
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "ตัวเก็บข้อมูล"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "กรอบเวลาของตัวเก็บข้อมูล"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "จำนวนวินาทีที่การรันตัวเก็บข้อมูลหนึ่งรอบสามารถใช้ได้ก่อนที่จะหยุดเริ่มงานใหม่ โปรดตั้งค่าให้น้อยกว่าช่วงเวลาของโพลเลอร์ บัญชีที่ยังดำเนินการไม่เสร็จจะทำต่อในรอบถัดไป"
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "ถอนการติดตั้ง"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "เก็บตารางของปลั๊กอินไว้เมื่อถอนการติดตั้ง"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "เมื่อเลือกตัวเลือกนี้ การถอนการติดตั้งปลั๊กอินจะยังคงเก็บบัญชี ข้อมูลรับรองที่เข้ารหัส และแคชไว้ หากนำเครื่องหมายออก การถอนการติดตั้งจะลบข้อมูลเหล่านั้น ทั้งสองกรณีจะไม่มีการแตะต้องทรัพยากรบน Cloud"
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "ยังไม่ได้ตรวจสอบ"
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "ข้อมูลรับรองใช้งานได้และมีสิทธิ์ตามที่บัญชีนี้ต้องการ"
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "ผู้ให้บริการปฏิเสธข้อมูลรับรอง อาจไม่ถูกต้อง หมดอายุ หรือถูกเพิกถอนแล้ว"
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "ข้อมูลรับรองใช้งานได้ แต่ขาดสิทธิ์ที่บัญชีนี้ต้องการ"
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "ไม่สามารถติดต่อผู้ให้บริการได้ โปรดตรวจสอบเส้นทางเครือข่ายและนโยบายขาออกจากโพลเลอร์"
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "ผู้ให้บริการกำลังจำกัดอัตราคำขอ โปรดลองอีกครั้งในภายหลัง"
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "ผู้ให้บริการส่งการตอบกลับที่ปลั๊กอินไม่สามารถอ่านได้"
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "บัญชีหรือข้อมูลรับรองยังไม่ได้ตั้งค่าอย่างถูกต้อง"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "ปลั๊กอิน Cloud ต้องใช้ PHP %s ขึ้นไป เซิร์ฟเวอร์นี้ใช้ PHP %s จึงไม่ได้ติดตั้งหรือเปิดใช้งานปลั๊กอิน"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "ปลั๊กอิน Cloud ต้องใช้ส่วนขยาย PHP %s ซึ่งเซิร์ฟเวอร์นี้ไม่ได้โหลดไว้ จึงไม่ได้ติดตั้งหรือเปิดใช้งานปลั๊กอิน"
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "ปลั๊กอิน Cloud ยังไม่ได้เปิดใช้งาน"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "ปลั๊กอิน Cloud ต้องใช้ PHP %s ขึ้นไป"
+
+#: setup.php
+msgid "Management"
+msgstr "การจัดการ"

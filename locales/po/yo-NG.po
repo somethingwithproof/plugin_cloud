@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: yo-NG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Orúkọ: àkọ́ọ̀lẹ̀ mìíràn ti ń lo orúkọ yìí tẹ́lẹ̀."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "A ti fi àkọ́ọ̀lẹ̀ náà pamọ́, ṣùgbọ́n a kò fi ìwé-ẹ̀rí náà pamọ́: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "A ti fi àkọ́ọ̀lẹ̀ náà pamọ́, ṣùgbọ́n a kò le yọ ìwé-ẹ̀rí tí a fi pamọ́ kúrò."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "A ti fi àkọ́ọ̀lẹ̀ náà pamọ́."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "A kò le fi àkọ́ọ̀lẹ̀ náà pamọ́."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "A ti pa àkọ́ọ̀lẹ̀ náà àti dátà rẹ̀ tí a gbà rẹ́. A fi àwọn ẹ̀rọ Cacti àti àwọn àwòrán ìtọ́ka rẹ̀ síbẹ̀."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Ẹ̀rọ Cacti fún %s ti ṣetán."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "A kò dá ẹ̀rọ Cacti náà; wo àkọsílẹ̀ Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Ṣàyẹ̀wò ìwé-ẹ̀rí tí a fi pamọ́"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Ìwòran àbójútó"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "A kò le ka àwọn àkíyèsí. Béèrè lọ́wọ́ alákòóso láti ṣàyẹ̀wò àkọsílẹ̀ àfikún náà."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Ṣàyẹ̀wò àwọn àwòrán ìtọ́ka àkọ́ọ̀lẹ̀ àti bí ìkójọpọ̀ ṣe jẹ́ tuntun tó. Ṣàyẹ̀wò máa ń dán ìwé-ẹ̀rí tí a fi pamọ́ wò; kò le rọ́pò rẹ̀ tàbí yí ìṣètò olùpèsè padà."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Olùpèsè: yan ọ̀kan nínú àwọn olùpèsè tí a tò lẹ́sẹẹsẹ."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Orúkọ: tẹ àmì-ìkọ̀wé 1 sí 100 láìsí àwọn àmì ìdarí."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: poller pàtàkì nìkan ló le kó àwọn àkọ́ọ̀lẹ̀ Cloud jọ nínú àtẹ̀jáde yìí."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: iye náà kò ní ìrísí tí olùpèsè yìí ń lò."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Orísun Ìwé-ẹ̀rí: yan ọ̀kan tí olùpèsè yìí ṣe àtìlẹ́yìn fún."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Fáìlì Ìwé-ẹ̀rí: tẹ ọ̀nà kíkún láìsí àwọn àmì ìdarí, ó pọ̀ jù àmì-ìkọ̀wé 512."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: tẹ ìṣẹ́jú-àáyá odidi láti %d sí %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Àlàfo Àkókò Ìkójọpọ̀"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Àlàfo Àkókò Ìwárí"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Ìpín Ìbéèrè: tẹ ìdá-ọgọ́rùn-ún odidi láti 1 sí 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Òpin Oṣooṣù: tẹ iye tí ó jẹ́ òdo tàbí jù bẹ́ẹ̀ lọ, tàbí fi sílẹ̀ ní òfo fún àìsí òpin."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID Àkọ́ọ̀lẹ̀ AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Àwọn Agbègbè"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID Iṣẹ́-àkànṣe"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID Tenant"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID Ìforúkọsílẹ̀"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Àwọn Àkọ́ọ̀lẹ̀ Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Orúkọ"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Olùpèsè"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Ìwé-ẹ̀rí"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Ipò"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Ṣàyẹ̀wò"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Ẹ̀rọ"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Àwọn Ìgbésẹ̀"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Kò sí àwọn àkọ́ọ̀lẹ̀ Cloud kankan síbẹ̀."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Àìṣiṣẹ́"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Ṣíṣiṣẹ́"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Pa rẹ́"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Àkọ́ọ̀lẹ̀ Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Àkọ́ọ̀lẹ̀ Cloud Tuntun"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Orísun Ìwé-ẹ̀rí"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Fáìlì Ìwé-ẹ̀rí"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "A ti fi ìwé-ẹ̀rí kan pamọ́. Fi sílẹ̀ ní òfo láti dá a dúró."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Lẹ̀ mọ́ tókìn tàbí kọ́kọ́rọ́ náà láti fi pamọ́ sínú àpótí ìpamọ́."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Ìpín Ìbéèrè"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Òpin Oṣooṣù"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Fi pamọ́"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Ṣé kí a pa %s rẹ́? Èyí yóò mú àkọ́ọ̀lẹ̀ náà, ìwé-ẹ̀rí rẹ̀ tí a fi pamọ́, ìsopọ̀ àwọn sẹ́rììsì, àwọn ohun-èlò àti àwọn àkíyèsí kúrò, kò sì ṣe é dá padà. A fi àwọn ẹ̀rọ Cacti àti àwọn àwòrán ìtọ́ka rẹ̀ síbẹ̀."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Fagilé"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "A fi pamọ́ sínú àpótí ìpamọ́"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Kò sí èyí tí a fi pamọ́"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Fáìlì lórí poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Ìdánimọ̀ ẹ̀dà"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Ẹ̀rọ %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Dá Ẹ̀rọ Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "A fi pamọ́ sínú àpótí ìpamọ́ àfikún"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Fáìlì ìwé-ẹ̀rí lórí poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Ìdánimọ̀ ẹ̀dà ti poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Ìṣirò Ìbéèrè Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Àkọ́ọ̀lẹ̀"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Àṣàyàn"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Àwọn Ohun-èlò"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Ìbéèrè ní Wákàtí Kan, Ohun-èlò Kan"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Ìbéèrè ní Oṣù Kan, Ohun-èlò Kan"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Ìbéèrè ní Wákàtí Kan"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Ìbéèrè ní Oṣù Kan"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Iye Owó ní Oṣù Kan"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Kò sí àkọ́ọ̀lẹ̀ kankan láti ṣírò."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Àwọn ìṣirò ń lo iye owó àtòkọ, wọ́n sì yọ ẹ̀dínwó àti àwọn ìpele ọ̀fẹ́ tí a pín kúrò."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Àwọn iye owó %s láti"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "ṣàyẹ̀wò %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Tí a kó jọ báyìí"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Gbogbo àwòrán ìtọ́ka lórí gbogbo ohun-èlò"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Ìpín ìbéèrè: ìbéèrè %s ní wákàtí kan, ìdá %s nínú ọgọ́rùn-ún òpin tókìn. Tí a kó jọ báyìí: %s. Gbogbo àwòrán ìtọ́ka: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Ìkójọpọ̀ ní òpin; àwọn sẹ́rììsì tí ó kù ń ka U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Ìṣirò ìwọ̀n láàárín àwọn ìṣiṣẹ́ ìwárí; àwọn ìbéèrè ìwárí máa ń dín ààyè ìkójọpọ̀ kù."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Kò sí owó tí a kọ sílẹ̀"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Olùpín Ẹrù"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Àwọn Ìkìlọ̀ Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Kò sí ìkìlọ̀ kankan."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Ìkójọpọ̀ Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Ìkójọpọ̀"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Ìṣiṣẹ́ Tí Ó Kẹ́yìn"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Sẹ́rììsì Tí A Kà"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Àwọn Ìbéèrè"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Ìwárí"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Dátà"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Láéláé"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "tún gbìyànjú láàárín %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "ìṣẹ́jú-àáyá %d sẹ́yìn"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "ìṣẹ́jú %d sẹ́yìn"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "wákàtí %d sẹ́yìn"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "ọjọ́ %d sẹ́yìn"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "A kò le lo fáìlì kọ́kọ́rọ́ àpótí ìpamọ́: %s. A kò le ṣàyẹ̀wò tàbí kó àwọn àkọ́ọ̀lẹ̀ tí ó ń fi ìwé-ẹ̀rí pamọ́ sínú àpótí ìpamọ́ jọ níbí."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: a kò le lo fáìlì ìwé-ẹ̀rí náà: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: àlàfo àkókò ìkójọpọ̀ ti ìṣẹ́jú-àáyá %d kéré sí àlàfo àkókò poller ti ìṣẹ́jú-àáyá %d, nítorí náà a ń kó o jọ ní gbogbo ìṣẹ́jú-àáyá %d."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: àlàfo àkókò ìkójọpọ̀ ti ìṣẹ́jú-àáyá %d kì í ṣe ìlọ́po àlàfo àkókò poller ti ìṣẹ́jú-àáyá %d, nítorí náà a ń kó o jọ ní gbogbo ìṣẹ́jú-àáyá %d."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Ṣàyẹ̀wò àwọn àkíyèsí tí a kọ sílẹ̀ ní ìsàlẹ̀ yìí. Àwọn ìjẹ́rìísí wà fún ìgbà ìpàdé yìí nìkan, wọ́n ń dópin nígbà tí àwọn àkíyèsí bá yí padà, wọn kì í sì í dín àwọn ìtanijí kù tàbí yí ìlera padà."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Àwọn Iṣẹ́ Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Ìwádìí"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Ohun"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Àkíyèsí (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Àìmọ̀ tàbí ó ti pẹ́"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "A ti jẹ́rìí sí i; ìlera kò yí padà."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Jẹ́rìí sí i"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Kò sí àkíyèsí kankan fún àwọn ẹ̀rọ tí o ní ààyè sí."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Olùṣiṣẹ́ Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Ìwòran Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Alákòóso Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Ìlera Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Àpótí Ìpamọ́ Ìwé-ẹ̀rí"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Fáìlì Kọ́kọ́rọ́ Àpótí Ìpamọ́"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Ọ̀nà kíkún sí kọ́kọ́rọ́ 32-byte tí ó ń ṣe ìfọ̀rọ̀pamọ́ àwọn ìwé-ẹ̀rí tí a fi pamọ́. Dá a fúnra rẹ, níta gbòǹgbò wẹ́ẹ̀bù, kí olùpèsè wẹ́ẹ̀bù àti olùlò poller nìkan lè kà á, nínú àpò ìkówèésí tí root àti olùlò náà nìkan lè kọ sí (ohun kan náà kan àwọn fáìlì ìwé-ẹ̀rí); àfikún náà kì í dá a tàbí kọ sí i láéláé. Ṣe àfẹ̀yìntì rẹ̀ pẹ̀lú ibi ìpamọ́ dátà: láìsí i, a gbọ́dọ̀ tún àwọn ìwé-ẹ̀rí tí a fi pamọ́ tẹ̀ sí i."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Àpò Ìkówèésí Fáìlì Ìwé-ẹ̀rí"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Ọ̀nà kíkún sí àpò ìkówèésí tí ó ní àwọn fáìlì ìwé-ẹ̀rí. Àkọ́ọ̀lẹ̀ kan lè ka ìwé-ẹ̀rí rẹ̀ láti inú fáìlì kan níbẹ̀ nìkan, kì í ṣe fáìlì kọ́kọ́rọ́ àpótí ìpamọ́ láéláé. Òfo, èyí tí ó jẹ́ àkọ́bẹ̀rẹ̀, ń kọ̀ àwọn fáìlì ìwé-ẹ̀rí. Alákòóso Cloud ni ó ń yan fáìlì náà, nítorí náà fi àwọn ìwé-ẹ̀rí Cloud nìkan pamọ́ síbí."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Olùkójọpọ̀"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Ìṣirò Àkókò Olùkójọpọ̀"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Ìṣẹ́jú-àáyá tí ìṣiṣẹ́ olùkójọpọ̀ kan lè lò kí ó tó dáwọ́ bẹ̀rẹ̀ iṣẹ́ tuntun dúró. Jẹ́ kí ó kéré sí àlàfo àkókò poller; àwọn àkọ́ọ̀lẹ̀ tí kò parí yóò tẹ̀síwájú ní ìṣiṣẹ́ tó kàn."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Yọ kúrò"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Pa Àwọn Tábìlì Àfikún Mọ́ Nígbà Yíyọ Kúrò"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Nígbà tí a bá sàmì sí i, yíyọ àfikún náà kúrò yóò pa àwọn àkọ́ọ̀lẹ̀ rẹ̀, àwọn ìwé-ẹ̀rí tí a ṣe ìfọ̀rọ̀pamọ́ fún, àti ibi ìpamọ́ ìgbà díẹ̀ mọ́. Yọ àmì kúrò kí yíyọ kúrò lè pa wọ́n rẹ́. A kò fi ọwọ́ kan àwọn ohun-èlò Cloud lọ́nàkọnà."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "A kò tíì ṣàyẹ̀wò rẹ̀ síbẹ̀."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Ìwé-ẹ̀rí náà ń ṣiṣẹ́, ó sì ní àwọn àṣẹ tí àkọ́ọ̀lẹ̀ yìí nílò."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Olùpèsè náà kọ̀ ìwé-ẹ̀rí náà. Ó lè jẹ́ àṣìṣe, ó ti parí àkókò, tàbí a ti fagi lé e."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Ìwé-ẹ̀rí náà ń ṣiṣẹ́ ṣùgbọ́n ó kù àṣẹ kan tí àkọ́ọ̀lẹ̀ yìí nílò."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "A kò le dé ọ̀dọ̀ olùpèsè náà. Ṣàyẹ̀wò ọ̀nà nẹ́tíwọ́ọ̀kì àti ìlànà ìjáde láti ọ̀dọ̀ poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Olùpèsè náà ń dín iyàrá àwọn ìbéèrè kù. Gbìyànjú lẹ́ẹ̀kan sí i nígbà mìíràn."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Olùpèsè náà fi ìdáhùn tí àfikún náà kò le kà ránṣẹ́."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "A kò ṣe ìṣètò àkọ́ọ̀lẹ̀ náà tàbí ìwé-ẹ̀rí rẹ̀ lọ́nà tí ó tọ́."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Àfikún Cloud nílò PHP %s tàbí tuntun jù bẹ́ẹ̀ lọ. Olùpèsè-ẹ̀rọ yìí ń lo PHP %s, nítorí náà a kò fi àfikún náà sórí ẹ̀rọ tàbí mú un ṣiṣẹ́."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Àfikún Cloud nílò àwọn ìfẹ̀sí PHP %s, tí olùpèsè-ẹ̀rọ yìí kò gbé sórí, nítorí náà a kò fi àfikún náà sórí ẹ̀rọ tàbí mú un ṣiṣẹ́."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Àfikún Cloud kò sí ní ipò ìṣiṣẹ́."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Àfikún Cloud nílò PHP %s tàbí tuntun jù bẹ́ẹ̀ lọ."
+
+#: setup.php
+msgid "Management"
+msgstr "Ìṣàkóso"

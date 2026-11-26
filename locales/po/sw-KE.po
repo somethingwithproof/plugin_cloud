@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: sw-KE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Jina: akaunti nyingine tayari inatumia jina hili."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Akaunti ilihifadhiwa, lakini kitambulisho hakikuhifadhiwa: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Akaunti ilihifadhiwa, lakini kitambulisho kilichohifadhiwa hakikuweza kuondolewa."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Akaunti ilihifadhiwa."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Akaunti haikuweza kuhifadhiwa."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Akaunti na data yake iliyokusanywa vilifutwa. Vifaa vyake vya Cacti na grafu zake viliachwa mahali pake."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Kifaa cha Cacti cha %s kiko tayari."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Kifaa cha Cacti hakikuundwa; tazama kumbukumbu ya Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Thibitisha kitambulisho kilichohifadhiwa"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Mwonekano wa ufuatiliaji"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Maangalizo hayakuweza kusomwa. Mwombe msimamizi aangalie kumbukumbu ya programu-jalizi."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Angalia grafu za akaunti na upya wa ukusanyaji. Thibitisha hupima kitambulisho kilichohifadhiwa; haiwezi kukibadilisha au kubadilisha mipangilio ya mtoa huduma."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Mtoa huduma: chagua mmoja wa watoa huduma walioorodheshwa."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Jina: weka vibambo 1 hadi 100 bila vibambo vya udhibiti."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: ni poller kuu pekee inayoweza kukusanya akaunti za cloud katika toleo hili."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: thamani haina muundo ambao mtoa huduma huyu hutumia."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Chanzo cha Kitambulisho: chagua kimoja kinachoungwa mkono na mtoa huduma huyu."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Faili ya Kitambulisho: weka njia kamili bila vibambo vya udhibiti, isiyozidi vibambo 512."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: weka sekunde kamili kuanzia %d hadi %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Kipindi cha Ukusanyaji"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Kipindi cha Ugunduzi"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Sehemu ya Maombi: weka asilimia kamili kuanzia 1 hadi 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Kikomo cha Kila Mwezi: weka kiasi cha sifuri au zaidi, au kiache wazi ikiwa hakuna."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID ya Akaunti ya AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Maeneo"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID ya Mradi"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID ya Tenant"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID ya Usajili"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Akaunti za Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Jina"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Mtoa huduma"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Kitambulisho"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Hali"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Thibitisha"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Kifaa"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Vitendo"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Bado hakuna akaunti za cloud."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Imezimwa"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Imewashwa"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Futa"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Akaunti ya Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Akaunti Mpya ya Cloud"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Chanzo cha Kitambulisho"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Faili ya Kitambulisho"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Kitambulisho kimehifadhiwa. Acha wazi ili kubaki nacho."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Bandika tokeni au ufunguo wa kuhifadhi kwenye vault."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Sehemu ya Maombi"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Kikomo cha Kila Mwezi"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Hifadhi"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Futa %s? Hii huondoa akaunti, kitambulisho chake kilichohifadhiwa, ramani za misururu, rasilimali na maangalizo, na haiwezi kutenduliwa. Vifaa vyake vya Cacti na grafu zake huachwa mahali pake."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Imehifadhiwa kwenye vault"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Hakuna kilichohifadhiwa"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Faili kwenye poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Utambulisho wa instance"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Kifaa %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Unda Kifaa cha Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Imehifadhiwa kwenye vault ya programu-jalizi"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Faili ya kitambulisho kwenye poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Utambulisho wa instance wa poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Kadirio la Maombi ya Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Akaunti"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Uteuzi"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Rasilimali"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Maombi kwa Saa, Rasilimali Moja"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Maombi kwa Mwezi, Rasilimali Moja"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Maombi kwa Saa"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Maombi kwa Mwezi"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Gharama kwa Mwezi"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Hakuna akaunti za kukadiria."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Makadirio hutumia bei za orodha na hayajumuishi punguzo na viwango vya bure vinavyoshirikiwa."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Bei za %s kutoka"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "ziliangaliwa %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Vinavyokusanywa sasa"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Kila grafu kwenye kila rasilimali"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Sehemu ya maombi: maombi %s kwa saa, asilimia %s ya kikomo cha tokeni. Vinavyokusanywa sasa: %s. Kila grafu: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Ukusanyaji umewekewa kikomo; misururu iliyobaki husoma U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Kadirio la vipimo kati ya uendeshaji wa ugunduzi; maombi ya ugunduzi hupunguza mgao wa ukusanyaji."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Hakuna gharama iliyorekodiwa"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Load Balancer"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Maonyo ya Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Hakuna maonyo."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Ukusanyaji wa Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Ukusanyaji"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Uendeshaji wa Mwisho"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Misururu Iliyosomwa"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Maombi"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Ugunduzi"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Data"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Kamwe"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "jaribu tena baada ya sekunde %d"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "sekunde %d zilizopita"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "dakika %d zilizopita"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "saa %d zilizopita"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "siku %d zilizopita"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Faili ya ufunguo wa vault haiwezi kutumika: %s. Akaunti zinazohifadhi vitambulisho kwenye vault haziwezi kuthibitishwa au kukusanywa hapa."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: faili ya kitambulisho haiwezi kutumika: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: kipindi cha ukusanyaji cha sekunde %d ni kifupi kuliko kipindi cha poller cha sekunde %d, kwa hivyo hukusanywa kila baada ya sekunde %d."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: kipindi cha ukusanyaji cha sekunde %d si kigawe cha kipindi cha poller cha sekunde %d, kwa hivyo hukusanywa kila baada ya sekunde %d."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Kagua maangalizo yaliyorekodiwa hapa chini. Utambuzi ni wa kipindi hiki cha mtumiaji pekee, huisha wakati maangalizo yanapobadilika, na kamwe hauzuii arifa au kubadilisha afya."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Uendeshaji wa Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Uchunguzi"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Kipengee"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Ilionekana (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Haijulikani au imepitwa na wakati"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Imetambuliwa; afya haijabadilika."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Tambua"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Hakuna maangalizo yanayopatikana kwa vifaa unavyoweza kufikia."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Mwendeshaji wa Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Mwonekano wa Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Msimamizi wa Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Afya ya Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Vault ya Vitambulisho"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Faili ya Ufunguo wa Vault"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Njia kamili ya ufunguo wa baiti 32 unaosimba vitambulisho vilivyohifadhiwa. Iunde mwenyewe, nje ya mzizi wa wavuti, ikiwa inaweza kusomwa na seva ya wavuti na mtumiaji wa poller pekee, katika saraka ambayo root na mtumiaji huyo pekee ndio wanaoweza kuandika (hali kadhalika kwa faili za vitambulisho); programu-jalizi kamwe haiundi au kuiandika. Ihifadhi nakala pamoja na hifadhidata: bila hiyo, vitambulisho vilivyohifadhiwa lazima viwekwe tena."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Saraka ya Faili za Vitambulisho"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Njia kamili ya saraka inayoshikilia faili za vitambulisho. Akaunti inaweza kusoma kitambulisho chake kutoka kwenye faili iliyo ndani yake pekee, kamwe si faili ya ufunguo wa vault. Ikiwa tupu, ambayo ni chaguo-msingi, hukataa faili za vitambulisho. Msimamizi wa Cloud huchagua faili, kwa hivyo weka vitambulisho vya cloud pekee hapa."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Kikusanyaji"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Bajeti ya Muda ya Kikusanyaji"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Sekunde ambazo uendeshaji mmoja wa kikusanyaji unaweza kutumia kabla ya kuacha kuanzisha kazi mpya. Kiweke chini ya kipindi cha poller; akaunti ambazo hazijakamilika huendelea katika uendeshaji unaofuata."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Sakinusha"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Weka Majedwali ya Programu-jalizi Wakati wa Kusakinusha"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Ikiteuliwa, kusakinusha programu-jalizi huhifadhi akaunti zake, vitambulisho vilivyosimbwa, na kache. Ondoa uteuzi ili usakinushaji uvifute. Rasilimali za cloud haziguswi kamwe kwa njia yoyote."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Bado haijathibitishwa."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Kitambulisho kinafanya kazi na kina ruhusa ambazo akaunti hii inahitaji."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Mtoa huduma alikataa kitambulisho. Huenda si sahihi, muda wake umeisha, au kimebatilishwa."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Kitambulisho kinafanya kazi lakini kinakosa ruhusa ambayo akaunti hii inahitaji."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Mtoa huduma hakuweza kufikiwa. Angalia njia ya mtandao na sera ya kutoka nje kutoka kwa poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Mtoa huduma anapunguza kasi ya maombi. Jaribu tena baadaye."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Mtoa huduma alituma jibu ambalo programu-jalizi haikuweza kusoma."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Akaunti au kitambulisho chake hakijasanidiwa ipasavyo."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Programu-jalizi ya Cloud inahitaji PHP %s au toleo jipya zaidi. Seva hii inatumia PHP %s, kwa hivyo programu-jalizi haikusakinishwa au kuwashwa."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Programu-jalizi ya Cloud inahitaji viendelezi vya PHP %s, ambavyo seva hii haipakii, kwa hivyo programu-jalizi haikusakinishwa au kuwashwa."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Programu-jalizi ya Cloud haijawashwa."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Programu-jalizi ya Cloud inahitaji PHP %s au toleo jipya zaidi."
+
+#: setup.php
+msgid "Management"
+msgstr "Usimamizi"

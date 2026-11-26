@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: af-ZA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Naam: 'n ander rekening gebruik reeds hierdie naam."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Die rekening is gestoor, maar die aanmeldbewys is nie gestoor nie: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Die rekening is gestoor, maar die gestoorde aanmeldbewys kon nie verwyder word nie."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Die rekening is gestoor."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Die rekening kon nie gestoor word nie."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Die rekening en die ingesamelde data daarvan is geskrap. Die Cacti-toestelle en -grafieke daarvan is in plek gelaat."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Die Cacti-toestel vir %s is gereed."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Die Cacti-toestel is nie geskep nie; sien die Cacti-logboek."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Verifieer gestoorde aanmeldbewys"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Moniteringsaansig"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Waarnemings kon nie gelees word nie. Vra 'n administrateur om die inproplogboek na te gaan."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Gaan die rekeninggrafieke en insamelingsvarsheid na. Verifieer toets die gestoorde aanmeldbewys; dit kan dit nie vervang of die verskafferopstelling verander nie."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Verskaffer: kies een van die gelyste verskaffers."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Naam: voer 1 tot 100 karakters sonder beheerkarakters in."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: slegs die hoofpoller kan wolkrekeninge in hierdie vrystelling insamel."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: die waarde het nie die vorm wat hierdie verskaffer gebruik nie."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Aanmeldbewysbron: kies een wat hierdie verskaffer ondersteun."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Aanmeldbewyslêer: voer 'n absolute pad sonder beheerkarakters in, hoogstens 512 karakters."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: voer heel sekondes van %d tot %d in."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Insamelingsinterval"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Ontdekkingsinterval"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Versoekaandeel: voer 'n heel persentasie van 1 tot 100 in."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Maandelikse perk: voer 'n bedrag van nul of meer in, of laat dit leeg vir geen."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS-rekening-ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Streke"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "Projek-ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "Huurder-ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "Intekening-ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Cloud-rekeninge"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Naam"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Verskaffer"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Aanmeldbewys"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Toestand"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Verifieer"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Toestel"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Aksies"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Nog geen Cloud-rekeninge nie."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Gedeaktiveer"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Geaktiveer"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Skrap"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Cloud-rekening: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Nuwe Cloud-rekening"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Aanmeldbewysbron"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Aanmeldbewyslêer"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "'n Aanmeldbewys is gestoor. Laat leeg om dit te behou."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Plak die teken of sleutel om in die kluis te stoor."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Versoekaandeel"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Maandelikse perk"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Stoor"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Skrap %s? Dit verwyder die rekening, sy gestoorde aanmeldbewys, reekskarterings, hulpbronne en waarnemings, en kan nie ontdoen word nie. Die Cacti-toestelle en -grafieke daarvan word in plek gelaat."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Kanselleer"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "In die kluis gestoor"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Geen gestoor nie"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Lêer op die poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Instansie-identiteit"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Toestel %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Skep Cacti-toestel"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "In die inpropkluis gestoor"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Aanmeldbewyslêer op die poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Instansie-identiteit van die poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Cloud-versoekberaming"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Rekening"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Keuse"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Hulpbronne"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Versoeke per uur, een hulpbron"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Versoeke per maand, een hulpbron"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Versoeke per uur"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Versoeke per maand"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Koste per maand"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Geen rekeninge om te beraam nie."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Beramings gebruik lyspryse en sluit afslag en gedeelde gratis vlakke uit."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s-pryse vanaf"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "nagegaan %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Nou ingesamel"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Elke grafiek op elke hulpbron"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Versoekaandeel: %s versoeke per uur, %s persent van die tekenperk. Nou ingesamel: %s. Elke grafiek: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Insameling is beperk; die oorblywende reekse lees U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Metriekberaming tussen ontdekkingslopies; ontdekkingsversoeke verminder die insamelingstoelae."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Geen heffing gedokumenteer nie"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Lasbalanseerder"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cloud-waarskuwings"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Geen waarskuwings nie."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Cloud-insameling"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Insameling"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Laaste lopie"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Reekse gelees"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Versoeke"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Ontdekking"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Data"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Nooit"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "probeer oor %d s weer"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d sekondes gelede"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d minute gelede"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d ure gelede"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d dae gelede"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Die kluissleutellêer kan nie gebruik word nie: %s. Rekeninge wat aanmeldbewyse in die kluis stoor, kan nie hier geverifieer of ingesamel word nie."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: die aanmeldbewyslêer kan nie gebruik word nie: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: die insamelingsinterval van %d sekondes is korter as die poller-interval van %d sekondes, dus word dit elke %d sekondes ingesamel."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: die insamelingsinterval van %d sekondes is nie 'n veelvoud van die poller-interval van %d sekondes nie, dus word dit elke %d sekondes ingesamel."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Hersien die aangetekende waarnemings hieronder. Erkennings is persoonlik tot hierdie sessie, verval wanneer waarnemings verander, en onderdruk nooit waarskuwings of verander gesondheid nie."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Cloud-bedrywighede"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Ondersoek"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Objek"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Waargeneem (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Onbekend of verouderd"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Erken; gesondheid onveranderd."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Erken"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Geen waarnemings is beskikbaar vir toestelle waartoe jy toegang het nie."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Cloud-operateur"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Cloud-aansig"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Cloud-admin"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Cloud-gesondheid"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Aanmeldbewyskluis"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Kluissleutellêer"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Absolute pad na die 32-greep-sleutel wat gestoorde aanmeldbewyse enkripteer. Skep dit self, buite die webwortel, slegs leesbaar deur die webbediener- en poller-gebruiker, in 'n gids waarin slegs root en daardie gebruiker kan skryf (dieselfde geld vir aanmeldbewyslêers); die inprop skep of skryf dit nooit nie. Rugsteun dit saam met die databasis: daarsonder moet gestoorde aanmeldbewyse weer ingevoer word."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Aanmeldbewyslêergids"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Absolute pad na die gids wat aanmeldbewyslêers bevat. 'n Rekening kan sy aanmeldbewys slegs uit 'n lêer daarin lees, nooit die kluissleutellêer nie. Leeg, die verstekwaarde, weier aanmeldbewyslêers. Cloud-admin kies die lêer, so hou slegs wolkaanmeldbewyse hier."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Insamelaar"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Insamelaar-tydbegroting"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Sekondes wat een insamelaarlopie mag spandeer voordat dit ophou om nuwe werk te begin. Hou dit onder die poller-interval; onvoltooide rekeninge hervat met die volgende lopie."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Deïnstalleer"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Behou inproptabelle by deïnstallasie"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Wanneer dit gemerk is, behou die deïnstallasie van die inprop sy rekeninge, geënkripteerde aanmeldbewyse en kasgeheue. Ontmerk dit sodat die deïnstallasie dit verwyder. Wolkhulpbronne word in elk geval nooit aangeraak nie."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Nog nie geverifieer nie."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Die aanmeldbewys werk en het die toestemmings wat hierdie rekening benodig."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Die verskaffer het die aanmeldbewys verwerp. Dit kan verkeerd, verval of herroep wees."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Die aanmeldbewys werk, maar kom 'n toestemming kort wat hierdie rekening benodig."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Die verskaffer kon nie bereik word nie. Gaan die netwerkpad en uitgaande beleid vanaf die poller na."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Die verskaffer beperk versoeke. Probeer later weer."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Die verskaffer het 'n antwoord gestuur wat die inprop nie kon lees nie."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Die rekening of sy aanmeldbewys is nie korrek opgestel nie."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Die Cloud-inprop vereis PHP %s of nuwer. Hierdie bediener loop PHP %s, so die inprop is nie geïnstalleer of geaktiveer nie."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Die Cloud-inprop vereis die PHP-uitbreidings %s, wat hierdie bediener nie laai nie, so die inprop is nie geïnstalleer of geaktiveer nie."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Die Cloud-inprop is nie geaktiveer nie."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Die Cloud-inprop vereis PHP %s of nuwer."
+
+#: setup.php
+msgid "Management"
+msgstr "Bestuur"

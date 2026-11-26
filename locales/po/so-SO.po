@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: so-SO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Magaca: koonto kale ayaa hore u isticmaalaysa magacan."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Koontada waa la kaydiyay, laakiin aqoonsiga sirta ah lama kaydin: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Koontada waa la kaydiyay, laakiin aqoonsiga sirta ah ee kaydsan lama saari karin."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Koontada waa la kaydiyay."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Koontada lama kaydin karin."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Koontada iyo xogta laga soo ururiyay waa la tirtiray. Qalabka iyo garaafyada Cacti meeshooda ayaa looga tagay."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Qalabka Cacti ee %s waa diyaar."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Qalabka Cacti lama abuurin; eeg diiwaanka Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Hubi aqoonsiga sirta ah ee kaydsan"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Muuqaalka kormeerka"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Kormeerada lama akhrin karin. Weydiiso maamulaha inuu hubiyo diiwaanka plugin-ka."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Hubi garaafyada koontada iyo cusboonaanta ururinta. Hubi waxay tijaabisaa aqoonsiga sirta ah ee kaydsan; ma beddeli karto mana beddeli karto dejinta bixiyaha."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Bixiyaha: dooro mid ka mid ah bixiyayaasha liiska ku jira."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Magaca: geli 1 ilaa 100 xaraf oo aan lahayn xarfaha xakamaynta."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: kaliya poller-ka weyn ayaa ururin kara koontooyinka Cloud siidayntan."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: qiimuhu ma laha qaabka bixiyahani isticmaalo."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Isha Aqoonsiga Sirta ah: dooro mid bixiyahani taageero."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Faylka Aqoonsiga Sirta ah: geli waddo buuxda oo aan lahayn xarfaha xakamaynta, ugu badnaan 512 xaraf."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: geli ilbiriqsiyo dhan laga bilaabo %d ilaa %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Muddada Ururinta"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Muddada Helitaanka"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Saamiga Codsiga: geli boqolley dhan laga bilaabo 1 ilaa 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Xadka Bishii: geli tiro eber ah ama ka badan, ama banaan u dhaaf haddii aanu jirin."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "Aqoonsiga Koontada AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Gobollada"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "Aqoonsiga Mashruuca"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "Aqoonsiga Kiraystaha"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "Aqoonsiga Rukhsadda"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Koontooyinka Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Magaca"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Bixiyaha"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Aqoonsiga Sirta ah"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Xaaladda"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Hubi"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Qalabka"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Ficilada"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Weli ma jiraan koontooyinka Cloud."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "La joojiyay"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "La hawlgeliyay"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Tirtir"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Koontada Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Koonto Cloud Cusub"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Isha Aqoonsiga Sirta ah"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Faylka Aqoonsiga Sirta ah"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Aqoonsi sir ah ayaa kaydsan. Banaan u dhaaf si aad u ilaaliso."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Ku dheji token-ka ama furaha si loogu kaydiyo khasnadda."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Saamiga Codsiga"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Xadka Bishii"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Kaydi"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Ma tirtirtaa %s? Tani waxay saaraysaa koontada, aqoonsigeeda sirta ah ee kaydsan, isku-xidhka taxanaha, khayraadka iyo kormeerada, dibna looma celin karo. Qalabkeeda iyo garaafyada Cacti meeshooda ayaa looga tagayaa."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Jooji"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Waxaa lagu kaydiyay khasnadda"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Waxba lama kaydin"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Fayl ku yaal poller-ka"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Aqoonsiga tusaalaha"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Qalabka %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Abuur Qalabka Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Waxaa lagu kaydiyay khasnadda plugin-ka"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Faylka aqoonsiga sirta ah ee poller-ka"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Aqoonsiga tusaalaha poller-ka"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Qiyaasta Codsiga Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Koonto"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Xulashada"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Khayraadka"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Codsiyada Saacaddii, Hal Khayraad"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Codsiyada Bishii, Hal Khayraad"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Codsiyada Saacaddii"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Codsiyada Bishii"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Qiimaha Bishii"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Ma jiraan koontooyin la qiyaaso."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Qiyaasuhu waxay adeegsadaan qiimaha liiska waxayna ka reebaan qiimo-dhimista iyo heerarka bilaashka ah ee la wadaago."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Qiimaha %s laga bilaabo"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "la hubiyay %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Hadda la ururiyay"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Garaaf kasta oo ku yaal khayraad kasta"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Saamiga codsiga: %s codsi saacaddii, boqolkiiba %s xadka token-ka. Hadda la ururiyay: %s. Garaaf kasta: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Ururinta waa la xadiday; taxanayaasha hadhay waxay akhriyaan U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Qiyaasta cabbirka inta u dhaxaysa socodsiinta helitaanka; codsiyada helitaanka waxay yareeyaan gunnada ururinta."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Lacag laguma diiwaangelin"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Miisaamaha Culayska"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Digniinaha Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Digniino ma jiraan."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Ururinta Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Ururinta"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Socodsiintii Ugu Dambaysay"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Taxanaha La Akhriyay"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Codsiyada"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Helitaanka"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Xogta"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Marna"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "isku day mar kale %d ilbiriqsi gudahood"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d ilbiriqsi ka hor"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d daqiiqo ka hor"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d saacadood ka hor"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d maalmood ka hor"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Faylka furaha khasnadda lama isticmaali karo: %s. Koontooyinka ku kaydiya aqoonsiyada sirta ah khasnadda halkan laguma hubin karo lagumana ururin karo."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: faylka aqoonsiga sirta ah lama isticmaali karo: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: muddada ururinta ee %d ilbiriqsi way ka gaaban tahay muddada poller-ka ee %d ilbiriqsi, markaa waxaa la ururiyaa %d ilbiriqsi kasta."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: muddada ururinta ee %d ilbiriqsi ma aha isku-dhufasho muddada poller-ka ee %d ilbiriqsi, markaa waxaa la ururiyaa %d ilbiriqsi kasta."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Dib u eeg kormeerada hoos ku diiwaangashan. Aqoonsiyadu waxay u gaar yihiin fadhigan, waxay dhacaan marka kormeeradu isbeddelaan, marna ma joojiyaan digniinaha mana beddelaan caafimaadka."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Hawlgallada Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Baaritaan"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Shay"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "La Kormeeray (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Aan la garanayn ama duugoobay"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "La qiray; caafimaadku isma beddelin."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Qir"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Ma jiraan kormeero loo heli karo qalabka aad geli karto."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Hawlwadeenka Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Muuqaalka Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Maamulaha Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Caafimaadka Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Khasnadda Aqoonsiga Sirta ah"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Faylka Furaha Khasnadda"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Waddo buuxda oo ku aaddan furaha 32-byte ee sirta ka dhiga aqoonsiyada sirta ah ee kaydsan. Adigu iskaa u abuur, meel ka baxsan xididka shabakadda, oo ay akhrin karaan oo kaliya adeegaha shabakadda iyo isticmaalaha poller-ka, galka ay wax ku qori karaan root iyo isticmaalahaas oo kaliya (sidoo kale faylasha aqoonsiga sirta ah); plugin-ku marna ma abuuro mana qoro. La kaydi keydka xogta: la'aantiis, aqoonsiyada sirta ah ee kaydsan waa in mar kale la geliyaa."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Galka Faylka Aqoonsiga Sirta ah"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Waddo buuxda oo ku aaddan galka haya faylasha aqoonsiga sirta ah. Koontadu waxay aqoonsigeeda sirta ah ka akhrin kartaa fayl ku jira gudihiisa oo kaliya, marna ma aha faylka furaha khasnadda. Haddii uu banaan yahay, oo ah dejinta caadiga ah, wuxuu diidaa faylasha aqoonsiga sirta ah. Maamulaha Cloud ayaa doorta faylka, markaa halkan ku hay aqoonsiyada Cloud oo kaliya."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Ururiyaha"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Miisaaniyadda Waqtiga Ururiyaha"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Ilbiriqsiyada uu hal socodsiin ururiye ku bixin karo ka hor inta uusan joojin bilaabista shaqo cusub. Ka dhig mid ka hooseeya muddada poller-ka; koontooyinka aan dhammaan waxay dib u bilaabmaan socodsiinta xigta."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Ka saar"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Ilaali Jadwalka Plugin-ka Marka La Saarayo"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Marka la calaamadeeyo, ka saarista plugin-ku waxay ilaalinaysaa koontooyinkiisa, aqoonsiyada sirta ah ee qarsoon, iyo kaydka ku meel gaarka ah. Ka saar calaamadda si ka saaristu u tirtirto. Khayraadka Cloud marna lama taabto si kasta oo ay tahay."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Weli lama hubin."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Aqoonsiga sirta ahi wuu shaqeeyaa wuxuuna leeyahay ogolaanshaha koontadani u baahan tahay."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Bixiyuhu wuu diiday aqoonsiga sirta ah. Waxaa laga yaabaa inuu khaldan yahay, dhacay, ama la noqday."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Aqoonsiga sirta ahi wuu shaqeeyaa laakiin waxaa ka maqan ogolaansho ay koontadani u baahan tahay."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Bixiyaha lama gaari karin. Hubi waddada shabakadda iyo siyaasadda bixidda ee ka timaadda poller-ka."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Bixiyuhu wuxuu xaddidayaa codsiyada. Mar dambe isku day."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Bixiyuhu wuxuu soo diray jawaab uusan plugin-ku akhrin karin."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Koontada ama aqoonsigeeda sirta ah si sax ah looma dejin."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Plugin-ka Cloud wuxuu u baahan yahay PHP %s ama ka dambeeya. Adeegahani wuxuu ku shaqeeyaa PHP %s, markaa plugin-ka lama rakibin lamana hawlgelin."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Plugin-ka Cloud wuxuu u baahan yahay kordhinta PHP %s, kuwaas oo aanu adeegahani soo rarin, markaa plugin-ka lama rakibin lamana hawlgelin."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Plugin-ka Cloud lama hawlgelin."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Plugin-ka Cloud wuxuu u baahan yahay PHP %s ama ka dambeeya."
+
+#: setup.php
+msgid "Management"
+msgstr "Maamulka"
