@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: bs-BA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Naziv: drugi nalog već koristi ovaj naziv."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Nalog je sačuvan, ali akreditiv nije pohranjen: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Nalog je sačuvan, ali pohranjeni akreditiv nije mogao biti uklonjen."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Nalog je sačuvan."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Nalog nije mogao biti sačuvan."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Nalog i njegovi prikupljeni podaci su obrisani. Njegovi Cacti uređaji i grafikoni su ostavljeni na mjestu."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Cacti uređaj za %s je spreman."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Cacti uređaj nije kreiran; pogledajte Cacti zapisnik."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Provjeri pohranjeni akreditiv"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Prikaz praćenja"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Zapažanja nisu mogla biti pročitana. Zamolite administratora da provjeri zapisnik dodatka."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Provjerite grafikone naloga i svježinu prikupljanja. Provjera testira pohranjeni akreditiv; ne može ga zamijeniti niti promijeniti konfiguraciju provajdera."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Provajder: odaberite jednog od navedenih provajdera."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Naziv: unesite od 1 do 100 znakova bez kontrolnih znakova."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: samo glavni poller može prikupljati naloge u oblaku u ovom izdanju."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: vrijednost nema oblik koji ovaj provajder koristi."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Izvor akreditiva: odaberite izvor koji ovaj provajder podržava."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Datoteka akreditiva: unesite apsolutnu putanju bez kontrolnih znakova, najviše 512 znakova."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: unesite cijele sekunde od %d do %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Interval prikupljanja"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Interval otkrivanja"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Udio zahtjeva: unesite cijeli procenat od 1 do 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Mjesečni limit: unesite iznos nula ili veći, ili ostavite prazno bez ograničenja."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID AWS naloga"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Regije"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID projekta"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID zakupca"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID pretplate"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Nalozi u oblaku"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Naziv"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Provajder"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Akreditiv"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Stanje"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Provjeri"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Uređaj"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Radnje"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Još nema naloga u oblaku."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Onemogućeno"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Omogućeno"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Obriši"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Nalog u oblaku: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Novi nalog u oblaku"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Izvor akreditiva"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Datoteka akreditiva"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Akreditiv je pohranjen. Ostavite prazno da ga zadržite."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Zalijepite token ili ključ za pohranu u trezor."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Udio zahtjeva"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Mjesečni limit"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Sačuvaj"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Obrisati %s? Ovim se uklanjaju nalog, njegov pohranjeni akreditiv, mapiranja serija, resursi i zapažanja, i radnja se ne može poništiti. Njegovi Cacti uređaji i grafikoni ostaju na mjestu."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Otkaži"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Pohranjeno u trezoru"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Ništa nije pohranjeno"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Datoteka na polleru"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Identitet instance"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Uređaj %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Kreiraj Cacti uređaj"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Pohranjeno u trezoru dodatka"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Datoteka akreditiva na polleru"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Identitet instance pollera"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Procjena zahtjeva u oblaku"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Nalog"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Izbor"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Resursi"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Zahtjevi po satu, jedan resurs"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Zahtjevi po mjesecu, jedan resurs"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Zahtjevi po satu"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Zahtjevi po mjesecu"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Trošak po mjesecu"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Nema naloga za procjenu."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Procjene koriste kataloške cijene i isključuju popuste i dijeljene besplatne nivoe."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Cijene za %s iz"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "provjereno %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Trenutno se prikuplja"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Svaki grafikon na svakom resursu"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Udio zahtjeva: %s zahtjeva po satu, %s posto ograničenja tokena. Trenutno se prikuplja: %s. Svaki grafikon: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Prikupljanje je ograničeno; preostale serije očitavaju U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Procjena metrika između pokretanja otkrivanja; zahtjevi otkrivanja smanjuju kvotu za prikupljanje."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Naknada nije dokumentovana"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Balanser opterećenja"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Upozorenja oblaka"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Nema upozorenja."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Prikupljanje iz oblaka"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Prikupljanje"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Posljednje pokretanje"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Pročitane serije"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Zahtjevi"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Otkrivanje"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Podaci"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Nikad"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "ponovni pokušaj za %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "prije %d sekundi"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "prije %d minuta"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "prije %d sati"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "prije %d dana"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Datoteka ključa trezora se ne može koristiti: %s. Nalozi koji pohranjuju akreditive u trezor ovdje se ne mogu provjeravati niti prikupljati."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: datoteka akreditiva se ne može koristiti: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: interval prikupljanja od %d sekundi kraći je od intervala pollera od %d sekundi, pa se prikuplja svakih %d sekundi."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: interval prikupljanja od %d sekundi nije višekratnik intervala pollera od %d sekundi, pa se prikuplja svakih %d sekundi."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Pregledajte zabilježena zapažanja u nastavku. Potvrde su lične za ovu sesiju, ističu kada se zapažanja promijene i nikad ne potiskuju upozorenja niti mijenjaju zdravstveno stanje."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Operacije u oblaku"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Ispitivanje"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Objekat"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Zabilježeno (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Nepoznato ili zastarjelo"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Potvrđeno; stanje nepromijenjeno."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Potvrdi"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Nema dostupnih zapažanja za uređaje kojima smijete pristupiti."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Operater oblaka"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Pregled oblaka"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Administrator oblaka"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Stanje oblaka"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Trezor akreditiva"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Datoteka ključa trezora"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Apsolutna putanja do 32-bajtnog ključa koji šifrira pohranjene akreditive. Kreirajte je sami, izvan korijena weba, čitljivu samo korisniku web servera i pollera, u direktoriju u koji mogu pisati samo root i taj korisnik (isto važi i za datoteke akreditiva); dodatak je nikad ne kreira niti zapisuje. Napravite sigurnosnu kopiju zajedno s bazom podataka: bez nje pohranjeni akreditivi moraju biti ponovo uneseni."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Direktorij datoteka akreditiva"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Apsolutna putanja do direktorija koji sadrži datoteke akreditiva. Nalog može pročitati svoj akreditiv iz datoteke samo unutar tog direktorija, nikad iz datoteke ključa trezora. Prazno, što je podrazumijevano, odbija datoteke akreditiva. Administrator oblaka bira datoteku, stoga ovdje držite samo akreditive za oblak."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Kolektor"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Vremenski budžet kolektora"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Broj sekundi koje jedno pokretanje kolektora smije potrošiti prije nego prestane započinjati novi rad. Držite ga ispod intervala pollera; nedovršeni nalozi nastavljaju pri sljedećem pokretanju."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Deinstalacija"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Zadrži tabele dodatka pri deinstalaciji"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Kada je označeno, deinstalacija dodatka zadržava njegove naloge, šifrirane akreditive i keš. Poništite izbor kako bi ih deinstalacija uklonila. Resursi u oblaku se u oba slučaja nikad ne diraju."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Još nije provjereno."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Akreditiv radi i ima dozvole koje ovaj nalog zahtijeva."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Provajder je odbio akreditiv. Možda je pogrešan, istekao ili opozvan."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Akreditiv radi, ali mu nedostaje dozvola koju ovaj nalog zahtijeva."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Provajder nije bio dostupan. Provjerite mrežnu putanju i pravila odlaznog saobraćaja s pollera."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Provajder ograničava brzinu zahtjeva. Pokušajte ponovo kasnije."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Provajder je poslao odgovor koji dodatak nije mogao pročitati."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Nalog ili njegov akreditiv nije ispravno konfigurisan."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Dodatak Cloud zahtijeva PHP %s ili noviji. Ovaj server koristi PHP %s, pa dodatak nije instaliran ni omogućen."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Dodatak Cloud zahtijeva PHP ekstenzije %s, koje ovaj server ne učitava, pa dodatak nije instaliran ni omogućen."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Oblak"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Dodatak Cloud nije omogućen."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Dodatak Cloud zahtijeva PHP %s ili noviji."
+
+#: setup.php
+msgid "Management"
+msgstr "Upravljanje"
