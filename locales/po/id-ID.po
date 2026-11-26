@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: id-ID\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Nama: akun lain sudah menggunakan nama ini."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Akun telah disimpan, tetapi kredensial tidak tersimpan: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Akun telah disimpan, tetapi kredensial yang tersimpan tidak dapat dihapus."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Akun telah disimpan."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Akun tidak dapat disimpan."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Akun beserta data yang dikumpulkannya telah dihapus. Perangkat dan grafik Cacti miliknya tetap dipertahankan."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Perangkat Cacti untuk %s sudah siap."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Perangkat Cacti tidak dibuat; lihat log Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Verifikasi kredensial tersimpan"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Tampilan pemantauan"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Observasi tidak dapat dibaca. Minta administrator untuk memeriksa log plugin."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Periksa grafik akun dan kebaruan pengumpulan data. Verifikasi menguji kredensial yang tersimpan; tindakan ini tidak dapat menggantinya atau mengubah konfigurasi penyedia."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Penyedia: pilih salah satu penyedia yang terdaftar."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Nama: masukkan 1 hingga 100 karakter tanpa karakter kontrol."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: hanya poller utama yang dapat mengumpulkan data akun cloud pada rilis ini."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: nilai tidak memiliki format yang digunakan oleh penyedia ini."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Sumber Kredensial: pilih salah satu yang didukung penyedia ini."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Berkas Kredensial: masukkan jalur absolut tanpa karakter kontrol, maksimal 512 karakter."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: masukkan bilangan bulat detik dari %d hingga %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Interval Pengumpulan"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Interval Penemuan"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Porsi Permintaan: masukkan persentase bilangan bulat dari 1 hingga 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Batas Maksimal Bulanan: masukkan jumlah nol atau lebih, atau biarkan kosong untuk tanpa batas."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID Akun AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Wilayah"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID Proyek"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID Tenant"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID Langganan"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Akun Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Nama"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Penyedia"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Kredensial"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Status"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Verifikasi"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Perangkat"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Tindakan"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Belum ada akun cloud."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Dinonaktifkan"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Diaktifkan"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Hapus"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Akun Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Akun Cloud Baru"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Sumber Kredensial"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Berkas Kredensial"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Kredensial sudah tersimpan. Biarkan kosong untuk mempertahankannya."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Tempel token atau kunci untuk disimpan di brankas."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Porsi Permintaan"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Batas Maksimal Bulanan"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Simpan"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Hapus %s? Tindakan ini menghapus akun, kredensial tersimpan, pemetaan seri, sumber daya, dan observasi, serta tidak dapat dibatalkan. Perangkat dan grafik Cacti miliknya tetap dipertahankan."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Batal"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Disimpan di brankas"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Tidak ada yang tersimpan"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Berkas di poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Identitas instans"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Perangkat %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Buat Perangkat Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Disimpan di brankas plugin"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Berkas kredensial di poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Identitas instans poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Estimasi Permintaan Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Akun"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Pilihan"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Sumber Daya"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Permintaan per Jam, Satu Sumber Daya"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Permintaan per Bulan, Satu Sumber Daya"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Permintaan per Jam"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Permintaan per Bulan"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Biaya per Bulan"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Tidak ada akun untuk diestimasi."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Estimasi menggunakan harga daftar serta tidak termasuk diskon dan paket gratis bersama."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Harga %s dari"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "diperiksa %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Dikumpulkan saat ini"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Setiap grafik pada setiap sumber daya"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Porsi permintaan: %s permintaan per jam, %s persen dari batas token. Dikumpulkan saat ini: %s. Setiap grafik: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Pengumpulan dibatasi; seri yang tersisa terbaca U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Estimasi metrik di antara proses penemuan; permintaan penemuan mengurangi jatah pengumpulan."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Tidak ada biaya yang terdokumentasi"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Load Balancer"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Peringatan Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Tidak ada peringatan."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Pengumpulan Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Pengumpulan"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Terakhir Dijalankan"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Seri Dibaca"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Permintaan"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Penemuan"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Data"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Tidak pernah"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "coba lagi dalam %d dtk"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d detik yang lalu"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d menit yang lalu"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d jam yang lalu"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d hari yang lalu"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Berkas kunci brankas tidak dapat digunakan: %s. Akun yang menyimpan kredensial di brankas tidak dapat diverifikasi atau dikumpulkan di sini."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: berkas kredensial tidak dapat digunakan: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: interval pengumpulan %d detik lebih pendek daripada interval poller %d detik, sehingga dikumpulkan setiap %d detik."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: interval pengumpulan %d detik bukan kelipatan interval poller %d detik, sehingga dikumpulkan setiap %d detik."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Tinjau observasi yang tercatat di bawah ini. Pengakuan bersifat pribadi untuk sesi ini, kedaluwarsa saat observasi berubah, dan tidak pernah menekan peringatan atau mengubah status kesehatan."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Operasi Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Investigasi"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Objek"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Diamati (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Tidak diketahui atau usang"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Diakui; status kesehatan tidak berubah."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Akui"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Tidak ada observasi yang tersedia untuk perangkat yang dapat Anda akses."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Operator Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Tampilan Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Admin Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Kesehatan Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Brankas Kredensial"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Berkas Kunci Brankas"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Jalur absolut ke kunci 32-byte yang mengenkripsi kredensial tersimpan. Buat sendiri di luar root web, hanya dapat dibaca oleh server web dan pengguna poller, di dalam direktori yang hanya dapat ditulis oleh root dan pengguna tersebut (hal yang sama berlaku untuk berkas kredensial); plugin tidak pernah membuat atau menulisnya. Cadangkan bersama basis data: tanpanya, kredensial tersimpan harus dimasukkan kembali."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Direktori Berkas Kredensial"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Jalur absolut ke direktori yang menyimpan berkas kredensial. Suatu akun hanya dapat membaca kredensialnya dari berkas di dalamnya, tidak pernah berkas kunci brankas. Nilai kosong, yang merupakan bawaan, menolak berkas kredensial. Admin Cloud memilih berkas tersebut, jadi simpan hanya kredensial cloud di sini."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Pengumpul"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Anggaran Waktu Pengumpul"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Jumlah detik yang dapat dihabiskan satu kali jalan pengumpul sebelum berhenti memulai pekerjaan baru. Pertahankan di bawah interval poller; akun yang belum selesai akan dilanjutkan pada proses berikutnya."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Copot Pemasangan"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Pertahankan Tabel Plugin saat Pencopotan"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Jika dicentang, pencopotan plugin akan mempertahankan akun, kredensial terenkripsi, dan cache-nya. Hapus centang agar pencopotan menghapus semuanya. Sumber daya Cloud tidak pernah disentuh dalam kedua kasus."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Belum diverifikasi."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Kredensial berfungsi dan memiliki izin yang dibutuhkan akun ini."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Penyedia menolak kredensial. Kredensial mungkin salah, kedaluwarsa, atau dicabut."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Kredensial berfungsi tetapi tidak memiliki izin yang dibutuhkan akun ini."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Penyedia tidak dapat dijangkau. Periksa jalur jaringan dan kebijakan lalu lintas keluar dari poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Penyedia sedang membatasi laju permintaan. Coba lagi nanti."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Penyedia mengirimkan respons yang tidak dapat dibaca oleh plugin."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Akun atau kredensialnya tidak dikonfigurasi dengan benar."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Plugin Cloud memerlukan PHP %s atau yang lebih baru. Server ini menjalankan PHP %s, sehingga plugin tidak dipasang atau diaktifkan."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Plugin Cloud memerlukan ekstensi PHP %s, yang tidak dimuat oleh server ini, sehingga plugin tidak dipasang atau diaktifkan."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Plugin Cloud tidak diaktifkan."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Plugin Cloud memerlukan PHP %s atau yang lebih baru."
+
+#: setup.php
+msgid "Management"
+msgstr "Manajemen"

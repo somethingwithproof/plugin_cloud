@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: zh-TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "名稱：另一個帳戶已使用此名稱。"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "帳戶已儲存，但憑證未儲存：%s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "帳戶已儲存，但無法移除已儲存的憑證。"
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "帳戶已儲存。"
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "無法儲存帳戶。"
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "帳戶及其收集的資料已刪除。其 Cacti 裝置與圖表已保留在原處。"
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "%s 的 Cacti 裝置已就緒。"
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "未建立 Cacti 裝置；請參閱 Cacti 日誌。"
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "驗證已儲存的憑證"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "監控檢視"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "無法讀取觀測紀錄。請聯繫管理員檢查外掛程式日誌。"
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "請檢查帳戶圖表與收集即時性。驗證功能僅測試已儲存的憑證，無法取代憑證或變更供應商設定。"
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "供應商：請從列出的供應商中選擇一個。"
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "名稱：請輸入 1 到 100 個字元，且不得包含控制字元。"
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "輪詢器：在此版本中，只有主輪詢器可以收集雲端帳戶資料。"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s：此值不符合該供應商所使用的格式。"
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "憑證來源：請選擇此供應商支援的來源。"
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "憑證檔案：請輸入不含控制字元的絕對路徑，最多 512 個字元。"
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s：請輸入 %d 到 %d 之間的整數秒數。"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "收集間隔"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "探索間隔"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "請求配額比例：請輸入 1 到 100 之間的整數百分比。"
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "每月上限：請輸入大於或等於零的金額，或留空表示不設上限。"
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS 帳戶 ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "區域"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "專案 ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "租戶 ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "訂閱 ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Cloud 帳戶"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "名稱"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "供應商"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "憑證"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "狀態"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "驗證"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "裝置"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "動作"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "尚無雲端帳戶。"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "已停用"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "已啟用"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "刪除"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Cloud 帳戶：%s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "新增 Cloud 帳戶"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "憑證來源"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "憑證檔案"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "已儲存憑證。留空以保留現有憑證。"
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "貼上要儲存在保存庫中的權杖或金鑰。"
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "請求配額比例"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "每月上限"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "儲存"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "確定要刪除 %s 嗎？這將移除該帳戶、其已儲存的憑證、時間序列對應、資源與觀測紀錄，且無法復原。其 Cacti 裝置與圖表將保留在原處。"
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "取消"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "已儲存在保存庫中"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "尚未儲存"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "輪詢器上的檔案"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "執行個體身分"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "裝置 %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "建立 Cacti 裝置"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "已儲存在外掛程式保存庫中"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "輪詢器上的憑證檔案"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "輪詢器的執行個體身分"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Cloud 請求預估"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "帳戶"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "選取項目"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "資源"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "每小時請求數（單一資源）"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "每月請求數（單一資源）"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "每小時請求數"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "每月請求數"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "每月費用"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "沒有可預估的帳戶。"
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "預估值採用牌價計算，不含折扣與共用免費方案。"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s 價格來自"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "已於 %s 檢查。"
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "目前已收集"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "所有資源的所有圖表"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "請求配額比例：每小時 %s 次請求，佔權杖上限的百分之 %s。目前已收集：%s。所有圖表：%s。"
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "收集已達上限；其餘序列讀取為 U。"
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "探索執行間隔之間的指標預估值；探索請求會減少可用的收集配額。"
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "無相關收費說明"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "負載平衡器"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cloud 警告"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "沒有警告。"
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Cloud 收集"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "收集"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "上次執行"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "已讀取序列"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "請求數"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "探索"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "資料"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "從未"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "於 %d 秒後重試"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d 秒前"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d 分鐘前"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d 小時前"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d 天前"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "無法使用保存庫金鑰檔案：%s。儲存在保存庫中的帳戶憑證無法在此進行驗證或收集。"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s：無法使用憑證檔案：%s。"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s：收集間隔 %d 秒短於輪詢器間隔 %d 秒，因此將每 %d 秒收集一次。"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s：收集間隔 %d 秒不是輪詢器間隔 %d 秒的倍數，因此將每 %d 秒收集一次。"
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "請檢視下方已記錄的觀測項目。確認狀態僅適用於目前的工作階段，會在觀測項目變更時失效，且永遠不會抑制警示或變更健康狀態。"
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Cloud 維運"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "調查"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "物件"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "觀測時間 (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "未知或已過時"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "已確認；健康狀態不變。"
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "確認"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "您可存取的裝置目前沒有可用的觀測項目。"
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Cloud 操作員"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Cloud 檢視"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Cloud 管理員"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Cloud 健康狀態"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "憑證保存庫"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "保存庫金鑰檔案"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "用於加密已儲存憑證的 32 位元組金鑰之絕對路徑。請自行在網頁根目錄之外建立該檔案，使其僅供網頁伺服器與輪詢器使用者讀取，並存放於僅 root 與該使用者可寫入的目錄中（憑證檔案亦同）；外掛程式永遠不會建立或寫入此檔案。請將其與資料庫一併備份：若遺失此檔案，已儲存的憑證將必須重新輸入。"
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "憑證檔案目錄"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "存放憑證檔案的目錄之絕對路徑。帳戶只能從此目錄內的檔案讀取憑證，絕不可讀取保存庫金鑰檔案。預設為空值，表示拒絕使用憑證檔案。Cloud 管理員可選擇檔案，因此請僅在此目錄中存放雲端憑證。"
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "收集器"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "收集器時間預算"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "單次收集器執行在停止啟動新工作前可花費的秒數。請將此值保持低於輪詢器間隔；未完成的帳戶將在下次執行時繼續處理。"
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "解除安裝"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "解除安裝時保留外掛程式資料表"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "勾選時，解除安裝外掛程式會保留其帳戶、加密憑證與快取。取消勾選則會在解除安裝時將其刪除。無論如何都不會異動雲端資源。"
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "尚未驗證。"
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "憑證有效且具備此帳戶所需的權限。"
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "供應商拒絕了此憑證。憑證可能錯誤、已過期或已撤銷。"
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "憑證有效，但缺少此帳戶所需的權限。"
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "無法連線至供應商。請檢查輪詢器的網路路徑與傳出原則。"
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "供應商正在節流限制請求。請稍後再試。"
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "供應商傳回了外掛程式無法讀取的回應。"
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "帳戶或其憑證設定不正確。"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Cloud 外掛程式需要 PHP %s 或更新版本。此伺服器執行的是 PHP %s，因此未安裝或啟用此外掛程式。"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Cloud 外掛程式需要 PHP 擴充功能 %s，但此伺服器未載入，因此未安裝或啟用此外掛程式。"
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Cloud 外掛程式未啟用。"
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Cloud 外掛程式需要 PHP %s 或更新版本。"
+
+#: setup.php
+msgid "Management"
+msgstr "管理"

@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-26 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: vi-VN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Tên: một tài khoản khác đã sử dụng tên này."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Tài khoản đã được lưu, nhưng thông tin xác thực chưa được lưu trữ: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Tài khoản đã được lưu, nhưng không thể xóa thông tin xác thực đã lưu trữ."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Tài khoản đã được lưu."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Không thể lưu tài khoản."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Tài khoản và dữ liệu đã thu thập của tài khoản đó đã bị xóa. Các thiết bị và biểu đồ Cacti của tài khoản vẫn được giữ nguyên."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Thiết bị Cacti cho %s đã sẵn sàng."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Thiết bị Cacti chưa được tạo; hãy xem nhật ký Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Xác minh thông tin xác thực đã lưu trữ"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Chế độ xem giám sát"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Không thể đọc các quan sát. Hãy yêu cầu quản trị viên kiểm tra nhật ký plugin."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Kiểm tra biểu đồ tài khoản và độ mới của dữ liệu thu thập. Xác minh sẽ kiểm tra thông tin xác thực đã lưu trữ; thao tác này không thể thay thế thông tin xác thực hoặc thay đổi cấu hình nhà cung cấp."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Nhà cung cấp: chọn một trong các nhà cung cấp được liệt kê."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Tên: nhập từ 1 đến 100 ký tự không chứa ký tự điều khiển."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: chỉ poller chính mới có thể thu thập tài khoản đám mây trong bản phát hành này."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: giá trị không có định dạng mà nhà cung cấp này sử dụng."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Nguồn thông tin xác thực: chọn một nguồn mà nhà cung cấp này hỗ trợ."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Tệp thông tin xác thực: nhập đường dẫn tuyệt đối không chứa ký tự điều khiển, tối đa 512 ký tự."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: nhập số giây nguyên từ %d đến %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Khoảng thời gian thu thập"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Khoảng thời gian khám phá"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Tỷ lệ phân bổ yêu cầu: nhập phần trăm nguyên từ 1 đến 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Mức trần hàng tháng: nhập số tiền từ 0 trở lên hoặc để trống nếu không giới hạn."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID tài khoản AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Khu vực"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID dự án"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID đối tượng thuê"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID đăng ký"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Tài khoản Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Tên"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Nhà cung cấp"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Thông tin xác thực"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Trạng thái"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Xác minh"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Thiết bị"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Thao tác"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Chưa có tài khoản đám mây nào."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Đã tắt"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Đã bật"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Xóa"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Tài khoản Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Tài khoản Cloud mới"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Nguồn thông tin xác thực"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Tệp thông tin xác thực"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Thông tin xác thực đã được lưu trữ. Để trống nếu muốn giữ nguyên."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Dán token hoặc khóa để lưu trữ trong kho bảo mật."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Tỷ lệ phân bổ yêu cầu"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Mức trần hàng tháng"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Lưu"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Xóa %s? Thao tác này sẽ xóa tài khoản, thông tin xác thực đã lưu trữ, ánh xạ chuỗi dữ liệu, tài nguyên và các quan sát, và không thể hoàn tác. Các thiết bị và biểu đồ Cacti của tài khoản vẫn được giữ nguyên."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Hủy"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Đã lưu trong kho bảo mật"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Chưa lưu trữ"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Tệp trên poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Danh tính phiên bản"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Thiết bị %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Tạo thiết bị Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Đã lưu trong kho bảo mật của plugin"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Tệp thông tin xác thực trên poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Danh tính phiên bản của poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Ước tính yêu cầu Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Tài khoản"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Lựa chọn"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Tài nguyên"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Số yêu cầu mỗi giờ, một tài nguyên"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Số yêu cầu mỗi tháng, một tài nguyên"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Số yêu cầu mỗi giờ"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Số yêu cầu mỗi tháng"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Chi phí mỗi tháng"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Không có tài khoản nào để ước tính."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Các ước tính sử dụng giá niêm yết và không bao gồm chiết khấu cũng như bậc miễn phí dùng chung."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Giá %s từ"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "đã kiểm tra %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Đang thu thập hiện tại"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Mọi biểu đồ trên mọi tài nguyên"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Tỷ lệ phân bổ yêu cầu: %s yêu cầu mỗi giờ, %s phần trăm giới hạn token. Đang thu thập hiện tại: %s. Mọi biểu đồ: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Quá trình thu thập bị giới hạn; các chuỗi còn lại đọc là U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Ước tính chỉ số giữa các lần chạy khám phá; các yêu cầu khám phá sẽ làm giảm hạn mức thu thập."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Không có mức phí được ghi nhận"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Bộ cân bằng tải"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cảnh báo Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Không có cảnh báo."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Thu thập Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Thu thập"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Lần chạy cuối"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Chuỗi đã đọc"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Yêu cầu"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Khám phá"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Dữ liệu"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Chưa bao giờ"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "thử lại sau %d giây"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d giây trước"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d phút trước"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d giờ trước"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d ngày trước"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Không thể sử dụng tệp khóa kho bảo mật: %s. Không thể xác minh hoặc thu thập tại đây đối với các tài khoản lưu trữ thông tin xác thực trong kho bảo mật."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: không thể sử dụng tệp thông tin xác thực: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: khoảng thời gian thu thập %d giây ngắn hơn khoảng thời gian poller %d giây, vì vậy dữ liệu được thu thập mỗi %d giây."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: khoảng thời gian thu thập %d giây không phải là bội số của khoảng thời gian poller %d giây, vì vậy dữ liệu được thu thập mỗi %d giây."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Xem lại các quan sát đã ghi nhận bên dưới. Xác nhận chỉ áp dụng riêng cho phiên này, hết hạn khi các quan sát thay đổi và không bao giờ ẩn cảnh báo hay thay đổi tình trạng."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Vận hành Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Điều tra"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Đối tượng"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Quan sát lúc (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Không xác định hoặc cũ"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Đã xác nhận; tình trạng không thay đổi."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Xác nhận"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Không có quan sát nào cho các thiết bị bạn có quyền truy cập."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Người vận hành Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Xem Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Quản trị Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Tình trạng Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Kho thông tin xác thực"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Tệp khóa kho bảo mật"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Đường dẫn tuyệt đối đến khóa 32 byte dùng để mã hóa thông tin xác thực đã lưu trữ. Hãy tự tạo tệp này, nằm ngoài thư mục gốc web, chỉ người dùng máy chủ web và poller có quyền đọc, trong thư mục mà chỉ root và người dùng đó có quyền ghi (tương tự đối với các tệp thông tin xác thực); plugin không bao giờ tạo hoặc ghi tệp này. Hãy sao lưu tệp cùng với cơ sở dữ liệu: nếu không có tệp này, bạn sẽ phải nhập lại thông tin xác thực đã lưu trữ."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Thư mục tệp thông tin xác thực"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Đường dẫn tuyệt đối đến thư mục chứa các tệp thông tin xác thực. Một tài khoản chỉ có thể đọc thông tin xác thực từ tệp nằm trong thư mục này, không bao giờ đọc tệp khóa kho bảo mật. Để trống (mặc định) sẽ từ chối các tệp thông tin xác thực. Quản trị Cloud là người chọn tệp, vì vậy chỉ lưu thông tin xác thực đám mây tại đây."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Trình thu thập"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Giới hạn thời gian trình thu thập"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Số giây tối đa mà một lần chạy trình thu thập có thể sử dụng trước khi ngừng bắt đầu tác vụ mới. Hãy giữ giá trị này thấp hơn khoảng thời gian poller; các tài khoản chưa hoàn thành sẽ tiếp tục ở lần chạy tiếp theo."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Gỡ cài đặt"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Giữ các bảng của plugin khi gỡ cài đặt"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Khi được chọn, việc gỡ cài đặt plugin sẽ giữ lại các tài khoản, thông tin xác thực đã mã hóa và bộ nhớ đệm. Bỏ chọn để quá trình gỡ cài đặt xóa các dữ liệu này. Dù theo cách nào, tài nguyên đám mây cũng không bao giờ bị tác động."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Chưa được xác minh."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Thông tin xác thực hoạt động và có đủ các quyền mà tài khoản này cần."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Nhà cung cấp đã từ chối thông tin xác thực. Thông tin này có thể bị sai, đã hết hạn hoặc đã bị thu hồi."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Thông tin xác thực hoạt động nhưng thiếu một quyền mà tài khoản này cần."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Không thể kết nối đến nhà cung cấp. Hãy kiểm tra đường dẫn mạng và chính sách kết nối ra ngoài từ poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Nhà cung cấp đang điều tiết lưu lượng yêu cầu. Hãy thử lại sau."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Nhà cung cấp đã gửi phản hồi mà plugin không thể đọc."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Tài khoản hoặc thông tin xác thực của tài khoản chưa được cấu hình đúng."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Plugin Cloud yêu cầu PHP %s trở lên. Máy chủ này đang chạy PHP %s, vì vậy plugin chưa được cài đặt hoặc bật."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Plugin Cloud yêu cầu các tiện ích mở rộng PHP %s mà máy chủ này chưa tải, vì vậy plugin chưa được cài đặt hoặc bật."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Plugin Cloud chưa được bật."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Plugin Cloud yêu cầu PHP %s trở lên."
+
+#: setup.php
+msgid "Management"
+msgstr "Quản lý"
