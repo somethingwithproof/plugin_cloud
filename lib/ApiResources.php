@@ -22,34 +22,33 @@ namespace Somethingwithproof\Cloud;
 /**
  * Decoupled Google AIP resource descriptors registered via api_register_resources.
  *
- * Exposes strictly read-only resource metadata and callbacks for
- * cloud.cacti.net/Account, cloud.cacti.net/Resource, and cloud.cacti.net/Health
- * using plain PHP arrays with zero cross-plugin imports and zero secrets.
+ * Exposes strictly read-only resource collections (cloudAccounts, cloudResources,
+ * cloudHealth) using plain PHP arrays with zero cross-plugin imports and zero secrets.
  */
 final class ApiResources {
 	/**
-	 * Google AIP type name for Cloud accounts.
+	 * AIP collection identifier for Cloud accounts.
 	 */
-	public const TYPE_ACCOUNT = 'cloud.cacti.net/Account';
+	public const COLLECTION_ACCOUNTS = 'cloudAccounts';
 
 	/**
-	 * Google AIP type name for discovered Cloud resources.
+	 * AIP collection identifier for discovered Cloud resources.
 	 */
-	public const TYPE_RESOURCE = 'cloud.cacti.net/Resource';
+	public const COLLECTION_RESOURCES = 'cloudResources';
 
 	/**
-	 * Google AIP type name for Cloud collector health snapshots.
+	 * AIP collection identifier for Cloud collector health snapshots.
 	 */
-	public const TYPE_HEALTH = 'cloud.cacti.net/Health';
+	public const COLLECTION_HEALTH = 'cloudHealth';
 
 	/**
 	 * Build the AIP resource provider backed by Cloud repositories.
 	 *
-	 * @param \Closure(): bool          $canView         checks Cloud View realm permission
-	 * @param \Closure(): list<Account> $visibleAccounts returns accounts visible to the caller
-	 * @param ResourceRepository        $resources       discovered resource store
-	 * @param HealthRepository          $health          per-account collector health store
-	 * @param Clock                     $clock           clock for snapshot timestamps
+	 * @param \Closure(int): bool          $canView         checks Cloud View realm permission for $userId
+	 * @param \Closure(int): list<Account> $visibleAccounts returns accounts visible to $userId
+	 * @param ResourceRepository           $resources       discovered resource store
+	 * @param HealthRepository             $health          per-account collector health store
+	 * @param Clock                        $clock           clock for snapshot timestamps
 	 */
 	public function __construct(
 		private readonly \Closure $canView,
@@ -61,102 +60,49 @@ final class ApiResources {
 	}
 
 	/**
-	 * Return plain-array Google AIP resource descriptors keyed by type name.
+	 * Return plain-array Google AIP resource descriptors as a canonical list.
 	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return list<array<string, mixed>>
 	 */
 	public function descriptors(): array {
-		$permission = fn (): bool => ($this->canView)();
-
 		return [
-			self::TYPE_ACCOUNT => [
-				'type'                => self::TYPE_ACCOUNT,
-				'plugin'              => 'cloud',
-				'pattern'             => 'accounts/{account}',
-				'singular'            => 'account',
-				'plural'              => 'accounts',
-				'read_only'           => true,
-				'operations'          => ['list', 'get'],
-				'permission_callback' => $permission,
-				'fields'              => [
-					'name'              => ['type' => 'string', 'description' => 'AIP resource name (accounts/{account}).'],
-					'account_id'        => ['type' => 'integer'],
-					'display_name'      => ['type' => 'string'],
-					'provider'          => ['type' => 'string'],
-					'poller_id'         => ['type' => 'integer'],
-					'admin_state'       => ['type' => 'string'],
-					'credential_source' => ['type' => 'string'],
-					'collect_interval'  => ['type' => 'integer'],
-					'discover_interval' => ['type' => 'integer'],
-					'request_share'     => ['type' => 'integer'],
-					'monthly_ceiling'   => ['type' => 'number', 'nullable' => true],
-					'verify_status'     => ['type' => 'string'],
-					'verified_at'       => ['type' => 'integer'],
-				],
-				'callbacks'           => [
-					'list' => fn (array $params = []): array => $this->listAccounts($params),
-					'get'  => fn (array $params = []): ?array => $this->getAccount($params),
+			[
+				'plugin'        => 'cloud',
+				'collection'    => self::COLLECTION_ACCOUNTS,
+				'singleton'     => 'cloudAccount',
+				'description'   => 'Read-only Cloud account inventory and polling configuration (no credentials).',
+				'realm_read'    => 'cloud_accounts.php',
+				'filter_fields' => ['id', 'name', 'display_name', 'provider', 'poller_id', 'admin_state', 'verify_status'],
+				'order_fields'  => ['id', 'name', 'display_name', 'provider', 'poller_id'],
+				'handlers'      => [
+					'list' => fn (array $context = []): array => $this->listAccounts($context),
+					'get'  => fn (int|string $id, array $context = []): ?array => $this->getAccount($id, $context),
 				],
 			],
-			self::TYPE_RESOURCE => [
-				'type'                => self::TYPE_RESOURCE,
-				'plugin'              => 'cloud',
-				'pattern'             => 'accounts/{account}/resources/{resource}',
-				'singular'            => 'resource',
-				'plural'              => 'resources',
-				'read_only'           => true,
-				'operations'          => ['list', 'get'],
-				'permission_callback' => $permission,
-				'fields'              => [
-					'name'         => ['type' => 'string', 'description' => 'AIP resource name (accounts/{account}/resources/{resource}).'],
-					'resource_id'  => ['type' => 'integer'],
-					'account_id'   => ['type' => 'integer'],
-					'account_name' => ['type' => 'string'],
-					'provider'     => ['type' => 'string'],
-					'type'         => ['type' => 'string'],
-					'provider_id'  => ['type' => 'string'],
-					'display_name' => ['type' => 'string'],
-					'region'       => ['type' => 'string'],
-					'lifecycle'    => ['type' => 'string'],
-					'first_seen'   => ['type' => 'integer'],
-					'last_seen'    => ['type' => 'integer'],
-				],
-				'callbacks'           => [
-					'list' => fn (array $params = []): array => $this->listResources($params),
-					'get'  => fn (array $params = []): ?array => $this->getResource($params),
+			[
+				'plugin'        => 'cloud',
+				'collection'    => self::COLLECTION_RESOURCES,
+				'singleton'     => 'cloudResource',
+				'description'   => 'Read-only discovered Cloud resources across visible accounts.',
+				'realm_read'    => 'cloud_accounts.php',
+				'filter_fields' => ['id', 'name', 'account_id', 'provider', 'type', 'region', 'lifecycle'],
+				'order_fields'  => ['id', 'name', 'account_id', 'type', 'last_seen'],
+				'handlers'      => [
+					'list' => fn (array $context = []): array => $this->listResources($context),
+					'get'  => fn (int|string $id, array $context = []): ?array => $this->getResource($id, $context),
 				],
 			],
-			self::TYPE_HEALTH => [
-				'type'                => self::TYPE_HEALTH,
-				'plugin'              => 'cloud',
-				'pattern'             => 'accounts/{account}/health',
-				'singular'            => 'health',
-				'plural'              => 'health',
-				'read_only'           => true,
-				'operations'          => ['list', 'get'],
-				'permission_callback' => $permission,
-				'fields'              => [
-					'name'          => ['type' => 'string', 'description' => 'AIP resource name (accounts/{account}/health).'],
-					'account_id'    => ['type' => 'integer'],
-					'account_name'  => ['type' => 'string'],
-					'provider'      => ['type' => 'string'],
-					'poller_id'     => ['type' => 'integer'],
-					'enabled'       => ['type' => 'boolean'],
-					'collection'    => ['type' => 'string'],
-					'discovery'     => ['type' => 'string'],
-					'error_class'   => ['type' => 'string'],
-					'run_started'   => ['type' => 'integer'],
-					'run_finished'  => ['type' => 'integer'],
-					'discovered_at' => ['type' => 'integer'],
-					'retry_at'      => ['type' => 'integer'],
-					'requests'      => ['type' => 'integer'],
-					'series_read'   => ['type' => 'integer'],
-					'series_total'  => ['type' => 'integer'],
-					'checked_at'    => ['type' => 'integer'],
-				],
-				'callbacks'           => [
-					'list' => fn (array $params = []): array => $this->listHealth($params),
-					'get'  => fn (array $params = []): ?array => $this->getHealth($params),
+			[
+				'plugin'        => 'cloud',
+				'collection'    => self::COLLECTION_HEALTH,
+				'singleton'     => 'cloudHealth',
+				'description'   => 'Read-only collector and discovery health snapshots for Cloud accounts.',
+				'realm_read'    => 'cloud_accounts.php',
+				'filter_fields' => ['id', 'name', 'account_id', 'provider', 'collection', 'discovery', 'error_class'],
+				'order_fields'  => ['id', 'name', 'account_id', 'run_started'],
+				'handlers'      => [
+					'list' => fn (array $context = []): array => $this->listHealth($context),
+					'get'  => fn (int|string $id, array $context = []): ?array => $this->getHealth($id, $context),
 				],
 			],
 		];
@@ -165,19 +111,22 @@ final class ApiResources {
 	/**
 	 * List redacted Cloud accounts visible to the caller.
 	 *
-	 * @param array<string, mixed> $params optional filters: provider, poller_id
+	 * @param array<string, mixed> $context request context (user_id, query)
 	 * @return list<array<string, mixed>>
 	 */
-	public function listAccounts(array $params = []): array {
-		if (!($this->canView)()) {
+	public function listAccounts(array $context = []): array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId)) {
 			return [];
 		}
 
-		$providerFilter = is_string($params['provider'] ?? null) ? trim($params['provider']) : '';
-		$pollerFilter   = isset($params['poller_id']) && is_numeric($params['poller_id']) ? (int) $params['poller_id'] : null;
+		$query          = is_array($context['query'] ?? null) ? $context['query'] : $context;
+		$providerFilter = is_string($query['provider'] ?? null) ? trim($query['provider']) : '';
+		$pollerFilter   = isset($query['poller_id']) && is_numeric($query['poller_id']) ? (int) $query['poller_id'] : null;
 		$items          = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($providerFilter !== '' && $account->provider->value !== $providerFilter) {
 				continue;
 			}
@@ -193,24 +142,23 @@ final class ApiResources {
 	}
 
 	/**
-	 * Retrieve one redacted Cloud account by account_id.
+	 * Retrieve one redacted Cloud account by ID.
 	 *
-	 * @param array<string, mixed> $params parameters containing account or account_id
+	 * @param int|string           $id      account identifier
+	 * @param array<string, mixed> $context request context (user_id)
 	 * @return array<string, mixed>|null
 	 */
-	public function getAccount(array $params = []): ?array {
-		if (!($this->canView)()) {
+	public function getAccount(int|string $id, array $context = []): ?array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId) || !is_numeric($id) || (int) $id <= 0) {
 			return null;
 		}
 
-		$id = $this->intParam($params, 'account_id', 'account');
+		$targetId = (int) $id;
 
-		if ($id === null) {
-			return null;
-		}
-
-		foreach (($this->visibleAccounts)() as $account) {
-			if ($account->id === $id) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
+			if ($account->id === $targetId) {
 				return $this->formatAccount($account);
 			}
 		}
@@ -221,22 +169,25 @@ final class ApiResources {
 	/**
 	 * List discovered Cloud resources visible to the caller.
 	 *
-	 * @param array<string, mixed> $params optional filters: account_id/account, type, lifecycle
+	 * @param array<string, mixed> $context request context (user_id, query)
 	 * @return list<array<string, mixed>>
 	 */
-	public function listResources(array $params = []): array {
-		if (!($this->canView)()) {
+	public function listResources(array $context = []): array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId)) {
 			return [];
 		}
 
-		$accountFilter = $this->intParam($params, 'account_id', 'account');
-		$typeFilter    = is_string($params['type'] ?? null) && trim($params['type']) !== '' ? trim($params['type']) : null;
-		$lifeFilter    = is_string($params['lifecycle'] ?? null) && trim($params['lifecycle']) !== ''
-			? trim($params['lifecycle'])
+		$query         = is_array($context['query'] ?? null) ? $context['query'] : $context;
+		$accountFilter = $this->intParam($query, 'account_id', 'account');
+		$typeFilter    = is_string($query['type'] ?? null) && trim($query['type']) !== '' ? trim($query['type']) : null;
+		$lifeFilter    = is_string($query['lifecycle'] ?? null) && trim($query['lifecycle']) !== ''
+			? trim($query['lifecycle'])
 			: null;
 		$items         = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($accountFilter !== null && $account->id !== $accountFilter) {
 				continue;
 			}
@@ -250,24 +201,23 @@ final class ApiResources {
 	}
 
 	/**
-	 * Retrieve one discovered Cloud resource by account_id and resource_id.
+	 * Retrieve one discovered Cloud resource by ID.
 	 *
-	 * @param array<string, mixed> $params parameters containing account_id/account and resource_id/resource
+	 * @param int|string           $id      resource identifier
+	 * @param array<string, mixed> $context request context (user_id)
 	 * @return array<string, mixed>|null
 	 */
-	public function getResource(array $params = []): ?array {
-		if (!($this->canView)()) {
+	public function getResource(int|string $id, array $context = []): ?array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId) || !is_numeric($id) || (int) $id <= 0) {
 			return null;
 		}
 
-		$resourceId = $this->intParam($params, 'resource_id', 'resource');
+		$targetId = (int) $id;
 
-		if ($resourceId === null) {
-			return null;
-		}
-
-		foreach ($this->listResources($params) as $item) {
-			if ($item['resource_id'] === $resourceId) {
+		foreach ($this->listResources($context) as $item) {
+			if ($item['id'] === $targetId) {
 				return $item;
 			}
 		}
@@ -278,19 +228,22 @@ final class ApiResources {
 	/**
 	 * List collector health snapshots for visible Cloud accounts.
 	 *
-	 * @param array<string, mixed> $params optional account_id/account filter
+	 * @param array<string, mixed> $context request context (user_id, query)
 	 * @return list<array<string, mixed>>
 	 */
-	public function listHealth(array $params = []): array {
-		if (!($this->canView)()) {
+	public function listHealth(array $context = []): array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId)) {
 			return [];
 		}
 
-		$accountFilter = $this->intParam($params, 'account_id', 'account');
+		$query         = is_array($context['query'] ?? null) ? $context['query'] : $context;
+		$accountFilter = $this->intParam($query, 'account_id', 'account');
 		$checkedAt     = $this->clock->now();
 		$items         = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($accountFilter !== null && $account->id !== $accountFilter) {
 				continue;
 			}
@@ -302,24 +255,23 @@ final class ApiResources {
 	}
 
 	/**
-	 * Retrieve collector health for one Cloud account by account_id.
+	 * Retrieve collector health for one Cloud account by ID.
 	 *
-	 * @param array<string, mixed> $params parameters containing account_id or account
+	 * @param int|string           $id      account identifier
+	 * @param array<string, mixed> $context request context (user_id)
 	 * @return array<string, mixed>|null
 	 */
-	public function getHealth(array $params = []): ?array {
-		if (!($this->canView)()) {
+	public function getHealth(int|string $id, array $context = []): ?array {
+		$userId = Row::int($context, 'user_id', 0, 0);
+
+		if (!($this->canView)($userId) || !is_numeric($id) || (int) $id <= 0) {
 			return null;
 		}
 
-		$accountId = $this->intParam($params, 'account_id', 'account');
+		$targetId = (int) $id;
 
-		if ($accountId === null) {
-			return null;
-		}
-
-		foreach (($this->visibleAccounts)() as $account) {
-			if ($account->id === $accountId) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
+			if ($account->id === $targetId) {
 				return $this->formatHealth($account, $this->health->find($account->id), $this->clock->now());
 			}
 		}
@@ -335,7 +287,8 @@ final class ApiResources {
 	 */
 	private function formatAccount(Account $account): array {
 		return [
-			'name'              => 'accounts/' . $account->id,
+			'name'              => self::COLLECTION_ACCOUNTS . '/' . $account->id,
+			'id'                => $account->id,
 			'account_id'        => $account->id,
 			'display_name'      => $account->name,
 			'provider'          => $account->provider->value,
@@ -362,7 +315,8 @@ final class ApiResources {
 		$id = Row::int($resource, 'id', 0, 0);
 
 		return [
-			'name'         => 'accounts/' . $account->id . '/resources/' . $id,
+			'name'         => self::COLLECTION_RESOURCES . '/' . $id,
+			'id'           => $id,
 			'resource_id'  => $id,
 			'account_id'   => $account->id,
 			'account_name' => $account->name,
@@ -387,7 +341,8 @@ final class ApiResources {
 	 */
 	private function formatHealth(Account $account, AccountHealth $health, int $checkedAt): array {
 		return [
-			'name'          => 'accounts/' . $account->id . '/health',
+			'name'          => self::COLLECTION_HEALTH . '/' . $account->id,
+			'id'            => $account->id,
 			'account_id'    => $account->id,
 			'account_name'  => $account->name,
 			'provider'      => $account->provider->value,
@@ -410,9 +365,9 @@ final class ApiResources {
 	/**
 	 * Parse a positive integer parameter from primary or fallback keys.
 	 *
-	 * @param array<string, mixed> $params   request parameter map
-	 * @param string               $primary  primary parameter key
-	 * @param string               $fallback secondary parameter key
+	 * @param array<array-key, mixed> $params   request parameter map
+	 * @param string                  $primary  primary parameter key
+	 * @param string                  $fallback secondary parameter key
 	 * @return int|null positive integer when present and valid, null otherwise
 	 */
 	private function intParam(array $params, string $primary, string $fallback): ?int {

@@ -262,3 +262,47 @@ YAML;
 		->and($casc->validate('<?xml version="1.0"?><cloud_config/>', 'xml')['valid'])->toBeFalse()
 		->and($casc->validate('<?xml version="1.0"?><cloud_config><accounts/></cloud_config>', 'xml')['valid'])->toBeTrue();
 });
+
+it('exercises canonical plugin_casc array descriptor callbacks for export, validate, plan, and apply', function () {
+	[$casc] = cloud_casc_fixture();
+	$desc   = $casc->descriptor();
+
+	expect($desc['slug'])->toBe('cloud')
+		->and($desc['schemaVersion'])->toBe('1.0');
+
+	$exported = ($desc['export'])([]);
+	expect($exported)->toBe(['schema_version' => 1, 'accounts' => []]);
+
+	$desired = [
+		'schema_version' => 1,
+		'accounts'       => [
+			[
+				'name'              => 'do-array',
+				'provider'          => 'digitalocean',
+				'poller_id'         => 1,
+				'credential_source' => 'vault',
+				'credential_ref'    => 'vault:account:do-array',
+				'collect_interval'  => 300,
+				'discover_interval' => 3600,
+				'request_share'     => 50,
+				'enabled'           => true,
+				'scope'             => [],
+			],
+		],
+	];
+
+	expect(($desc['validate'])($desired))->toBe([]);
+	expect(($desc['validate'])(['schema_version' => 99, 'accounts' => []]))->not->toBeEmpty();
+
+	$plan = ($desc['plan'])($desired, []);
+	expect($plan['valid'])->toBeTrue()
+		->and($plan['actions'])->toHaveCount(1)
+		->and($plan['actions'][0]['action'])->toBe('create');
+
+	$badApply = ($desc['apply'])($desired, '0000', ['user_id' => 1]);
+	expect($badApply['applied'])->toBeFalse();
+
+	$goodApply = ($desc['apply'])($desired, $plan['plan_hash'], ['user_id' => 1]);
+	expect($goodApply['applied'])->toBeTrue()
+		->and($goodApply['created'])->toBe(1);
+});

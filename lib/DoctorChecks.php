@@ -20,7 +20,8 @@
 namespace Somethingwithproof\Cloud;
 
 /**
- * Diagnostic checks registered via the doctor_register_checks hook.
+ * Diagnostic checks registered via the doctor_register_checks and
+ * doctor_register_debug_info hooks.
  *
  * Checks schema currency, vault key health, provider driver readiness,
  * stale/failed/throttled accounts, and poller/collection interval alignment.
@@ -52,66 +53,109 @@ final class DoctorChecks {
 	}
 
 	/**
-	 * @return list<array{id: string, category: string, title: string, callback: \Closure(): array{status: string, message: string, details: array<string, mixed>}}>
+	 * Evaluate and return canonical Doctor check descriptors.
+	 *
+	 * @return list<array{
+	 *     id: string,
+	 *     plugin: string,
+	 *     category: string,
+	 *     title: string,
+	 *     status: string,
+	 *     message: string,
+	 *     details: array<string, mixed>,
+	 *     remediation: string
+	 * }>
 	 */
 	public function checks(): array {
+		$schema    = $this->checkSchema();
+		$vault     = $this->checkVaultKey();
+		$drivers   = $this->checkDrivers();
+		$health    = $this->checkAccountHealth();
+		$intervals = $this->checkIntervals();
+
 		return [
 			[
-				'id'       => 'cloud_schema',
-				'category' => 'cloud',
-				'title'    => 'Cloud Plugin Schema Currency',
-				'callback' => fn (): array => $this->checkSchema(),
+				'id'          => 'cloud.schema',
+				'plugin'      => 'cloud',
+				'category'    => 'cloud',
+				'title'       => 'Cloud Plugin Schema Currency',
+				'status'      => $schema['status'],
+				'message'     => $schema['message'],
+				'details'     => $schema['details'],
+				'remediation' => $schema['remediation'],
 			],
 			[
-				'id'       => 'cloud_vault_key',
-				'category' => 'cloud',
-				'title'    => 'Cloud Vault Key Health',
-				'callback' => fn (): array => $this->checkVaultKey(),
+				'id'          => 'cloud.vault_key',
+				'plugin'      => 'cloud',
+				'category'    => 'cloud',
+				'title'       => 'Cloud Vault Key Health',
+				'status'      => $vault['status'],
+				'message'     => $vault['message'],
+				'details'     => $vault['details'],
+				'remediation' => $vault['remediation'],
 			],
 			[
-				'id'       => 'cloud_drivers',
-				'category' => 'cloud',
-				'title'    => 'Cloud Provider Driver Readiness',
-				'callback' => fn (): array => $this->checkDrivers(),
+				'id'          => 'cloud.drivers',
+				'plugin'      => 'cloud',
+				'category'    => 'cloud',
+				'title'       => 'Cloud Provider Driver Readiness',
+				'status'      => $drivers['status'],
+				'message'     => $drivers['message'],
+				'details'     => $drivers['details'],
+				'remediation' => $drivers['remediation'],
 			],
 			[
-				'id'       => 'cloud_accounts_health',
-				'category' => 'cloud',
-				'title'    => 'Cloud Account Collection Health',
-				'callback' => fn (): array => $this->checkAccountHealth(),
+				'id'          => 'cloud.accounts_health',
+				'plugin'      => 'cloud',
+				'category'    => 'cloud',
+				'title'       => 'Cloud Account Collection Health',
+				'status'      => $health['status'],
+				'message'     => $health['message'],
+				'details'     => $health['details'],
+				'remediation' => $health['remediation'],
 			],
 			[
-				'id'       => 'cloud_poller_intervals',
-				'category' => 'cloud',
-				'title'    => 'Cloud Poller and Collection Interval Alignment',
-				'callback' => fn (): array => $this->checkIntervals(),
+				'id'          => 'cloud.poller_intervals',
+				'plugin'      => 'cloud',
+				'category'    => 'cloud',
+				'title'       => 'Cloud Poller and Collection Interval Alignment',
+				'status'      => $intervals['status'],
+				'message'     => $intervals['message'],
+				'details'     => $intervals['details'],
+				'remediation' => $intervals['remediation'],
 			],
 		];
 	}
 
 	/**
-	 * @return array{status: string, message: string, details: array<string, mixed>}
+	 * Check whether the stored Cloud plugin schema version matches Schema::VERSION.
+	 *
+	 * @return array{status: string, message: string, details: array<string, mixed>, remediation: string}
 	 */
 	public function checkSchema(): array {
 		$stored = $this->schema->storedVersion();
 
 		if ($stored === Schema::VERSION) {
 			return [
-				'status'  => 'ok',
-				'message' => 'Cloud plugin schema is current (version ' . Schema::VERSION . ').',
-				'details' => ['stored_version' => $stored, 'expected_version' => Schema::VERSION],
+				'status'      => 'ok',
+				'message'     => 'Cloud plugin schema is current (version ' . Schema::VERSION . ').',
+				'details'     => ['stored_version' => $stored, 'expected_version' => Schema::VERSION],
+				'remediation' => '',
 			];
 		}
 
 		return [
-			'status'  => 'error',
-			'message' => sprintf('Cloud plugin schema version %d does not match expected version %d.', $stored, Schema::VERSION),
-			'details' => ['stored_version' => $stored, 'expected_version' => Schema::VERSION],
+			'status'      => 'fail',
+			'message'     => sprintf('Cloud plugin schema version %d does not match expected version %d.', $stored, Schema::VERSION),
+			'details'     => ['stored_version' => $stored, 'expected_version' => Schema::VERSION],
+			'remediation' => 'Run plugin_cloud upgrade from Cacti Plugin Management to bring the schema current.',
 		];
 	}
 
 	/**
-	 * @return array{status: string, message: string, details: array<string, mixed>}
+	 * Check whether the configured vault key file passes permission and size checks.
+	 *
+	 * @return array{status: string, message: string, details: array<string, mixed>, remediation: string}
 	 */
 	public function checkVaultKey(): array {
 		$vaultAccounts = 0;
@@ -126,21 +170,25 @@ final class DoctorChecks {
 			($this->keyCheck)($this->settings->vaultKeyFile);
 
 			return [
-				'status'  => 'ok',
-				'message' => 'Vault key file is readable and passes permission and size checks.',
-				'details' => ['vault_accounts' => $vaultAccounts],
+				'status'      => 'ok',
+				'message'     => 'Vault key file is readable and passes permission and size checks.',
+				'details'     => ['vault_accounts' => $vaultAccounts],
+				'remediation' => '',
 			];
 		} catch (CredentialError $e) {
 			return [
-				'status'  => $vaultAccounts > 0 ? 'error' : 'warning',
-				'message' => 'Vault key file check failed: ' . $e->getMessage(),
-				'details' => ['vault_accounts' => $vaultAccounts],
+				'status'      => $vaultAccounts > 0 ? 'fail' : 'warn',
+				'message'     => 'Vault key file check failed: ' . $e->getMessage(),
+				'details'     => ['vault_accounts' => $vaultAccounts],
+				'remediation' => 'Provision a readable 32-byte Cloud vault key file with 0600 permissions.',
 			];
 		}
 	}
 
 	/**
-	 * @return array{status: string, message: string, details: array<string, mixed>}
+	 * Check that production drivers are registered for every released provider.
+	 *
+	 * @return array{status: string, message: string, details: array<string, mixed>, remediation: string}
 	 */
 	public function checkDrivers(): array {
 		$missing = [];
@@ -172,21 +220,25 @@ final class DoctorChecks {
 
 		if ($missing !== []) {
 			return [
-				'status'  => 'error',
-				'message' => 'Missing production drivers for released providers: ' . implode(', ', $missing),
-				'details' => ['ready' => $ready, 'missing' => $missing],
+				'status'      => 'fail',
+				'message'     => 'Missing production drivers for released providers: ' . implode(', ', $missing),
+				'details'     => ['ready' => $ready, 'missing' => $missing],
+				'remediation' => 'Verify plugin_cloud installation integrity and PHP extension requirements.',
 			];
 		}
 
 		return [
-			'status'  => 'ok',
-			'message' => 'All released provider drivers are registered (' . implode(', ', $ready) . ').',
-			'details' => ['ready' => $ready, 'missing' => []],
+			'status'      => 'ok',
+			'message'     => 'All released provider drivers are registered (' . implode(', ', $ready) . ').',
+			'details'     => ['ready' => $ready, 'missing' => []],
+			'remediation' => '',
 		];
 	}
 
 	/**
-	 * @return array{status: string, message: string, details: array<string, mixed>}
+	 * Evaluate failed, throttled, and stale collection status across enabled accounts.
+	 *
+	 * @return array{status: string, message: string, details: array<string, mixed>, remediation: string}
 	 */
 	public function checkAccountHealth(): array {
 		$now       = $this->clock->now();
@@ -214,9 +266,10 @@ final class DoctorChecks {
 
 		if ($failed !== []) {
 			return [
-				'status'  => 'error',
-				'message' => 'Failed cloud accounts: ' . implode(', ', $failed),
-				'details' => ['enabled' => $enabled, 'failed' => $failed, 'throttled' => $throttled, 'stale' => $stale],
+				'status'      => 'fail',
+				'message'     => 'Failed cloud accounts: ' . implode(', ', $failed),
+				'details'     => ['enabled' => $enabled, 'failed' => $failed, 'throttled' => $throttled, 'stale' => $stale],
+				'remediation' => 'Inspect Cloud Health and Cacti logs for authentication or connectivity errors.',
 			];
 		}
 
@@ -232,21 +285,25 @@ final class DoctorChecks {
 			}
 
 			return [
-				'status'  => 'warning',
-				'message' => 'Degraded cloud accounts (' . implode('; ', $parts) . ').',
-				'details' => ['enabled' => $enabled, 'failed' => [], 'throttled' => $throttled, 'stale' => $stale],
+				'status'      => 'warn',
+				'message'     => 'Degraded cloud accounts (' . implode('; ', $parts) . ').',
+				'details'     => ['enabled' => $enabled, 'failed' => [], 'throttled' => $throttled, 'stale' => $stale],
+				'remediation' => 'Verify poller_cloud.php scheduling and review provider API rate limits.',
 			];
 		}
 
 		return [
-			'status'  => 'ok',
-			'message' => sprintf('%d enabled cloud account(s) healthy.', $enabled),
-			'details' => ['enabled' => $enabled, 'failed' => [], 'throttled' => [], 'stale' => []],
+			'status'      => 'ok',
+			'message'     => sprintf('%d enabled cloud account(s) healthy.', $enabled),
+			'details'     => ['enabled' => $enabled, 'failed' => [], 'throttled' => [], 'stale' => []],
+			'remediation' => '',
 		];
 	}
 
 	/**
-	 * @return array{status: string, message: string, details: array<string, mixed>}
+	 * Verify enabled accounts' collection intervals align with Cacti's poller interval.
+	 *
+	 * @return array{status: string, message: string, details: array<string, mixed>, remediation: string}
 	 */
 	public function checkIntervals(): array {
 		$misaligned = [];
@@ -273,40 +330,45 @@ final class DoctorChecks {
 
 		if ($misaligned !== []) {
 			return [
-				'status'  => 'warning',
-				'message' => 'Collection intervals misaligned with poller interval: ' . implode(', ', $misaligned),
-				'details' => ['poller_interval' => $this->pollerInterval, 'misaligned' => $misaligned],
+				'status'      => 'warn',
+				'message'     => 'Collection intervals misaligned with poller interval: ' . implode(', ', $misaligned),
+				'details'     => ['poller_interval' => $this->pollerInterval, 'misaligned' => $misaligned],
+				'remediation' => 'Set each cloud account collect_interval to a multiple of the Cacti poller interval.',
 			];
 		}
 
 		return [
-			'status'  => 'ok',
-			'message' => 'All enabled cloud account collection intervals align with the poller interval.',
-			'details' => ['poller_interval' => $this->pollerInterval, 'misaligned' => []],
+			'status'      => 'ok',
+			'message'     => 'All enabled cloud account collection intervals align with the poller interval.',
+			'details'     => ['poller_interval' => $this->pollerInterval, 'misaligned' => []],
+			'remediation' => '',
 		];
 	}
 
 	/**
-	 * Return a redacted diagnostic snapshot for doctor_register_debug_info.
+	 * Return a redacted diagnostic snapshot section for doctor_register_debug_info.
 	 *
 	 * Reports plugin version, schema currency, non-secret settings metadata,
-	 * account/provider/driver counts, and aggregate collection health without
-	 * ever reading or emitting raw vault key material or credential values.
+	 * account/provider/driver counts, and aggregate collection health using scalar
+	 * field values without ever reading or emitting raw vault key material or
+	 * credential values.
 	 *
 	 * @param string $pluginVersion plugin version reported by INFO
 	 * @return array{
 	 *     id: string,
+	 *     plugin: string,
 	 *     label: string,
-	 *     fields: array<string, mixed>
+	 *     private: bool,
+	 *     fields: array<string, array{label: string, value: scalar|null}>
 	 * }
 	 */
 	public function debugInfo(string $pluginVersion = ''): array {
-		$accounts          = $this->accounts->all();
-		$enabled           = 0;
-		$disabled          = 0;
-		$byProvider        = [];
-		$byCredentialSrc   = [];
-		$healthSummary     = [
+		$accounts        = $this->accounts->all();
+		$enabled         = 0;
+		$disabled        = 0;
+		$byProvider      = [];
+		$byCredentialSrc = [];
+		$healthSummary   = [
 			'ok'        => 0,
 			'partial'   => 0,
 			'budget'    => 0,
@@ -314,7 +376,7 @@ final class DoctorChecks {
 			'throttled' => 0,
 			'never'     => 0,
 		];
-		$now               = $this->clock->now();
+		$now             = $this->clock->now();
 
 		foreach ($accounts as $account) {
 			if ($account->enabled()) {
@@ -323,11 +385,11 @@ final class DoctorChecks {
 				$disabled++;
 			}
 
-			$provider                      = $account->provider->value;
-			$byProvider[$provider]         = ($byProvider[$provider] ?? 0) + 1;
-			$source                        = $account->credentialSource->value;
-			$byCredentialSrc[$source]      = ($byCredentialSrc[$source] ?? 0) + 1;
-			$h                             = $this->health->find($account->id);
+			$provider                 = $account->provider->value;
+			$byProvider[$provider]    = ($byProvider[$provider] ?? 0) + 1;
+			$source                   = $account->credentialSource->value;
+			$byCredentialSrc[$source] = ($byCredentialSrc[$source] ?? 0) + 1;
+			$h                        = $this->health->find($account->id);
 
 			if ($h->retryAt > $now || $h->error === ErrorClass::Throttled) {
 				$healthSummary['throttled']++;
@@ -347,56 +409,76 @@ final class DoctorChecks {
 		$vaultCheck  = $this->checkVaultKey();
 		$stored      = $this->schema->storedVersion();
 
+		$readyDrivers   = [];
+		$missingDrivers = [];
+
+		if (is_array($driverCheck['details']['ready'] ?? null)) {
+			foreach ($driverCheck['details']['ready'] as $item) {
+				if (is_scalar($item)) {
+					$readyDrivers[] = (string) $item;
+				}
+			}
+		}
+
+		if (is_array($driverCheck['details']['missing'] ?? null)) {
+			foreach ($driverCheck['details']['missing'] as $item) {
+				if (is_scalar($item)) {
+					$missingDrivers[] = (string) $item;
+				}
+			}
+		}
+
 		return [
-			'id'     => 'cloud',
-			'label'  => 'Cloud Plugin',
-			'fields' => [
-				'version' => [
-					'label' => 'Plugin Version',
-					'value' => $pluginVersion,
-				],
-				'schema_version' => [
-					'label' => 'Schema Version',
-					'value' => [
-						'stored'   => $stored,
-						'expected' => Schema::VERSION,
-						'current'  => $stored === Schema::VERSION,
-					],
-				],
-				'settings' => [
-					'label' => 'Settings (Redacted)',
-					'value' => [
-						'collector_budget'          => $this->settings->collectorBudget,
-						'keep_tables_on_uninstall'  => $this->settings->keepTablesOnUninstall,
-						'vault_key_configured'      => $this->settings->vaultKeyFile !== '',
-						'vault_key_status'          => $vaultCheck['status'],
-						'credential_dir_configured' => $this->settings->credentialDir !== '',
-						'poller_interval'           => $this->pollerInterval,
-					],
-				],
-				'accounts' => [
-					'label' => 'Accounts',
-					'value' => [
-						'total'                => count($accounts),
-						'enabled'              => $enabled,
-						'disabled'             => $disabled,
-						'by_provider'          => $byProvider,
-						'by_credential_source' => $byCredentialSrc,
-					],
-				],
-				'drivers' => [
-					'label' => 'Provider Drivers',
-					'value' => [
-						'released_count' => count(Provider::released()),
-						'ready'          => $driverCheck['details']['ready'],
-						'missing'        => $driverCheck['details']['missing'],
-					],
-				],
-				'health' => [
-					'label' => 'Health Summary',
-					'value' => $healthSummary,
-				],
+			'id'      => 'cloud.overview',
+			'plugin'  => 'cloud',
+			'label'   => 'Cloud Plugin',
+			'private' => false,
+			'fields'  => [
+				'plugin_version'              => ['label' => 'Plugin Version', 'value' => $pluginVersion],
+				'schema_version'              => ['label' => 'Schema Version', 'value' => $stored],
+				'schema_version_expected'     => ['label' => 'Expected Schema Version', 'value' => Schema::VERSION],
+				'schema_current'              => ['label' => 'Schema Current', 'value' => $stored === Schema::VERSION],
+				'collector_budget'            => ['label' => 'Collector Budget (s)', 'value' => $this->settings->collectorBudget],
+				'keep_tables_on_uninstall'    => ['label' => 'Keep Tables On Uninstall', 'value' => $this->settings->keepTablesOnUninstall],
+				'vault_key_configured'        => ['label' => 'Vault Key Configured', 'value' => $this->settings->vaultKeyFile !== ''],
+				'vault_key_status'            => ['label' => 'Vault Key Status', 'value' => $vaultCheck['status']],
+				'credential_dir_configured'   => ['label' => 'Credential Directory Configured', 'value' => $this->settings->credentialDir !== ''],
+				'poller_interval'             => ['label' => 'Poller Interval (s)', 'value' => $this->pollerInterval],
+				'accounts_total'              => ['label' => 'Accounts Total', 'value' => count($accounts)],
+				'accounts_enabled'            => ['label' => 'Accounts Enabled', 'value' => $enabled],
+				'accounts_disabled'           => ['label' => 'Accounts Disabled', 'value' => $disabled],
+				'accounts_by_provider'        => ['label' => 'Accounts By Provider', 'value' => self::formatCountMap($byProvider)],
+				'accounts_by_credential_type' => ['label' => 'Accounts By Credential Source', 'value' => self::formatCountMap($byCredentialSrc)],
+				'drivers_released'            => ['label' => 'Released Drivers', 'value' => count(Provider::released())],
+				'drivers_ready'               => ['label' => 'Ready Drivers', 'value' => $readyDrivers !== [] ? implode(', ', $readyDrivers) : 'none'],
+				'drivers_missing'             => ['label' => 'Missing Drivers', 'value' => $missingDrivers !== [] ? implode(', ', $missingDrivers) : 'none'],
+				'health_ok'                   => ['label' => 'Accounts Healthy', 'value' => $healthSummary['ok']],
+				'health_partial'              => ['label' => 'Accounts Partial', 'value' => $healthSummary['partial']],
+				'health_budget'               => ['label' => 'Accounts Over Budget', 'value' => $healthSummary['budget']],
+				'health_failed'               => ['label' => 'Accounts Failed', 'value' => $healthSummary['failed']],
+				'health_throttled'            => ['label' => 'Accounts Throttled', 'value' => $healthSummary['throttled']],
+				'health_never'                => ['label' => 'Accounts Never Polled', 'value' => $healthSummary['never']],
 			],
 		];
+	}
+
+	/**
+	 * Format a sorted string-to-count map as a deterministic scalar summary string.
+	 *
+	 * @param array<string, int> $counts key => count map
+	 * @return string comma-separated key=count pairs or 'none'
+	 */
+	private static function formatCountMap(array $counts): string {
+		if ($counts === []) {
+			return 'none';
+		}
+
+		$parts = [];
+
+		foreach ($counts as $key => $count) {
+			$parts[] = $key . '=' . $count;
+		}
+
+		return implode(', ', $parts);
 	}
 }

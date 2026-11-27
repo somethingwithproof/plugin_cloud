@@ -22,14 +22,53 @@ namespace Somethingwithproof\Cloud;
 /**
  * Strictly read-only MCP/AI abilities registered via abilities_register.
  *
- * Every ability checks Cloud View realm authorization, applies Cacti device
- * scoping for non-admin callers, and returns zero credentials, vault keys,
- * or credential file paths.
+ * Every ability checks Cloud View realm authorization via DB lookup for the
+ * explicit user ID, applies Cacti device scoping for non-admin callers, and
+ * returns zero credentials, vault keys, or credential file paths.
  */
 final class Abilities {
 	/**
-	 * @param \Closure(): bool          $canView         checks Cloud View realm permission
-	 * @param \Closure(): list<Account> $visibleAccounts returns accounts the caller may access
+	 * Ability category slug for Cloud abilities.
+	 */
+	public const CATEGORY = 'cloud';
+
+	/**
+	 * Ability category display label.
+	 */
+	public const CATEGORY_LABEL = 'Cloud';
+
+	/**
+	 * List accounts ability identifier.
+	 */
+	public const LIST_ACCOUNTS = 'cloud-list-accounts';
+
+	/**
+	 * List resources ability identifier.
+	 */
+	public const LIST_RESOURCES = 'cloud-list-resources';
+
+	/**
+	 * Get health ability identifier.
+	 */
+	public const GET_HEALTH = 'cloud-get-health';
+
+	/**
+	 * Required MCP read-only annotations.
+	 */
+	private const ANNOTATIONS = [
+		'readOnly'    => true,
+		'destructive' => false,
+		'idempotent'  => true,
+	];
+
+	/**
+	 * Construct the Cloud MCP abilities handler.
+	 *
+	 * @param \Closure(int): bool          $canView         checks Cloud View realm permission for $userId
+	 * @param \Closure(int): list<Account> $visibleAccounts returns accounts $userId may access
+	 * @param ResourceRepository           $resources       discovered resource store
+	 * @param HealthRepository             $health          per-account collector health store
+	 * @param Clock                        $clock           wall clock
 	 */
 	public function __construct(
 		private readonly \Closure $canView,
@@ -41,74 +80,207 @@ final class Abilities {
 	}
 
 	/**
+	 * Build canonical MCP ability definitions keyed by ability ID.
+	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function definitions(): array {
-		$permission = fn (): bool => ($this->canView)();
+		$permission = fn (int $userId): bool => ($this->canView)($userId);
 
 		return [
-			'cloud-list-accounts' => [
-				'name'                => 'cloud-list-accounts',
-				'label'               => 'List Cloud Accounts',
-				'description'         => 'List configured cloud accounts visible to the caller without any credential values.',
-				'read_only'           => true,
-				'permission_callback' => $permission,
-				'input_schema'        => [
-					'type'       => 'object',
-					'properties' => [
-						'provider'  => ['type' => 'string'],
-						'poller_id' => ['type' => 'integer'],
+			self::LIST_ACCOUNTS => [
+				'label'        => 'List Cloud Accounts',
+				'description'  => 'List configured cloud accounts visible to the caller without any credential values.',
+				'category'     => self::CATEGORY,
+				'input_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'provider'  => ['type' => 'string', 'maxLength' => 64],
+						'poller_id' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 1000000],
 					],
+					'additionalProperties' => false,
 				],
-				'callback'            => fn (array $args = []): array => $this->listAccounts($args),
+				'output_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'accounts' => [
+							'type'     => 'array',
+							'maxItems' => 500,
+							'items'    => [
+								'type'                 => 'object',
+								'properties'           => [
+									'id'                => ['type' => 'integer'],
+									'name'              => ['type' => 'string'],
+									'provider'          => ['type' => 'string'],
+									'poller_id'         => ['type' => 'integer'],
+									'admin_state'       => ['type' => 'string'],
+									'credential_source' => ['type' => 'string'],
+									'collect_interval'  => ['type' => 'integer'],
+									'discover_interval' => ['type' => 'integer'],
+									'verify_status'     => ['type' => 'string'],
+									'verified_at'       => ['type' => 'integer'],
+								],
+								'required'             => ['id', 'name', 'provider', 'poller_id', 'admin_state', 'credential_source', 'collect_interval', 'discover_interval', 'verify_status', 'verified_at'],
+								'additionalProperties' => false,
+							],
+						],
+					],
+					'required'             => ['accounts'],
+					'additionalProperties' => false,
+				],
+				'annotations' => self::ANNOTATIONS,
+				'permission'  => $permission,
+				'execute'     => fn (int $userId, \stdClass|array $args = []): array => $this->listAccounts(is_array($args) ? $args : (array) $args, $userId),
 			],
-			'cloud-list-resources' => [
-				'name'                => 'cloud-list-resources',
-				'label'               => 'List Cloud Resources',
-				'description'         => 'List discovered cloud resources for accounts visible to the caller.',
-				'read_only'           => true,
-				'permission_callback' => $permission,
-				'input_schema'        => [
-					'type'       => 'object',
-					'properties' => [
-						'account_id' => ['type' => 'integer'],
-						'type'       => ['type' => 'string'],
-						'lifecycle'  => ['type' => 'string'],
+			self::LIST_RESOURCES => [
+				'label'        => 'List Cloud Resources',
+				'description'  => 'List discovered cloud resources for accounts visible to the caller.',
+				'category'     => self::CATEGORY,
+				'input_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'account_id' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 1000000],
+						'type'       => ['type' => 'string', 'maxLength' => 64],
+						'lifecycle'  => ['type' => 'string', 'maxLength' => 32],
 					],
+					'additionalProperties' => false,
 				],
-				'callback'            => fn (array $args = []): array => $this->listResources($args),
+				'output_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'resources' => [
+							'type'     => 'array',
+							'maxItems' => 1000,
+							'items'    => [
+								'type'                 => 'object',
+								'properties'           => [
+									'id'           => ['type' => 'integer'],
+									'account_id'   => ['type' => 'integer'],
+									'account_name' => ['type' => 'string'],
+									'provider'     => ['type' => 'string'],
+									'type'         => ['type' => 'string'],
+									'provider_id'  => ['type' => 'string'],
+									'name'         => ['type' => 'string'],
+									'region'       => ['type' => 'string'],
+									'lifecycle'    => ['type' => 'string'],
+									'first_seen'   => ['type' => 'integer'],
+									'last_seen'    => ['type' => 'integer'],
+								],
+								'required'             => ['id', 'account_id', 'account_name', 'provider', 'type', 'provider_id', 'name', 'region', 'lifecycle', 'first_seen', 'last_seen'],
+								'additionalProperties' => false,
+							],
+						],
+					],
+					'required'             => ['resources'],
+					'additionalProperties' => false,
+				],
+				'annotations' => self::ANNOTATIONS,
+				'permission'  => $permission,
+				'execute'     => fn (int $userId, \stdClass|array $args = []): array => $this->listResources(is_array($args) ? $args : (array) $args, $userId),
 			],
-			'cloud-get-health' => [
-				'name'                => 'cloud-get-health',
-				'label'               => 'Get Cloud Health',
-				'description'         => 'Read collector and discovery health status for visible cloud accounts.',
-				'read_only'           => true,
-				'permission_callback' => $permission,
-				'input_schema'        => [
-					'type'       => 'object',
-					'properties' => [
-						'account_id' => ['type' => 'integer'],
+			self::GET_HEALTH => [
+				'label'        => 'Get Cloud Health',
+				'description'  => 'Read collector and discovery health status for visible cloud accounts.',
+				'category'     => self::CATEGORY,
+				'input_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'account_id' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 1000000],
 					],
+					'additionalProperties' => false,
 				],
-				'callback'            => fn (array $args = []): array => $this->getHealth($args),
+				'output_schema' => [
+					'type'                 => 'object',
+					'properties'           => [
+						'checked_at' => ['type' => 'integer'],
+						'accounts'   => [
+							'type'     => 'array',
+							'maxItems' => 500,
+							'items'    => [
+								'type'                 => 'object',
+								'properties'           => [
+									'account_id'    => ['type' => 'integer'],
+									'name'          => ['type' => 'string'],
+									'provider'      => ['type' => 'string'],
+									'poller_id'     => ['type' => 'integer'],
+									'enabled'       => ['type' => 'boolean'],
+									'collection'    => ['type' => 'string'],
+									'discovery'     => ['type' => 'string'],
+									'error_class'   => ['type' => 'string'],
+									'run_started'   => ['type' => 'integer'],
+									'run_finished'  => ['type' => 'integer'],
+									'discovered_at' => ['type' => 'integer'],
+									'retry_at'      => ['type' => 'integer'],
+									'requests'      => ['type' => 'integer'],
+									'series_read'   => ['type' => 'integer'],
+									'series_total'  => ['type' => 'integer'],
+									'resources'     => [
+										'type'                 => 'object',
+										'properties'           => [
+											'active'  => ['type' => 'integer'],
+											'missing' => ['type' => 'integer'],
+											'deleted' => ['type' => 'integer'],
+										],
+										'required'             => ['active', 'missing', 'deleted'],
+										'additionalProperties' => false,
+									],
+								],
+								'required'             => ['account_id', 'name', 'provider', 'poller_id', 'enabled', 'collection', 'discovery', 'error_class', 'run_started', 'run_finished', 'discovered_at', 'retry_at', 'requests', 'series_read', 'series_total', 'resources'],
+								'additionalProperties' => false,
+							],
+						],
+					],
+					'required'             => ['checked_at', 'accounts'],
+					'additionalProperties' => false,
+				],
+				'annotations' => self::ANNOTATIONS,
+				'permission'  => $permission,
+				'execute'     => fn (int $userId, \stdClass|array $args = []): array => $this->getHealth(is_array($args) ? $args : (array) $args, $userId),
 			],
 		];
 	}
 
 	/**
+	 * Register Cloud ability category and definitions onto an AbilitiesRegistrar object.
+	 *
+	 * @param object $registrar host registrar providing register() and optional registerCategory()
+	 * @return void
+	 */
+	public function registerOn(object $registrar): void {
+		if (!method_exists($registrar, 'register')) {
+			return;
+		}
+
+		if (method_exists($registrar, 'registerCategory')) {
+			try {
+				$registrar->registerCategory(self::CATEGORY, self::CATEGORY_LABEL);
+			} catch (\Throwable) {
+				// Category already registered in the host registry.
+			}
+		}
+
+		foreach ($this->definitions() as $id => $def) {
+			$registrar->register($id, $def);
+		}
+	}
+
+	/**
+	 * List configured cloud accounts visible to $userId.
+	 *
 	 * @param array<string, mixed> $args
+	 * @param int                  $userId
 	 * @return array<string, mixed>
 	 */
-	public function listAccounts(array $args = []): array {
-		if (!($this->canView)()) {
-			return ['error' => 'permission_denied', 'accounts' => []];
+	public function listAccounts(array $args = [], int $userId = 0): array {
+		if (!($this->canView)($userId)) {
+			return ['accounts' => []];
 		}
 
 		$providerFilter = is_string($args['provider'] ?? null) ? trim($args['provider']) : '';
 		$pollerFilter   = isset($args['poller_id']) && is_numeric($args['poller_id']) ? (int) $args['poller_id'] : null;
 		$out            = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($providerFilter !== '' && $account->provider->value !== $providerFilter) {
 				continue;
 			}
@@ -131,16 +303,19 @@ final class Abilities {
 			];
 		}
 
-		return ['accounts' => $out];
+		return ['accounts' => array_slice($out, 0, 500)];
 	}
 
 	/**
+	 * List discovered cloud resources for accounts visible to $userId.
+	 *
 	 * @param array<string, mixed> $args
+	 * @param int                  $userId
 	 * @return array<string, mixed>
 	 */
-	public function listResources(array $args = []): array {
-		if (!($this->canView)()) {
-			return ['error' => 'permission_denied', 'resources' => []];
+	public function listResources(array $args = [], int $userId = 0): array {
+		if (!($this->canView)($userId)) {
+			return ['resources' => []];
 		}
 
 		$accountFilter = isset($args['account_id']) && is_numeric($args['account_id']) ? (int) $args['account_id'] : null;
@@ -148,7 +323,7 @@ final class Abilities {
 		$lifeFilter    = is_string($args['lifecycle'] ?? null) && $args['lifecycle'] !== '' ? trim($args['lifecycle']) : null;
 		$out           = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($accountFilter !== null && $account->id !== $accountFilter) {
 				continue;
 			}
@@ -158,27 +333,31 @@ final class Abilities {
 			}
 		}
 
-		return ['resources' => $out];
+		return ['resources' => array_slice($out, 0, 1000)];
 	}
 
 	/**
+	 * Read collector and discovery health status for accounts visible to $userId.
+	 *
 	 * @param array<string, mixed> $args
+	 * @param int                  $userId
 	 * @return array<string, mixed>
 	 */
-	public function getHealth(array $args = []): array {
-		if (!($this->canView)()) {
-			return ['error' => 'permission_denied', 'accounts' => []];
+	public function getHealth(array $args = [], int $userId = 0): array {
+		if (!($this->canView)($userId)) {
+			return ['checked_at' => $this->clock->now(), 'accounts' => []];
 		}
 
 		$accountFilter = isset($args['account_id']) && is_numeric($args['account_id']) ? (int) $args['account_id'] : null;
 		$out           = [];
 
-		foreach (($this->visibleAccounts)() as $account) {
+		foreach (($this->visibleAccounts)($userId) as $account) {
 			if ($accountFilter !== null && $account->id !== $accountFilter) {
 				continue;
 			}
 
-			$h = $this->health->find($account->id);
+			$h      = $this->health->find($account->id);
+			$counts = $this->resources->counts($account->id);
 
 			$out[] = [
 				'account_id'    => $account->id,
@@ -196,13 +375,17 @@ final class Abilities {
 				'requests'      => $h->requests,
 				'series_read'   => $h->seriesRead,
 				'series_total'  => $h->seriesTotal,
-				'resources'     => $this->resources->counts($account->id),
+				'resources'     => [
+					'active'  => $counts['active'] ?? 0,
+					'missing' => $counts['missing'] ?? 0,
+					'deleted' => $counts['deleted'] ?? 0,
+				],
 			];
 		}
 
 		return [
 			'checked_at' => $this->clock->now(),
-			'accounts'   => $out,
+			'accounts'   => array_slice($out, 0, 500),
 		];
 	}
 }

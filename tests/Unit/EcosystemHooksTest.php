@@ -26,6 +26,7 @@ use Somethingwithproof\Cloud\DoctorChecks;
 use Somethingwithproof\Cloud\Drivers;
 use Somethingwithproof\Cloud\FixedClock;
 use Somethingwithproof\Cloud\HealthRepository;
+use Somethingwithproof\Cloud\RealmRepository;
 use Somethingwithproof\Cloud\ResourceRepository;
 use Somethingwithproof\Cloud\Schema;
 use Somethingwithproof\Cloud\Settings;
@@ -40,7 +41,7 @@ afterEach(function () {
 	$GLOBALS['__cloud_db_exec'] = [];
 });
 
-it('registers strictly read-only MCP abilities gated on Cloud View and returning zero secrets', function () {
+it('registers strictly read-only MCP abilities via registrar object with canonical schemas and user-ID permissions', function () {
 	$clock   = new FixedClock(1731542400);
 	$account = Account::fromRow([
 		'id'                => 7,
@@ -55,6 +56,9 @@ it('registers strictly read-only MCP abilities gated on Cloud View and returning
 	]);
 
 	$GLOBALS['__cloud_db_rows'] = [
+		'GROUP BY lifecycle' => [
+			['lifecycle' => 'active', 'n' => 1],
+		],
 		'FROM plugin_cloud_resource WHERE account_id = ?' => [
 			[
 				'id'          => 11,
@@ -78,47 +82,105 @@ it('registers strictly read-only MCP abilities gated on Cloud View and returning
 				'requests'     => 1,
 			],
 		],
+		'FROM plugin_realms WHERE plugin = ?' => [
+			['id' => 21, 'file' => 'cloud_health.php'],
+			['id' => 22, 'file' => 'cloud_accounts.php'],
+		],
+		'FROM user_auth_realm' => [['realm_id' => 121]],
 	];
 
 	$allowed = true;
 	$hub     = new Abilities(
-		static function () use (&$allowed): bool {
-			return $allowed;
+		static function (int $userId) use (&$allowed): bool {
+			return $allowed && $userId > 0;
 		},
-		static fn (): array => [$account],
+		static fn (int $userId): array => [$account],
 		new ResourceRepository(false, $clock),
 		new HealthRepository(false),
 		$clock
 	);
 
 	$defs = $hub->definitions();
-	expect(array_keys($defs))->toBe(['cloud-list-accounts', 'cloud-list-resources', 'cloud-get-health']);
+	expect(array_keys($defs))->toBe([Abilities::LIST_ACCOUNTS, Abilities::LIST_RESOURCES, Abilities::GET_HEALTH]);
+
+	$assertSchema = static function (array $schema) use (&$assertSchema): void {
+		$type = is_array($schema['type'] ?? null) ? $schema['type'][0] : ($schema['type'] ?? '');
+
+		if ($type === 'object') {
+			expect($schema['additionalProperties'] ?? null)->toBeFalse()
+				->and($schema)->toHaveKey('properties');
+
+			foreach ($schema['properties'] as $prop) {
+				$assertSchema($prop);
+			}
+		} elseif ($type === 'array') {
+			expect($schema['items'] ?? null)->toBeArray()
+				->and($schema['maxItems'] ?? null)->toBeInt()->toBeGreaterThan(0);
+			$assertSchema($schema['items']);
+		}
+	};
+
+	$expectedKeys = ['label', 'description', 'category', 'input_schema', 'output_schema', 'annotations', 'permission', 'execute'];
 
 	foreach ($defs as $def) {
-		expect($def['read_only'])->toBeTrue();
+		expect(array_keys($def))->toBe($expectedKeys)
+			->and($def['annotations'])->toBe(['readOnly' => true, 'destructive' => false, 'idempotent' => true]);
+		$assertSchema($def['input_schema']);
+		$assertSchema($def['output_schema']);
 	}
 
-	$accOut = $defs['cloud-list-accounts']['callback']([]);
-	$resOut = $defs['cloud-list-resources']['callback'](['account_id' => 7]);
-	$hltOut = $defs['cloud-get-health']['callback']([]);
+	$accOut = $defs[Abilities::LIST_ACCOUNTS]['execute'](7, new \stdClass());
+	$resOut = $defs[Abilities::LIST_RESOURCES]['execute'](7, (object) ['account_id' => 7]);
+	$hltOut = $defs[Abilities::GET_HEALTH]['execute'](7, new \stdClass());
 
 	$serialized = (string) json_encode([$accOut, $resOut, $hltOut]);
 
 	expect($accOut['accounts'][0]['name'])->toBe('aws-prod')
 		->and($resOut['resources'][0]['provider_id'])->toBe('us-east-1/i-0123456789abcdef0')
 		->and($hltOut['accounts'][0]['collection'])->toBe('ok')
+		->and($hltOut['accounts'][0]['resources'])->toBe(['active' => 1, 'missing' => 0, 'deleted' => 0])
 		->and($serialized)->not->toContain('/etc/cacti/aws-secret.json')
 		->and($serialized)->not->toContain('credential_file');
 
 	// Denied when Cloud View realm is missing.
 	$allowed = false;
-	expect($defs['cloud-list-accounts']['permission_callback']())->toBeFalse()
-		->and($defs['cloud-list-accounts']['callback']([]))->toBe(['error' => 'permission_denied', 'accounts' => []])
-		->and($defs['cloud-list-resources']['callback']([]))->toBe(['error' => 'permission_denied', 'resources' => []])
-		->and($defs['cloud-get-health']['callback']([]))->toBe(['error' => 'permission_denied', 'accounts' => []]);
+	expect($defs[Abilities::LIST_ACCOUNTS]['permission'](7))->toBeFalse()
+		->and($defs[Abilities::LIST_ACCOUNTS]['execute'](7, new \stdClass()))->toBe(['accounts' => []])
+		->and($defs[Abilities::LIST_RESOURCES]['execute'](7, new \stdClass()))->toBe(['resources' => []])
+		->and($defs[Abilities::GET_HEALTH]['execute'](7, new \stdClass()))->toBe(['checked_at' => 1731542400, 'accounts' => []]);
+
+	// Verify setup.php hook calls $registrar->register($id, $def) and uses DB-backed RealmRepository.
+	$registrar = new class() {
+		/** @var array<string, string> */
+		public array $categories = [];
+		/** @var array<string, array<string, mixed>> */
+		public array $abilities = [];
+
+		public function registerCategory(string $id, string $label): void {
+			$this->categories[$id] = $label;
+		}
+
+		/** @param array<string, mixed> $def */
+		public function register(string $id, array $def): void {
+			$this->abilities[$id] = $def;
+		}
+	};
+
+	cloud_abilities_register($registrar);
+	expect($registrar->categories)->toHaveKey('cloud', 'Cloud')
+		->and(array_keys($registrar->abilities))->toBe([Abilities::LIST_ACCOUNTS, Abilities::LIST_RESOURCES, Abilities::GET_HEALTH])
+		->and(($registrar->abilities[Abilities::LIST_ACCOUNTS]['permission'])(7))->toBeTrue()
+		->and(($registrar->abilities[Abilities::LIST_ACCOUNTS]['permission'])(0))->toBeFalse();
+
+	$realms = new RealmRepository(false);
+	expect($realms->userHasAnyFile(7, ['cloud_health.php']))->toBeTrue()
+		->and($realms->userHasAnyFile(7, ['unknown.php']))->toBeFalse()
+		->and($realms->userHasAnyFile(0, ['cloud_health.php']))->toBeFalse();
+	$GLOBALS['__cloud_db_rows']['FROM user_auth_realm'] = [];
+	expect($realms->userHasAnyFile(7, ['cloud_health.php']))->toBeFalse();
 });
 
-it('runs all five Doctor diagnostic checks across healthy and degraded states', function () {
+it('runs all five Doctor diagnostic checks across healthy and degraded states using canonical statuses', function () {
 	$clock = new FixedClock(1731542400);
 	$GLOBALS['__cloud_db_rows'] = [
 		'FROM settings WHERE name = ?' => [['value' => (string) Schema::VERSION]],
@@ -155,16 +217,20 @@ it('runs all five Doctor diagnostic checks across healthy and degraded states', 
 	);
 
 	$checks = $doctor->checks();
-	expect(array_column($checks, 'id'))->toBe([
-		'cloud_schema',
-		'cloud_vault_key',
-		'cloud_drivers',
-		'cloud_accounts_health',
-		'cloud_poller_intervals',
-	]);
+	expect(array_is_list($checks))->toBeTrue()
+		->and(array_column($checks, 'id'))->toBe([
+			'cloud.schema',
+			'cloud.vault_key',
+			'cloud.drivers',
+			'cloud.accounts_health',
+			'cloud.poller_intervals',
+		]);
 
 	foreach ($checks as $check) {
-		expect($check['callback']()['status'])->toBe('ok', $check['id']);
+		expect($check)->toHaveKeys(['id', 'plugin', 'category', 'title', 'status', 'message', 'details', 'remediation'])
+			->and($check['plugin'])->toBe('cloud')
+			->and($check['status'])->toBe('ok', $check['id'])
+			->and($check['message'])->not->toBe('');
 	}
 
 	// Degraded state: unreadable vault key, throttled account, misaligned interval.
@@ -184,32 +250,62 @@ it('runs all five Doctor diagnostic checks across healthy and degraded states', 
 		}
 	);
 
-	expect($degraded->checkVaultKey()['status'])->toBe('error')
-		->and($degraded->checkAccountHealth()['status'])->toBe('warning')
-		->and($degraded->checkIntervals()['status'])->toBe('warning');
+	expect($degraded->checkVaultKey()['status'])->toBe('fail')
+		->and($degraded->checkAccountHealth()['status'])->toBe('warn')
+		->and($degraded->checkIntervals()['status'])->toBe('warn');
 });
 
-it('wires ecosystem registration hooks in setup.php cleanly', function () {
-	$abilities = cloud_abilities_register([]);
-	$checks    = cloud_doctor_register_checks([]);
-	$debugInfo = cloud_doctor_register_debug_info([]);
+it('wires canonical ecosystem registration hooks in setup.php cleanly', function () {
+	$checks    = cloud_doctor_register_checks(['mode' => 'run', 'plugin' => 'cloud']);
+	$debugInfo = cloud_doctor_register_debug_info(['plugin' => 'cloud']);
 	$resources = cloud_api_register_resources([]);
-	$providers = cloud_casc_register_providers([]);
 
-	expect(array_keys($abilities))->toBe(['cloud-list-accounts', 'cloud-list-resources', 'cloud-get-health'])
-		->and(array_column($checks, 'id'))->toContain('cloud_schema', 'cloud_vault_key', 'cloud_drivers')
-		->and($debugInfo)->toHaveKey('cloud')
-		->and($debugInfo['cloud']['id'])->toBe('cloud')
-		->and(array_keys($resources))->toBe([
-			ApiResources::TYPE_ACCOUNT,
-			ApiResources::TYPE_RESOURCE,
-			ApiResources::TYPE_HEALTH,
+	expect(array_is_list($checks))->toBeTrue()
+		->and($checks)->not->toHaveKey('mode')
+		->and($checks)->not->toHaveKey('plugin')
+		->and(array_column($checks, 'id'))->toBe([
+			'cloud.schema',
+			'cloud.vault_key',
+			'cloud.drivers',
+			'cloud.accounts_health',
+			'cloud.poller_intervals',
 		])
-		->and($providers)->toHaveKey('cloud')
-		->and($providers['cloud']['formats'])->toBe(['yaml', 'xml']);
+		->and(array_is_list($debugInfo))->toBeTrue()
+		->and($debugInfo)->toHaveCount(1)
+		->and($debugInfo[0]['id'])->toBe('cloud.overview')
+		->and($debugInfo[0]['plugin'])->toBe('cloud')
+		->and(array_is_list($resources))->toBeTrue()
+		->and(array_column($resources, 'collection'))->toBe([
+			ApiResources::COLLECTION_ACCOUNTS,
+			ApiResources::COLLECTION_RESOURCES,
+			ApiResources::COLLECTION_HEALTH,
+		]);
+
+	$cascRegistrar = new class() {
+		/** @var array<string, mixed>|null */
+		public ?array $registered = null;
+
+		/** @param array<string, mixed> $descriptor */
+		public function register(array $descriptor): void {
+			$this->registered = $descriptor;
+		}
+	};
+
+	cloud_casc_register_providers($cascRegistrar);
+	expect($cascRegistrar->registered)->toBeArray()
+		->and($cascRegistrar->registered['slug'])->toBe('cloud')
+		->and($cascRegistrar->registered['schemaVersion'])->toBe('1.0')
+		->and(is_callable($cascRegistrar->registered['export']))->toBeTrue()
+		->and(is_callable($cascRegistrar->registered['validate']))->toBeTrue()
+		->and(is_callable($cascRegistrar->registered['plan']))->toBeTrue()
+		->and(is_callable($cascRegistrar->registered['apply']))->toBeTrue();
+
+	$unwrapped = cloud_casc_register_providers([]);
+	expect($unwrapped['slug'])->toBe('cloud')
+		->and($unwrapped['schemaVersion'])->toBe('1.0');
 });
 
-it('produces a redacted Doctor debugInfo snapshot standalone with zero secrets', function () {
+it('produces a redacted Doctor debugInfo snapshot with scalar fields and zero secrets', function () {
 	$clock = new FixedClock(1731542400);
 	$GLOBALS['__cloud_db_rows'] = [
 		'FROM settings WHERE name = ?' => [['value' => (string) Schema::VERSION]],
@@ -265,36 +361,29 @@ it('produces a redacted Doctor debugInfo snapshot standalone with zero secrets',
 	$info       = $doctor->debugInfo('0.1.0-dev');
 	$serialized = (string) json_encode($info);
 
-	expect($info['id'])->toBe('cloud')
-		->and($info['fields']['version']['value'])->toBe('0.1.0-dev')
-		->and($info['fields']['schema_version']['value'])->toBe([
-			'stored'   => Schema::VERSION,
-			'expected' => Schema::VERSION,
-			'current'  => true,
-		])
-		->and($info['fields']['settings']['value'])->toMatchArray([
-			'collector_budget'          => 180,
-			'keep_tables_on_uninstall'  => true,
-			'vault_key_configured'      => true,
-			'vault_key_status'          => 'ok',
-			'credential_dir_configured' => true,
-			'poller_interval'           => 300,
-		])
-		->and($info['fields']['accounts']['value'])->toBe([
-			'total'                => 2,
-			'enabled'              => 1,
-			'disabled'             => 1,
-			'by_provider'          => ['aws' => 1, 'gcp' => 1],
-			'by_credential_source' => ['file' => 1, 'vault' => 1],
-		])
-		->and($info['fields']['drivers']['value']['missing'])->toBe([])
+	expect($info['id'])->toBe('cloud.overview')
+		->and($info['plugin'])->toBe('cloud')
+		->and($info['fields']['plugin_version']['value'])->toBe('0.1.0-dev')
+		->and($info['fields']['schema_version']['value'])->toBe(Schema::VERSION)
+		->and($info['fields']['schema_current']['value'])->toBeTrue()
+		->and($info['fields']['collector_budget']['value'])->toBe(180)
+		->and($info['fields']['vault_key_status']['value'])->toBe('ok')
+		->and($info['fields']['accounts_total']['value'])->toBe(2)
+		->and($info['fields']['accounts_enabled']['value'])->toBe(1)
+		->and($info['fields']['accounts_disabled']['value'])->toBe(1)
+		->and($info['fields']['accounts_by_provider']['value'])->toBe('aws=1, gcp=1')
+		->and($info['fields']['drivers_missing']['value'])->toBe('none')
 		->and($serialized)->not->toContain('/etc/cacti/vault-secret-key.bin')
 		->and($serialized)->not->toContain('/etc/cacti/secret-creds')
 		->and($serialized)->not->toContain('super-secret-aws.json')
 		->and($serialized)->not->toContain('gcp-private-key.json');
+
+	foreach ($info['fields'] as $field) {
+		expect($field['value'] === null || is_scalar($field['value']))->toBeTrue();
+	}
 });
 
-it('registers standalone Google AIP resource descriptors with strict permission gating and zero secrets', function () {
+it('registers canonical Google AIP resource descriptors with strict permission gating and zero secrets', function () {
 	$clock   = new FixedClock(1731542400);
 	$account = Account::fromRow([
 		'id'                => 9,
@@ -336,52 +425,53 @@ it('registers standalone Google AIP resource descriptors with strict permission 
 
 	$allowed = true;
 	$api     = new ApiResources(
-		static function () use (&$allowed): bool {
+		static function (int $userId) use (&$allowed): bool {
 			return $allowed;
 		},
-		static fn (): array => [$account],
+		static fn (int $userId): array => [$account],
 		new ResourceRepository(false, $clock),
 		new HealthRepository(false),
 		$clock
 	);
 
 	$descriptors = $api->descriptors();
-	expect(array_keys($descriptors))->toBe([
-		'cloud.cacti.net/Account',
-		'cloud.cacti.net/Resource',
-		'cloud.cacti.net/Health',
-	]);
+	expect(array_is_list($descriptors))->toBeTrue()
+		->and(array_column($descriptors, 'collection'))->toBe([
+			'cloudAccounts',
+			'cloudResources',
+			'cloudHealth',
+		]);
 
 	foreach ($descriptors as $descriptor) {
-		expect($descriptor['read_only'])->toBeTrue()
-			->and($descriptor['operations'])->toBe(['list', 'get'])
-			->and($descriptor['permission_callback']())->toBeTrue();
+		expect($descriptor['plugin'])->toBe('cloud')
+			->and($descriptor['realm_read'])->toBe('cloud_accounts.php')
+			->and(preg_match('/^[a-z][A-Za-z0-9]{2,63}$/', $descriptor['collection']))->toBe(1)
+			->and(array_keys($descriptor['handlers']))->toBe(['list', 'get']);
 	}
 
-	$accounts  = $descriptors['cloud.cacti.net/Account']['callbacks']['list']([]);
-	$oneAcc    = $descriptors['cloud.cacti.net/Account']['callbacks']['get'](['account' => 9]);
-	$resources = $descriptors['cloud.cacti.net/Resource']['callbacks']['list'](['account_id' => 9]);
-	$oneRes    = $descriptors['cloud.cacti.net/Resource']['callbacks']['get'](['account_id' => 9, 'resource_id' => 42]);
-	$healthAll = $descriptors['cloud.cacti.net/Health']['callbacks']['list']([]);
-	$oneHealth = $descriptors['cloud.cacti.net/Health']['callbacks']['get'](['account_id' => 9]);
+	$accounts  = $descriptors[0]['handlers']['list'](['user_id' => 1]);
+	$oneAcc    = $descriptors[0]['handlers']['get']('9', ['user_id' => 1]);
+	$resources = $descriptors[1]['handlers']['list'](['user_id' => 1, 'query' => ['account_id' => 9]]);
+	$oneRes    = $descriptors[1]['handlers']['get']('42', ['user_id' => 1]);
+	$healthAll = $descriptors[2]['handlers']['list'](['user_id' => 1]);
+	$oneHealth = $descriptors[2]['handlers']['get']('9', ['user_id' => 1]);
 
 	$serialized = (string) json_encode([$accounts, $oneAcc, $resources, $oneRes, $healthAll, $oneHealth]);
 
 	expect($accounts)->toHaveCount(1)
-		->and($oneAcc['name'])->toBe('accounts/9')
-		->and($oneRes['name'])->toBe('accounts/9/resources/42')
-		->and($oneHealth['name'])->toBe('accounts/9/health')
+		->and($oneAcc['name'])->toBe('cloudAccounts/9')
+		->and($oneRes['name'])->toBe('cloudResources/42')
+		->and($oneHealth['name'])->toBe('cloudHealth/9')
 		->and($oneHealth['collection'])->toBe('ok')
 		->and($serialized)->not->toContain('azure-client-secret.json')
 		->and($serialized)->not->toContain('credential_file');
 
 	// Denied when Cloud View permission is revoked.
 	$allowed = false;
-	expect($descriptors['cloud.cacti.net/Account']['permission_callback']())->toBeFalse()
-		->and($descriptors['cloud.cacti.net/Account']['callbacks']['list']([]))->toBe([])
-		->and($descriptors['cloud.cacti.net/Account']['callbacks']['get'](['account_id' => 9]))->toBeNull()
-		->and($descriptors['cloud.cacti.net/Resource']['callbacks']['list']([]))->toBe([])
-		->and($descriptors['cloud.cacti.net/Resource']['callbacks']['get'](['resource_id' => 42]))->toBeNull()
-		->and($descriptors['cloud.cacti.net/Health']['callbacks']['list']([]))->toBe([])
-		->and($descriptors['cloud.cacti.net/Health']['callbacks']['get'](['account_id' => 9]))->toBeNull();
+	expect($descriptors[0]['handlers']['list'](['user_id' => 1]))->toBe([])
+		->and($descriptors[0]['handlers']['get']('9', ['user_id' => 1]))->toBeNull()
+		->and($descriptors[1]['handlers']['list'](['user_id' => 1]))->toBe([])
+		->and($descriptors[1]['handlers']['get']('42', ['user_id' => 1]))->toBeNull()
+		->and($descriptors[2]['handlers']['list'](['user_id' => 1]))->toBe([])
+		->and($descriptors[2]['handlers']['get']('9', ['user_id' => 1]))->toBeNull();
 });

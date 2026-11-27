@@ -913,36 +913,81 @@ function cloud_remote_agent($action) {
 }
 
 /**
- * abilities_register hook: register strictly read-only MCP abilities gated on
- * Cloud View realm and device scope.
+ * Resolve cloud accounts visible to an explicit user ID based on Cloud Admin
+ * realm or Cacti device permissions.
  *
- * @param mixed $abilities
- * @return mixed
+ * @param int $userId Cacti user ID
+ * @return list<\Somethingwithproof\Cloud\Account>
  */
-function cloud_abilities_register($abilities) {
-	if (!cloud_boot()) {
-		return $abilities;
+function cloud_visible_accounts_for_user(int $userId): array {
+	$realms = new \Somethingwithproof\Cloud\RealmRepository(false);
+
+	if ($userId > 0) {
+		if ($realms->userHasAnyFile($userId, \Somethingwithproof\Cloud\Pages::ADMIN)) {
+			return cloud_accounts()->all();
+		}
+
+		$devices  = new \Somethingwithproof\Cloud\DeviceRepository(false, new \Somethingwithproof\Cloud\SystemClock());
+		$accounts = array();
+
+		foreach (cloud_accounts()->all() as $account) {
+			$host = $devices->hostFor($account->id);
+
+			if ($host !== null && function_exists('is_device_allowed') && is_device_allowed($host, $userId)) {
+				$accounts[] = $account;
+			}
+		}
+
+		return $accounts;
 	}
 
-	$list  = is_array($abilities) ? $abilities : array();
-	$clock = new \Somethingwithproof\Cloud\SystemClock();
-	$hub   = new \Somethingwithproof\Cloud\Abilities(
-		function (): bool {
-			return function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_health.php');
-		},
-		function (): array {
-			if (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_accounts.php')) {
-				return cloud_accounts()->all();
-			}
+	if (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_accounts.php')) {
+		return cloud_accounts()->all();
+	}
 
-			return cloud_device_allowed_accounts();
+	return cloud_device_allowed_accounts();
+}
+
+/**
+ * abilities_register hook: register strictly read-only MCP abilities gated on
+ * Cloud View realm via DB lookup for the explicit user ID and device scope.
+ *
+ * @param mixed $registrar
+ * @return mixed
+ */
+function cloud_abilities_register($registrar = null) {
+	if (!cloud_boot()) {
+		return $registrar;
+	}
+
+	$clock  = new \Somethingwithproof\Cloud\SystemClock();
+	$realms = new \Somethingwithproof\Cloud\RealmRepository(false);
+	$hub    = new \Somethingwithproof\Cloud\Abilities(
+		function (int $userId) use ($realms): bool {
+			return $realms->userHasAnyFile(
+				$userId,
+				array_merge(
+					\Somethingwithproof\Cloud\Pages::VIEW,
+					\Somethingwithproof\Cloud\Pages::OPERATOR,
+					\Somethingwithproof\Cloud\Pages::ADMIN
+				)
+			);
+		},
+		function (int $userId): array {
+			return cloud_visible_accounts_for_user($userId);
 		},
 		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
 		new \Somethingwithproof\Cloud\HealthRepository(false),
 		$clock
 	);
 
-	return array_merge($list, $hub->definitions());
+	if (is_object($registrar) && method_exists($registrar, 'register')) {
+		$hub->registerOn($registrar);
+
+		return $registrar;
+	}
+
+	return $hub->definitions();
 }
 
 /**
@@ -968,88 +1013,96 @@ function cloud_doctor(): \Somethingwithproof\Cloud\DoctorChecks {
 }
 
 /**
- * doctor_register_checks hook: register diagnostic health checks for the Cloud
- * plugin.
+ * doctor_register_checks hook: return evaluated diagnostic health checks for
+ * the Cloud plugin.
  *
- * @param mixed $checks
- * @return mixed
+ * @param mixed $context
+ * @return list<array<string, mixed>>
  */
-function cloud_doctor_register_checks($checks) {
+function cloud_doctor_register_checks($context = array()): array {
 	if (!cloud_boot()) {
-		return $checks;
+		return array();
 	}
 
-	$list = is_array($checks) ? $checks : array();
-
-	return array_merge($list, cloud_doctor()->checks());
+	return cloud_doctor()->checks();
 }
 
 /**
- * doctor_register_debug_info hook: register a redacted diagnostic snapshot
+ * doctor_register_debug_info hook: return a redacted diagnostic snapshot
  * section for the Cloud plugin using plain arrays and zero cross-plugin imports.
  *
- * @param mixed $sections
- * @return mixed
+ * @param mixed $context
+ * @return list<array<string, mixed>>
  */
-function cloud_doctor_register_debug_info($sections) {
+function cloud_doctor_register_debug_info($context = array()): array {
 	if (!cloud_boot()) {
-		return $sections;
+		return array();
 	}
 
-	$list          = is_array($sections) ? $sections : array();
-	$info          = plugin_cloud_version();
-	$version       = isset($info['version']) ? $info['version'] : '';
-	$list['cloud'] = cloud_doctor()->debugInfo($version);
+	$info    = plugin_cloud_version();
+	$version = isset($info['version']) ? $info['version'] : '';
 
-	return $list;
+	return array(cloud_doctor()->debugInfo($version));
 }
 
 /**
- * api_register_resources hook: register read-only Google AIP resource
+ * api_register_resources hook: return read-only Google AIP resource
  * descriptors for Cloud accounts, resources, and health using plain arrays.
  *
  * @param mixed $resources
- * @return mixed
+ * @return list<array<string, mixed>>
  */
-function cloud_api_register_resources($resources) {
+function cloud_api_register_resources($resources = array()): array {
 	if (!cloud_boot()) {
-		return $resources;
+		return array();
 	}
 
-	$list  = is_array($resources) ? $resources : array();
-	$clock = new \Somethingwithproof\Cloud\SystemClock();
-	$api   = new \Somethingwithproof\Cloud\ApiResources(
-		function (): bool {
-			return function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_health.php');
-		},
-		function (): array {
-			if (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_accounts.php')) {
-				return cloud_accounts()->all();
+	$clock  = new \Somethingwithproof\Cloud\SystemClock();
+	$realms = new \Somethingwithproof\Cloud\RealmRepository(false);
+	$api    = new \Somethingwithproof\Cloud\ApiResources(
+		function (int $userId) use ($realms): bool {
+			if ($userId > 0) {
+				return $realms->userHasAnyFile(
+					$userId,
+					array_merge(
+						\Somethingwithproof\Cloud\Pages::VIEW,
+						\Somethingwithproof\Cloud\Pages::OPERATOR,
+						\Somethingwithproof\Cloud\Pages::ADMIN
+					)
+				);
 			}
 
-			return cloud_device_allowed_accounts();
+			return PHP_SAPI === 'cli' || (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_health.php'));
+		},
+		function (int $userId): array {
+			return cloud_visible_accounts_for_user($userId);
 		},
 		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
 		new \Somethingwithproof\Cloud\HealthRepository(false),
 		$clock
 	);
 
-	return array_merge($list, $api->descriptors());
+	return $api->descriptors();
 }
 
 /**
  * casc_register_providers hook: register the Cloud CasC provider.
  *
- * @param mixed $providers
+ * @param mixed $registrar
  * @return mixed
  */
-function cloud_casc_register_providers($providers) {
+function cloud_casc_register_providers($registrar = null) {
 	if (!cloud_boot()) {
-		return $providers;
+		return is_object($registrar) ? $registrar : array();
 	}
 
-	$list          = is_array($providers) ? $providers : array();
-	$list['cloud'] = cloud_casc_provider()->descriptor();
+	$descriptor = cloud_casc_provider()->descriptor();
 
-	return $list;
+	if (is_object($registrar) && method_exists($registrar, 'register')) {
+		$registrar->register($descriptor);
+
+		return $registrar;
+	}
+
+	return $descriptor;
 }

@@ -67,26 +67,103 @@ final class CascProvider {
 	}
 
 	/**
-	 * Build the provider descriptor for the casc_register_providers hook.
+	 * Build the canonical provider descriptor for the casc_register_providers hook.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function descriptor(): array {
 		return [
-			'id'             => 'cloud',
-			'name'           => 'Cloud Accounts',
-			'schema_version' => self::SCHEMA_VERSION,
-			'formats'        => ['yaml', 'xml'],
-			'export'         => fn (string $format = 'yaml'): string => $this->export($format),
-			'validate'       => fn (string $content, string $format = 'yaml'): array => $this->validate($content, $format),
-			'plan'           => fn (string $content, string $format = 'yaml'): array => $this->plan($content, $format),
-			'apply'          => fn (string $content, string $confirmHash, int $userId = 0, string $format = 'yaml'): array => $this->apply(
-				$content,
-				$confirmHash,
-				$userId,
-				$format
-			),
+			'slug'          => 'cloud',
+			'schemaVersion' => '1.0',
+			'export'        => fn (array $options = []): array => $this->exportArray($options),
+			'validate'      => fn (array $desired): array => $this->validateArray($desired),
+			'plan'          => fn (array $desired, array $options = []): array => $this->planArray($desired, $options),
+			'apply'         => fn (array $desired, string $confirm, array $options = []): array => $this->applyArray($desired, $confirm, $options),
 		];
+	}
+
+	/**
+	 * Export current accounts as a plain structured array for plugin_casc.
+	 *
+	 * @param array<string, mixed> $options optional export options
+	 * @return array{schema_version: int, accounts: list<array<string, mixed>>}
+	 */
+	public function exportArray(array $options = []): array {
+		return [
+			'schema_version' => self::SCHEMA_VERSION,
+			'accounts'       => $this->exportItems(),
+		];
+	}
+
+	/**
+	 * Validate a structured desired configuration array and return a list of errors.
+	 *
+	 * @param array<string, mixed> $desired desired plugin configuration map
+	 * @return list<string>
+	 */
+	public function validateArray(array $desired): array {
+		$items = $this->extractDesiredItems($desired);
+
+		if ($items['errors'] !== []) {
+			return $items['errors'];
+		}
+
+		return $this->validateItems($items['items'])['errors'];
+	}
+
+	/**
+	 * Compute a deterministic plan from a structured desired configuration array.
+	 *
+	 * @param array<string, mixed> $desired desired plugin configuration map
+	 * @param array<string, mixed> $options planner options
+	 * @return array{
+	 *     valid: bool,
+	 *     errors: list<string>,
+	 *     plan_hash: string,
+	 *     actions: list<array{action: string, name: string, provider: string, changes: list<string>}>
+	 * }
+	 */
+	public function planArray(array $desired, array $options = []): array {
+		$items = $this->extractDesiredItems($desired);
+
+		if ($items['errors'] !== []) {
+			return [
+				'valid'     => false,
+				'errors'    => $items['errors'],
+				'plan_hash' => '',
+				'actions'   => [],
+			];
+		}
+
+		return $this->planValidated($this->validateItems($items['items']));
+	}
+
+	/**
+	 * Apply a structured desired configuration array after verifying the plan hash.
+	 *
+	 * @param array<string, mixed> $desired desired plugin configuration map
+	 * @param string               $confirm confirmed SHA-256 plan hash
+	 * @param array<string, mixed> $options apply options (optional user_id)
+	 * @return array{applied: bool, plan_hash: string, created: int, updated: int, deleted: int, errors: list<string>}
+	 */
+	public function applyArray(array $desired, string $confirm, array $options = []): array {
+		$items = $this->extractDesiredItems($desired);
+
+		if ($items['errors'] !== []) {
+			return [
+				'applied'   => false,
+				'plan_hash' => '',
+				'created'   => 0,
+				'updated'   => 0,
+				'deleted'   => 0,
+				'errors'    => $items['errors'],
+			];
+		}
+
+		$validated = $this->validateItems($items['items']);
+		$userId    = Row::int($options, 'user_id', 0, 0);
+
+		return $this->applyValidated($validated, $confirm, $userId);
 	}
 
 	/**
@@ -94,6 +171,26 @@ final class CascProvider {
 	 * into vault references.
 	 */
 	public function export(string $format = 'yaml'): string {
+		$items = $this->exportItems();
+		$fmt   = strtolower(trim($format));
+
+		if ($fmt === 'xml') {
+			return self::renderXml($items);
+		}
+
+		if ($fmt !== 'yaml' && $fmt !== 'yml') {
+			throw new \InvalidArgumentException('Unsupported export format: ' . $format);
+		}
+
+		return self::renderYaml($items);
+	}
+
+	/**
+	 * Build deterministic redacted account item arrays for YAML, XML, and array export.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function exportItems(): array {
 		$accounts = $this->accounts->all();
 		usort($accounts, static fn (Account $a, Account $b): int => strcmp($a->name, $b->name));
 
@@ -124,17 +221,53 @@ final class CascProvider {
 			$items[] = $entry;
 		}
 
-		$fmt = strtolower(trim($format));
+		return $items;
+	}
 
-		if ($fmt === 'xml') {
-			return self::renderXml($items);
+	/**
+	 * Extract account item maps from a structured desired CasC array.
+	 *
+	 * @param array<string, mixed> $desired desired plugin configuration map
+	 * @return array{items: list<array<string, mixed>>, errors: list<string>}
+	 */
+	private function extractDesiredItems(array $desired): array {
+		$errors = [];
+
+		if (array_key_exists('schema_version', $desired)) {
+			$version = $desired['schema_version'];
+
+			if ((!is_int($version) && !(is_string($version) && ctype_digit($version))) || (int) $version !== self::SCHEMA_VERSION) {
+				$errors[] = 'Unsupported schema_version: ' . (is_scalar($version) ? (string) $version : 'invalid');
+			}
 		}
 
-		if ($fmt !== 'yaml' && $fmt !== 'yml') {
-			throw new \InvalidArgumentException('Unsupported export format: ' . $format);
+		$rawAccounts = $desired['accounts'] ?? [];
+
+		if (!is_array($rawAccounts)) {
+			$errors[] = 'accounts must be a list of account definitions';
+
+			return ['items' => [], 'errors' => $errors];
 		}
 
-		return self::renderYaml($items);
+		$items = [];
+
+		foreach ($rawAccounts as $idx => $entry) {
+			if (!is_array($entry)) {
+				$errors[] = 'accounts[' . (string) $idx . ']: must be an object';
+
+				continue;
+			}
+
+			$clean = [];
+
+			foreach ($entry as $k => $v) {
+				$clean[(string) $k] = $v;
+			}
+
+			$items[] = $clean;
+		}
+
+		return ['items' => $items, 'errors' => $errors];
 	}
 
 	/**
@@ -149,13 +282,23 @@ final class CascProvider {
 			return ['valid' => false, 'errors' => $parsed['errors'], 'accounts' => []];
 		}
 
+		return $this->validateItems($parsed['items']);
+	}
+
+	/**
+	 * Validate parsed account item maps against Cloud account rules.
+	 *
+	 * @param list<array<string, mixed>> $items parsed account item maps
+	 * @return array{valid: bool, errors: list<string>, accounts: list<Account>}
+	 */
+	private function validateItems(array $items): array {
 		$errors   = [];
 		$accounts = [];
 		$seen     = [];
 		$pollers  = $this->accounts->enabledPollerIds();
 		$allowed  = $pollers !== [] ? $pollers : null;
 
-		foreach ($parsed['items'] as $idx => $item) {
+		foreach ($items as $idx => $item) {
 			$label = 'accounts[' . $idx . ']';
 
 			foreach ($item as $key => $val) {
@@ -249,8 +392,21 @@ final class CascProvider {
 	 * }
 	 */
 	public function plan(string $content, string $format = 'yaml'): array {
-		$validated = $this->validate($content, $format);
+		return $this->planValidated($this->validate($content, $format));
+	}
 
+	/**
+	 * Compute a deterministic diff and SHA-256 plan hash from validated accounts.
+	 *
+	 * @param array{valid: bool, errors: list<string>, accounts: list<Account>} $validated
+	 * @return array{
+	 *     valid: bool,
+	 *     errors: list<string>,
+	 *     plan_hash: string,
+	 *     actions: list<array{action: string, name: string, provider: string, changes: list<string>}>
+	 * }
+	 */
+	private function planValidated(array $validated): array {
 		if (!$validated['valid']) {
 			return [
 				'valid'     => false,
@@ -346,7 +502,19 @@ final class CascProvider {
 	 * @return array{applied: bool, plan_hash: string, created: int, updated: int, deleted: int, errors: list<string>}
 	 */
 	public function apply(string $content, string $confirmHash, int $userId = 0, string $format = 'yaml'): array {
-		$plan = $this->plan($content, $format);
+		return $this->applyValidated($this->validate($content, $format), $confirmHash, $userId);
+	}
+
+	/**
+	 * Apply validated accounts after confirming the SHA-256 plan hash.
+	 *
+	 * @param array{valid: bool, errors: list<string>, accounts: list<Account>} $validated
+	 * @param string                                                            $confirmHash
+	 * @param int                                                               $userId
+	 * @return array{applied: bool, plan_hash: string, created: int, updated: int, deleted: int, errors: list<string>}
+	 */
+	private function applyValidated(array $validated, string $confirmHash, int $userId): array {
+		$plan = $this->planValidated($validated);
 
 		if (!$plan['valid']) {
 			return [
@@ -372,7 +540,6 @@ final class CascProvider {
 			];
 		}
 
-		$validated      = $this->validate($content, $format);
 		$existingByName = [];
 
 		foreach ($this->accounts->all() as $existing) {
