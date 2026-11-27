@@ -156,4 +156,46 @@ final class ResourceRepository {
 
 		return $counts;
 	}
+
+	/**
+	 * List non-deleted (or lifecycle-filtered) resources for an account.
+	 *
+	 * @return list<array{id: int, account_id: int, type: string, provider_id: string, name: string, region: string, lifecycle: string, first_seen: int, last_seen: int}>
+	 */
+	public function forAccount(int $accountId, ?string $type = null, ?string $lifecycle = null): array {
+		$sql    = 'SELECT id, account_id, type, provider_id, name, region, lifecycle, first_seen, last_seen FROM plugin_cloud_resource WHERE account_id = ?';
+		$params = [$accountId];
+
+		if ($type !== null && $type !== '') {
+			$sql     .= ' AND type = ?';
+			$params[] = $type;
+		}
+
+		if ($lifecycle !== null && $lifecycle !== '') {
+			$sql     .= ' AND lifecycle = ?';
+			$params[] = $lifecycle;
+		} else {
+			$sql     .= ' AND lifecycle != ?';
+			$params[] = Lifecycle::Deleted->value;
+		}
+
+		$sql .= ' ORDER BY type, provider_id';
+		$out  = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared($sql, $params, true, $this->connection)) as $row) {
+			$out[] = [
+				'id'          => Row::int($row, 'id'),
+				'account_id'  => Row::int($row, 'account_id'),
+				'type'        => Row::string($row, 'type'),
+				'provider_id' => Row::string($row, 'provider_id'),
+				'name'        => Row::string($row, 'name'),
+				'region'      => Row::string($row, 'region'),
+				'lifecycle'   => Row::string($row, 'lifecycle'),
+				'first_seen'  => Row::int($row, 'first_seen'),
+				'last_seen'   => Row::int($row, 'last_seen'),
+			];
+		}
+
+		return $out;
+	}
 }

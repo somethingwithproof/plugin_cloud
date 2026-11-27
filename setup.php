@@ -731,3 +731,176 @@ function cloud_page_allowed(): bool {
 		&& ($current_user['enabled'] ?? '') === 'on'
 		&& api_plugin_user_realm_auth(get_current_page());
 }
+
+function cloud_replication(): \Somethingwithproof\Cloud\Replication {
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+
+	return new \Somethingwithproof\Cloud\Replication(
+		new \Somethingwithproof\Cloud\ReplicationRepository(false),
+		cloud_accounts(),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		$clock
+	);
+}
+
+function cloud_casc_provider(): \Somethingwithproof\Cloud\CascProvider {
+	return new \Somethingwithproof\Cloud\CascProvider(
+		cloud_accounts(),
+		cloud_replication()
+	);
+}
+
+/**
+ * replicate_out hook: push poller-scoped cloud metadata (and encrypted vault
+ * entries for accounts owned by the remote poller) without ever copying raw
+ * vault key material.
+ *
+ * @param mixed $data
+ * @return mixed
+ */
+function cloud_replicate_out($data) {
+	global $config;
+
+	if (!cloud_boot() || !is_array($data)) {
+		return $data;
+	}
+
+	$pollerId = isset($data['remote_poller_id']) && is_numeric($data['remote_poller_id'])
+		? (int) $data['remote_poller_id']
+		: 0;
+	$rcnnId   = $data['rcnn_id'] ?? false;
+	$class    = isset($data['class']) && is_string($data['class']) ? $data['class'] : 'all';
+
+	if ($pollerId <= 1 || $rcnnId === false || ($class !== 'all' && $class !== 'cloud')) {
+		return $data;
+	}
+
+	if (!function_exists('replicate_out_table')) {
+		include_once($config['library_path'] . '/poller.php');
+	}
+
+	cloud_replication()->replicateOut(
+		$pollerId,
+		function (array $rows, string $table, int $targetPoller) use ($rcnnId): void {
+			if (function_exists('replicate_out_table')) {
+				// @phpstan-ignore argument.type
+				replicate_out_table($rcnnId, $rows, $table, $targetPoller);
+			}
+		}
+	);
+
+	return $data;
+}
+
+/**
+ * remote_agent hook: expose a strictly read-only JSON health summary for this
+ * collector's accounts, accepting integer identifiers only and emitting zero
+ * secrets.
+ *
+ * @param mixed $action
+ * @return mixed
+ */
+function cloud_remote_agent($action) {
+	global $config;
+
+	if (!cloud_boot() || $action !== \Somethingwithproof\Cloud\Replication::REMOTE_AGENT_ACTION) {
+		return $action;
+	}
+
+	$pollerVar  = function_exists('get_nfilter_request_var') ? get_nfilter_request_var('poller_id') : '';
+	$accountVar = function_exists('get_nfilter_request_var') ? get_nfilter_request_var('account_id') : '';
+	$pollerId   = is_numeric($pollerVar) && (int) $pollerVar > 0
+		? (int) $pollerVar
+		: (isset($config['poller_id']) && is_numeric($config['poller_id']) ? (int) $config['poller_id'] : null);
+	$accountId  = is_numeric($accountVar) && (int) $accountVar > 0 ? (int) $accountVar : null;
+
+	$payload = cloud_replication()->remoteHealth($pollerId, $accountId);
+	$encoded = json_encode($payload, JSON_UNESCAPED_SLASHES);
+
+	if (is_string($encoded)) {
+		print $encoded;
+	}
+
+	return true;
+}
+
+/**
+ * abilities_register hook: register strictly read-only MCP abilities gated on
+ * Cloud View realm and device scope.
+ *
+ * @param mixed $abilities
+ * @return mixed
+ */
+function cloud_abilities_register($abilities) {
+	if (!cloud_boot()) {
+		return $abilities;
+	}
+
+	$list  = is_array($abilities) ? $abilities : array();
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+	$hub   = new \Somethingwithproof\Cloud\Abilities(
+		function (): bool {
+			return function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_health.php');
+		},
+		function (): array {
+			if (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_accounts.php')) {
+				return cloud_accounts()->all();
+			}
+
+			return cloud_device_allowed_accounts();
+		},
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		$clock
+	);
+
+	return array_merge($list, $hub->definitions());
+}
+
+/**
+ * doctor_register_checks hook: register diagnostic health checks for the Cloud
+ * plugin.
+ *
+ * @param mixed $checks
+ * @return mixed
+ */
+function cloud_doctor_register_checks($checks) {
+	if (!cloud_boot()) {
+		return $checks;
+	}
+
+	$list           = is_array($checks) ? $checks : array();
+	$pollerInterval = (int) read_config_option('poller_interval');
+	$doctor         = new \Somethingwithproof\Cloud\DoctorChecks(
+		new \Somethingwithproof\Cloud\Schema(false),
+		cloud_settings(),
+		cloud_accounts(),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		\Somethingwithproof\Cloud\Drivers::production(),
+		new \Somethingwithproof\Cloud\SystemClock(),
+		$pollerInterval > 0 ? $pollerInterval : 300,
+		function (string $path): void {
+			\Somethingwithproof\Cloud\VaultKey::fromFile($path);
+		}
+	);
+
+	return array_merge($list, $doctor->checks());
+}
+
+/**
+ * casc_register_providers hook: register the Cloud CasC provider.
+ *
+ * @param mixed $providers
+ * @return mixed
+ */
+function cloud_casc_register_providers($providers) {
+	if (!cloud_boot()) {
+		return $providers;
+	}
+
+	$list          = is_array($providers) ? $providers : array();
+	$list['cloud'] = cloud_casc_provider()->descriptor();
+
+	return $list;
+}

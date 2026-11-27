@@ -35,7 +35,22 @@ const CLOUD_TABLES = [
 	'plugin_cloud_series',
 ];
 
-const CLOUD_HOOKS = ['api_device_new', 'api_device_save', 'auth_alternate_realms', 'config_arrays', 'config_settings', 'device_remove', 'draw_navigation_text', 'graphs_new_top_links', 'poller_bottom'];
+const CLOUD_HOOKS = [
+	'abilities_register',
+	'api_device_new',
+	'api_device_save',
+	'auth_alternate_realms',
+	'casc_register_providers',
+	'config_arrays',
+	'config_settings',
+	'device_remove',
+	'doctor_register_checks',
+	'draw_navigation_text',
+	'graphs_new_top_links',
+	'poller_bottom',
+	'remote_agent',
+	'replicate_out',
+];
 
 beforeEach(function () {
 	lifecycle('reset');

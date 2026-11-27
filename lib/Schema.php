@@ -37,15 +37,20 @@ final class Schema {
 	public const VERSION = 3;
 
 	public const HOOKS = [
-		'auth_alternate_realms' => 'cloud_auth_alternate_realms',
-		'api_device_new'       => 'cloud_device_saved',
-		'api_device_save'      => 'cloud_device_save',
-		'config_arrays'        => 'cloud_config_arrays',
-		'config_settings'      => 'cloud_config_settings',
-		'device_remove'        => 'cloud_device_remove',
-		'draw_navigation_text' => 'cloud_draw_navigation_text',
-		'graphs_new_top_links' => 'cloud_graphs_new_top_links',
-		'poller_bottom'        => 'cloud_poller_bottom',
+		'abilities_register'      => 'cloud_abilities_register',
+		'api_device_new'          => 'cloud_device_saved',
+		'api_device_save'         => 'cloud_device_save',
+		'auth_alternate_realms'   => 'cloud_auth_alternate_realms',
+		'casc_register_providers' => 'cloud_casc_register_providers',
+		'config_arrays'           => 'cloud_config_arrays',
+		'config_settings'         => 'cloud_config_settings',
+		'device_remove'           => 'cloud_device_remove',
+		'doctor_register_checks'  => 'cloud_doctor_register_checks',
+		'draw_navigation_text'    => 'cloud_draw_navigation_text',
+		'graphs_new_top_links'    => 'cloud_graphs_new_top_links',
+		'poller_bottom'           => 'cloud_poller_bottom',
+		'remote_agent'            => 'cloud_remote_agent',
+		'replicate_out'           => 'cloud_replicate_out',
 	];
 
 	private const PLUGIN  = 'cloud';
