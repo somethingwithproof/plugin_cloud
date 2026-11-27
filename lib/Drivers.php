@@ -50,6 +50,18 @@ final class Drivers {
 			Provider::DigitalOcean,
 			static fn (HttpTransport $http): ProviderDriver => new DigitalOceanDriver($http, new SystemClock())
 		);
+		$drivers->register(
+			Provider::Aws,
+			static fn (HttpTransport $http): ProviderDriver => new AwsDriver($http, new SystemClock())
+		);
+		$drivers->register(
+			Provider::GoogleCloud,
+			static fn (HttpTransport $http): ProviderDriver => new GcpDriver($http, new SystemClock())
+		);
+		$drivers->register(
+			Provider::Azure,
+			static fn (HttpTransport $http): ProviderDriver => new AzureDriver($http, new SystemClock())
+		);
 
 		return $drivers;
 	}

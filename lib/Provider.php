@@ -36,7 +36,7 @@ enum Provider: string {
 	 * @return list<self>
 	 */
 	public static function released(): array {
-		return [self::DigitalOcean];
+		return [self::DigitalOcean, self::Aws, self::GoogleCloud, self::Azure];
 	}
 
 	public function label(): string {
