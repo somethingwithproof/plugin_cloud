@@ -58,7 +58,7 @@ it('refuses each invalid field with a message naming it', function (array $overr
 })->with([
 	'empty name'        => [['name' => ''], 'name', 'Name'],
 	'control in name'   => [['name' => "a\nb"], 'name', 'Name'],
-	'remote poller'     => [['poller_id' => '2'], 'poller_id', 'Poller'],
+	'invalid poller'    => [['poller_id' => '0'], 'poller_id', 'Poller'],
 	'unknown source'    => [['credential_source' => 'env'], 'credential_source', 'Credential Source'],
 	'instance on DO'    => [['credential_source' => 'instance'], 'credential_source', 'Credential Source'],
 	'relative file'     => [
@@ -78,12 +78,30 @@ it('refuses each invalid field with a message naming it', function (array $overr
 	'text ceiling'      => [['monthly_ceiling' => 'lots'], 'monthly_ceiling', 'Monthly Ceiling'],
 ]);
 
-it('refuses providers that are not released for new accounts', function () {
+it('refuses providers that are not offered for new accounts, and releases all four providers', function () {
 	foreach ([0, -1] as $id) {
 		expect(
-			AccountInput::parse(cloud_account_input(['provider' => 'aws']), $id, Provider::released())->errors
+			AccountInput::parse(cloud_account_input(['provider' => 'aws']), $id, [Provider::DigitalOcean])->errors
 		)->toHaveKey('provider');
 	}
+
+	expect(Provider::released())->toBe([
+		Provider::DigitalOcean,
+		Provider::Aws,
+		Provider::GoogleCloud,
+		Provider::Azure,
+	]);
+});
+
+it('accepts remote pollers when allowed and rejects pollers outside the allowlist', function () {
+	$remote = AccountInput::parse(cloud_account_input(['poller_id' => '2']), 0, Provider::released(), [1, 2]);
+	$denied = AccountInput::parse(cloud_account_input(['poller_id' => '3']), 0, Provider::released(), [1, 2]);
+	$main   = AccountInput::parse(cloud_account_input(['poller_id' => '2']), 0, Provider::released(), [Account::MAIN_POLLER]);
+
+	expect($remote->errors)->toBe([])
+		->and($remote->account?->pollerId)->toBe(2)
+		->and($denied->errors)->toHaveKey('poller_id')
+		->and($main->errors)->toHaveKey('poller_id');
 });
 
 it('validates every provider scope field against its strict pattern', function (

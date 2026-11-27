@@ -38,10 +38,11 @@ final readonly class AccountInput {
 	}
 
 	/**
-	 * @param array<string, mixed> $input form fields as posted
-	 * @param list<Provider>       $offered providers new accounts may use
+	 * @param array<string, mixed> $input          form fields as posted
+	 * @param list<Provider>       $offered        providers new accounts may use
+	 * @param list<int>|null       $allowedPollers optional allowlist of enabled poller IDs; null allows any poller ID >= 1
 	 */
-	public static function parse(array $input, int $id, array $offered): self {
+	public static function parse(array $input, int $id, array $offered, ?array $allowedPollers = null): self {
 		$errors   = [];
 		$provider = Provider::tryFrom(Row::string($input, 'provider'));
 
@@ -55,11 +56,12 @@ final readonly class AccountInput {
 			$errors['name'] = __('Name: enter 1 to 100 characters without control characters.', 'cloud');
 		}
 
-		// Phase 1 collects only on the main poller (REQ-ACCT-003).
 		$poller = Row::int($input, 'poller_id', 0);
 
-		if ($poller !== Account::MAIN_POLLER) {
+		if ($allowedPollers === [Account::MAIN_POLLER] && $poller !== Account::MAIN_POLLER) {
 			$errors['poller_id'] = __('Poller: only the main poller can collect cloud accounts in this release.', 'cloud');
+		} elseif ($poller < 1 || ($allowedPollers !== null && !in_array($poller, $allowedPollers, true))) {
+			$errors['poller_id'] = 'Poller: choose an enabled poller ID.';
 		}
 
 		$scope = [];

@@ -177,7 +177,7 @@ final class AccountsPage {
 		html_end_box();
 
 		print '<input type="hidden" name="action" value="save">'
-			. '<input type="hidden" name="poller_id" value="' . Account::MAIN_POLLER . '">'
+			. '<input type="hidden" name="poller_id" value="' . (int) $value('poller_id', (string) ($account->pollerId ?? Account::MAIN_POLLER)) . '">'
 			. '<input type="hidden" name="id" value="' . ($account->id ?? 0) . '">'
 			. '<input type="submit" class="ui-button" value="' . html_escape(__('Save', 'cloud')) . '">'
 			. '</form>';

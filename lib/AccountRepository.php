@@ -34,6 +34,12 @@ final class AccountRepository {
 		return is_array($row) ? Account::fromRow($row) : null;
 	}
 
+	public function findByName(string $name): ?Account {
+		$row = db_fetch_row_prepared('SELECT * FROM plugin_cloud_account WHERE name = ?', [$name], true, $this->connection);
+
+		return is_array($row) ? Account::fromRow($row) : null;
+	}
+
 	/**
 	 * @return list<Account>
 	 */
@@ -44,6 +50,44 @@ final class AccountRepository {
 			true,
 			$this->connection
 		)));
+	}
+
+	/**
+	 * All accounts (enabled or disabled) assigned to one poller.
+	 *
+	 * @return list<Account>
+	 */
+	public function forPoller(int $pollerId): array {
+		return $this->accounts(Row::rows(db_fetch_assoc_prepared(
+			'SELECT * FROM plugin_cloud_account WHERE poller_id = ? ORDER BY name',
+			[$pollerId],
+			true,
+			$this->connection
+		)));
+	}
+
+	/**
+	 * Enabled Cacti poller IDs.
+	 *
+	 * @return list<int>
+	 */
+	public function enabledPollerIds(): array {
+		$ids = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared(
+			"SELECT id FROM poller WHERE disabled = '' ORDER BY id",
+			[],
+			true,
+			$this->connection
+		)) as $row) {
+			$id = Row::int($row, 'id', 0, 1);
+
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+
+		return $ids;
 	}
 
 	/**

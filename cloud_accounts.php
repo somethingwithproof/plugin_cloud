@@ -82,10 +82,12 @@ switch ($cloud_action) {
 			$cloud_input['provider'] = $cloud_existing->provider->value;
 		}
 
-		$cloud_parsed = \Somethingwithproof\Cloud\AccountInput::parse(
+		$cloud_pollers = $cloud_accounts->enabledPollerIds();
+		$cloud_parsed  = \Somethingwithproof\Cloud\AccountInput::parse(
 			$cloud_input,
 			$cloud_id,
-			\Somethingwithproof\Cloud\Provider::released()
+			\Somethingwithproof\Cloud\Provider::released(),
+			$cloud_pollers !== array() ? $cloud_pollers : null
 		);
 		$cloud_errors = $cloud_parsed->errors;
 
