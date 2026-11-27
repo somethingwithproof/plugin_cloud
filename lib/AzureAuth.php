@@ -118,10 +118,11 @@ final class AzureAuth {
 			$query['client_id'] = $clientId;
 		}
 
-		$url = 'http://' . self::IMDS_HOST . '/metadata/identity/oauth2/token?'
-			. http_build_query($query, '', '&', PHP_QUERY_RFC3986);
-
 		try {
+			$url      = OutboundPolicy::metadataUrl(
+				self::IMDS_HOST,
+				'/metadata/identity/oauth2/token?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986)
+			);
 			$response = $http->send(new HttpRequest(
 				'GET',
 				$url,

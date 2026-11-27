@@ -176,9 +176,18 @@ final class Cli {
 		$result = $this->casc->apply($content, $confirm, 0, $format);
 
 		if (!$result['applied']) {
+			$partial = ($result['created'] + $result['updated'] + $result['deleted']) > 0
+				? sprintf(
+					"Partial progress before failure (created=%d, updated=%d, deleted=%d)\n",
+					$result['created'],
+					$result['updated'],
+					$result['deleted']
+				)
+				: '';
+
 			return [
 				'exitCode' => 1,
-				'stdout'   => '',
+				'stdout'   => $partial,
 				'stderr'   => "Apply refused:\n- " . implode("\n- ", $result['errors']) . "\n",
 			];
 		}

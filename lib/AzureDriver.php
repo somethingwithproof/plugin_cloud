@@ -352,6 +352,14 @@ final class AzureDriver implements ProviderDriver {
 								continue;
 							}
 
+							$errCode = is_string($metricBlock['errorCode'] ?? null) ? trim($metricBlock['errorCode']) : '';
+
+							if ($errCode !== '' && strcasecmp($errCode, 'Success') !== 0) {
+								$error ??= ErrorClass::Transient;
+
+								continue;
+							}
+
 							$nameObj = $metricBlock['name'] ?? null;
 							$mName   = is_array($nameObj) && is_string($nameObj['value'] ?? null)
 								? $nameObj['value']

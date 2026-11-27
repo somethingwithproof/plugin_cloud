@@ -32,22 +32,24 @@ final class ReplicationRepository {
 	}
 
 	/**
-	 * @return list<array<array-key, mixed>>
+	 * @return list<array<array-key, mixed>>|null null when the query failed
 	 */
-	public function accountsForPoller(int $pollerId): array {
-		return Row::rows(db_fetch_assoc_prepared(
+	public function accountsForPoller(int $pollerId): ?array {
+		$rows = db_fetch_assoc_prepared(
 			'SELECT * FROM plugin_cloud_account WHERE poller_id = ? ORDER BY id',
 			[$pollerId],
 			true,
 			$this->connection
-		));
+		);
+
+		return is_array($rows) ? Row::rows($rows) : null;
 	}
 
 	/**
-	 * @return list<array<array-key, mixed>>
+	 * @return list<array<array-key, mixed>>|null null when the query failed
 	 */
-	public function devicesForPoller(int $pollerId): array {
-		return Row::rows(db_fetch_assoc_prepared(
+	public function devicesForPoller(int $pollerId): ?array {
+		$rows = db_fetch_assoc_prepared(
 			'SELECT d.* FROM plugin_cloud_device d
 				INNER JOIN plugin_cloud_account a ON a.id = d.account_id
 				WHERE a.poller_id = ?
@@ -55,14 +57,16 @@ final class ReplicationRepository {
 			[$pollerId],
 			true,
 			$this->connection
-		));
+		);
+
+		return is_array($rows) ? Row::rows($rows) : null;
 	}
 
 	/**
-	 * @return list<array<array-key, mixed>>
+	 * @return list<array<array-key, mixed>>|null null when the query failed
 	 */
-	public function seriesForPoller(int $pollerId): array {
-		return Row::rows(db_fetch_assoc_prepared(
+	public function seriesForPoller(int $pollerId): ?array {
+		$rows = db_fetch_assoc_prepared(
 			'SELECT s.* FROM plugin_cloud_series s
 				INNER JOIN plugin_cloud_account a ON a.id = s.account_id
 				WHERE a.poller_id = ?
@@ -70,17 +74,19 @@ final class ReplicationRepository {
 			[$pollerId],
 			true,
 			$this->connection
-		));
+		);
+
+		return is_array($rows) ? Row::rows($rows) : null;
 	}
 
 	/**
 	 * Encrypted ciphertext rows ONLY for vault-backed accounts owned by $pollerId.
 	 * Raw vault key material is never stored in the database or replicated.
 	 *
-	 * @return list<array<array-key, mixed>>
+	 * @return list<array<array-key, mixed>>|null null when the query failed
 	 */
-	public function encryptedSecretsForPoller(int $pollerId): array {
-		return Row::rows(db_fetch_assoc_prepared(
+	public function encryptedSecretsForPoller(int $pollerId): ?array {
+		$rows = db_fetch_assoc_prepared(
 			'SELECT s.account_id, s.purpose, s.nonce, s.ciphertext, s.tag, s.key_id, s.expires_at, s.updated_at
 				FROM plugin_cloud_secret s
 				INNER JOIN plugin_cloud_account a ON a.id = s.account_id
@@ -89,6 +95,8 @@ final class ReplicationRepository {
 			[$pollerId, CredentialSource::Vault->value],
 			true,
 			$this->connection
-		));
+		);
+
+		return is_array($rows) ? Row::rows($rows) : null;
 	}
 }

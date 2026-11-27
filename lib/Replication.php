@@ -47,14 +47,25 @@ final class Replication {
 			return [];
 		}
 
+		$accounts = $this->replication->accountsForPoller($pollerId);
+		$devices  = $this->replication->devicesForPoller($pollerId);
+		$series   = $this->replication->seriesForPoller($pollerId);
+		$secrets  = $includeEncryptedSecrets ? $this->replication->encryptedSecretsForPoller($pollerId) : [];
+
+		if ($accounts === null || $devices === null || $series === null || $secrets === null) {
+			Log::warning(sprintf('Aborted cloud metadata replication to poller %d because a source query failed', $pollerId));
+
+			return [];
+		}
+
 		$tables = [
-			'plugin_cloud_account' => $this->replication->accountsForPoller($pollerId),
-			'plugin_cloud_device'  => $this->replication->devicesForPoller($pollerId),
-			'plugin_cloud_series'  => $this->replication->seriesForPoller($pollerId),
+			'plugin_cloud_account' => $accounts,
+			'plugin_cloud_device'  => $devices,
+			'plugin_cloud_series'  => $series,
 		];
 
 		if ($includeEncryptedSecrets) {
-			$tables['plugin_cloud_secret'] = $this->replication->encryptedSecretsForPoller($pollerId);
+			$tables['plugin_cloud_secret'] = $secrets;
 		}
 
 		$counts = [];

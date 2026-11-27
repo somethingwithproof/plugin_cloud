@@ -104,7 +104,7 @@ final class GcpDriver implements ProviderDriver {
 				self::MONITORING_HOST,
 				"#^/v3/projects/$project/timeSeries$#",
 				null,
-				'/^filter=[^&]+&interval\.startTime=[^&]+&interval\.endTime=[^&]+(&aggregation\.alignmentPeriod=[0-9]+s)?(&aggregation\.perSeriesAligner=ALIGN_[A-Z_]+)?(&aggregation\.crossSeriesReducer=REDUCE_[A-Z_]+)?(&aggregation\.groupByFields=[^&]+)?(&pageSize=[0-9]{1,4})?(&pageToken=[A-Za-z0-9._~%+=\\/-]+)?$/'
+				'/^filter=[^&]+&interval\.startTime=[^&]+&interval\.endTime=[^&]+(&aggregation\.alignmentPeriod=[0-9]+s)?(&aggregation\.perSeriesAligner=ALIGN_[A-Z_]+)?(&aggregation\.crossSeriesReducer=REDUCE_[A-Z_]+)?(&aggregation\.groupByFields=[^&]+)?(&view=(FULL|HEADERS))?(&pageSize=[0-9]{1,4})?(&pageToken=[A-Za-z0-9._~%+=\\/-]+)?$/'
 			),
 		];
 	}
@@ -259,6 +259,7 @@ final class GcpDriver implements ProviderDriver {
 					$query['aggregation.groupByFields']      = 'resource.label.instance_id';
 				}
 
+				$query['view']     = 'FULL';
 				$query['pageSize'] = '500';
 
 				if ($pageToken !== null) {
@@ -280,6 +281,10 @@ final class GcpDriver implements ProviderDriver {
 					$stopped    = $stops;
 
 					break;
+				}
+
+				if (is_array($body['executionErrors'] ?? null) && $body['executionErrors'] !== []) {
+					$error ??= ErrorClass::Transient;
 				}
 
 				$seriesList = is_array($body['timeSeries'] ?? null) ? $body['timeSeries'] : [];

@@ -238,3 +238,27 @@ it('renders read-only CLI health in text and json formats', function () {
 		->and($json['exitCode'])->toBe(0)
 		->and(json_decode($json['stdout'], true)['accounts'][0]['name'] ?? null)->toBe('do-main');
 });
+
+it('rejects unrecognized enabled values, truncated YAML accounts, and missing XML accounts sections', function () {
+	[$casc] = cloud_casc_fixture();
+
+	$badEnabled = <<<YAML
+schema_version: 1
+accounts:
+  - name: do-main
+    provider: digitalocean
+    poller_id: 1
+    credential_source: vault
+    collect_interval: 300
+    discover_interval: 3600
+    request_share: 50
+    enabled: maybe
+    scope: {}
+YAML;
+
+	expect($casc->validate($badEnabled, 'yaml')['valid'])->toBeFalse()
+		->and($casc->validate("schema_version: 1\naccounts:\n", 'yaml')['valid'])->toBeFalse()
+		->and($casc->validate("schema_version: 1\naccounts: []\n", 'yaml')['valid'])->toBeTrue()
+		->and($casc->validate('<?xml version="1.0"?><cloud_config/>', 'xml')['valid'])->toBeFalse()
+		->and($casc->validate('<?xml version="1.0"?><cloud_config><accounts/></cloud_config>', 'xml')['valid'])->toBeTrue();
+});

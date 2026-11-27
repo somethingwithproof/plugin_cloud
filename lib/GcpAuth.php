@@ -145,7 +145,10 @@ final class GcpAuth {
 		try {
 			$response = $http->send(new HttpRequest(
 				'GET',
-				self::METADATA_URL,
+				OutboundPolicy::metadataUrl(
+					self::METADATA_HOST,
+					'/computeMetadata/v1/instance/service-accounts/default/token'
+				),
 				[
 					'Metadata-Flavor' => 'Google',
 					'Accept'          => 'application/json',

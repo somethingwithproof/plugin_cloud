@@ -25,6 +25,7 @@
  * This file must parse on PHP 8.0 and refuses to run below 8.2.
  */
 
+$cloud_cwd = getcwd();
 chdir(__DIR__ . '/../../..');
 
 require('./include/cli_check.php');
@@ -38,12 +39,18 @@ cloud_boot();
 
 $cloud_args   = isset($_SERVER['argv']) && is_array($_SERVER['argv']) ? array_slice($_SERVER['argv'], 1) : array();
 $cloud_cli    = new \Somethingwithproof\Cloud\Cli(cloud_casc_provider());
-$cloud_result = $cloud_cli->run($cloud_args, function (string $path): ?string {
-	if (!is_file($path) || !is_readable($path)) {
+$cloud_result = $cloud_cli->run($cloud_args, function (string $path) use ($cloud_cwd): ?string {
+	$resolved = $path;
+
+	if ($path !== '' && $path[0] !== '/' && is_string($cloud_cwd) && $cloud_cwd !== '') {
+		$resolved = rtrim($cloud_cwd, '/') . '/' . $path;
+	}
+
+	if (!is_file($resolved) || !is_readable($resolved)) {
 		return null;
 	}
 
-	$data = file_get_contents($path);
+	$data = file_get_contents($resolved);
 
 	return is_string($data) ? $data : null;
 });

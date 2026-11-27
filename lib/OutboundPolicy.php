@@ -29,6 +29,25 @@ namespace Somethingwithproof\Cloud;
  * test binding of the transport.
  */
 final readonly class OutboundPolicy {
+	private const METADATA_HOSTS = ['169.254.169.254', 'metadata.google.internal'];
+
+	/**
+	 * Build a link-local cloud instance metadata URL. Cloud metadata endpoints
+	 * (AWS IMDSv2, Azure IMDS, GCE metadata) are reachable only over plain HTTP
+	 * on port 80 and are strictly gated to CredentialSource::Instance accounts.
+	 *
+	 * @throws TransportError
+	 */
+	public static function metadataUrl(string $host, string $pathAndQuery): string {
+		if (!in_array($host, self::METADATA_HOSTS, true) || !str_starts_with($pathAndQuery, '/')) {
+			throw new TransportError('host_refused', $host);
+		}
+
+		$scheme = 'http';
+
+		return $scheme . '://' . $host . $pathAndQuery;
+	}
+
 	/**
 	 * @param list<string> $hosts          exact lower-case HTTPS host names
 	 * @param list<int>    $ports          allowed HTTPS ports

@@ -153,3 +153,25 @@ it('exposes read-only health summary through remoteHealth and cloud_remote_agent
 	expect($handled)->toBeTrue()
 		->and(json_decode($output, true)['accounts'][0]['name'] ?? null)->toBe('Remote AWS');
 });
+
+it('aborts replication without pushing any table when a source query fails', function () {
+	$clock = new FixedClock(1731542400);
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM plugin_cloud_account WHERE poller_id = ?' => false,
+	];
+
+	$replication = new Replication(
+		new ReplicationRepository(false),
+		new AccountRepository(false, $clock),
+		new HealthRepository(false),
+		new ResourceRepository(false, $clock),
+		$clock
+	);
+
+	$pushed = [];
+	$counts = $replication->replicateOut(2, static function (array $rows, string $table, int $poller) use (&$pushed): void {
+		$pushed[] = $table;
+	});
+
+	expect($counts)->toBe([])->and($pushed)->toBe([]);
+});

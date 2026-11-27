@@ -747,7 +747,8 @@ function cloud_replication(): \Somethingwithproof\Cloud\Replication {
 function cloud_casc_provider(): \Somethingwithproof\Cloud\CascProvider {
 	return new \Somethingwithproof\Cloud\CascProvider(
 		cloud_accounts(),
-		cloud_replication()
+		cloud_replication(),
+		cloud_credentials()
 	);
 }
 

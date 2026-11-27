@@ -354,7 +354,12 @@ final class AwsDriver implements ProviderDriver {
 
 					if ($result instanceof \SimpleXMLElement && isset($result->MetricDataResults->member)) {
 						foreach ($result->MetricDataResults->member as $member) {
-							$id = trim((string) ($member->Id ?? ''));
+							$id         = trim((string) ($member->Id ?? ''));
+							$statusCode = trim((string) ($member->StatusCode ?? ''));
+
+							if ($statusCode === 'InternalError' || $statusCode === 'Forbidden') {
+								$error ??= $statusCode === 'Forbidden' ? ErrorClass::Permission : ErrorClass::Transient;
+							}
 
 							if ($id === '' || !isset($queryMap[$id])) {
 								continue;
@@ -534,7 +539,7 @@ final class AwsDriver implements ProviderDriver {
 		try {
 			$tokenResp = $this->http->send(new HttpRequest(
 				'PUT',
-				'http://' . self::IMDS_HOST . '/latest/api/token',
+				OutboundPolicy::metadataUrl(self::IMDS_HOST, '/latest/api/token'),
 				['X-aws-ec2-metadata-token-ttl-seconds' => '21600'],
 				''
 			));
@@ -551,7 +556,7 @@ final class AwsDriver implements ProviderDriver {
 		try {
 			$roleResp = $this->http->send(new HttpRequest(
 				'GET',
-				'http://' . self::IMDS_HOST . '/latest/meta-data/iam/security-credentials/',
+				OutboundPolicy::metadataUrl(self::IMDS_HOST, '/latest/meta-data/iam/security-credentials/'),
 				['X-aws-ec2-metadata-token' => $imdsToken]
 			));
 		} catch (TransportError $e) {
@@ -567,7 +572,7 @@ final class AwsDriver implements ProviderDriver {
 		try {
 			$credResp = $this->http->send(new HttpRequest(
 				'GET',
-				'http://' . self::IMDS_HOST . '/latest/meta-data/iam/security-credentials/' . $roleName,
+				OutboundPolicy::metadataUrl(self::IMDS_HOST, '/latest/meta-data/iam/security-credentials/' . $roleName),
 				['X-aws-ec2-metadata-token' => $imdsToken]
 			));
 		} catch (TransportError $e) {

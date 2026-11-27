@@ -52,6 +52,7 @@ final class CascProvider {
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly Replication $replication,
+		private readonly ?CredentialStore $credentials = null,
 	) {
 	}
 
@@ -172,6 +173,14 @@ final class CascProvider {
 				$errors[] = $label . ': credential_ref for vault accounts must use vault:account:<name>';
 			}
 
+			$enabledVal = self::parseEnabled($item['enabled'] ?? true);
+
+			if ($enabledVal === null) {
+				$errors[] = $label . ' (enabled): must be a boolean (true or false)';
+
+				continue;
+			}
+
 			$input = [
 				'provider'          => $item['provider'] ?? '',
 				'name'              => $name,
@@ -182,7 +191,7 @@ final class CascProvider {
 				'discover_interval' => self::scalarString($item['discover_interval'] ?? null, (string) AccountInput::DEFAULT_DISCOVER),
 				'request_share'     => self::scalarString($item['request_share'] ?? null, (string) AccountInput::DEFAULT_SHARE),
 				'monthly_ceiling'   => self::scalarString($item['monthly_ceiling'] ?? null, ''),
-				'enabled'           => ($item['enabled'] ?? true) ? 'on' : '',
+				'enabled'           => $enabledVal ? 'on' : '',
 			];
 
 			$scope = is_array($item['scope'] ?? null) ? $item['scope'] : [];
@@ -400,6 +409,14 @@ final class CascProvider {
 				);
 
 				if ($this->accounts->save($merged, $userId) > 0) {
+					if (
+						$this->credentials !== null
+						&& $merged->credentialSource !== CredentialSource::Vault
+						&& $this->credentials->hasVaultCredential($merged->id)
+					) {
+						$this->credentials->forgetUnlessVault($merged->id);
+					}
+
 					$updated++;
 				} else {
 					$errors[] = 'Failed to update account "' . $name . '"';
@@ -430,6 +447,26 @@ final class CascProvider {
 	 */
 	public function healthSummary(?int $pollerId = null): array {
 		return $this->replication->remoteHealth($pollerId, null);
+	}
+
+	private static function parseEnabled(mixed $value): ?bool {
+		if (is_bool($value)) {
+			return $value;
+		}
+
+		if (is_string($value)) {
+			$lower = strtolower(trim($value));
+
+			if (in_array($lower, ['true', '1', 'on', 'yes'], true)) {
+				return true;
+			}
+
+			if (in_array($lower, ['false', '0', 'off', 'no'], true)) {
+				return false;
+			}
+		}
+
+		return null;
 	}
 
 	private static function scalarString(mixed $value, string $default): string {
@@ -601,6 +638,10 @@ final class CascProvider {
 				return ['items' => [], 'errors' => ['Invalid XML manifest: root element must be <cloud_config>']];
 			}
 
+			if (!isset($xml->accounts)) {
+				return ['items' => [], 'errors' => ['Invalid XML manifest: missing required <accounts> element']];
+			}
+
 			$items = [];
 
 			if (isset($xml->accounts->account)) {
@@ -618,9 +659,6 @@ final class CascProvider {
 							}
 
 							$item['scope'] = $scope;
-						} elseif ($key === 'enabled') {
-							$val           = strtolower(trim((string) $child));
-							$item['enabled'] = in_array($val, ['true', '1', 'on', 'yes'], true);
 						} else {
 							$item[$key] = trim((string) $child);
 						}
@@ -647,13 +685,14 @@ final class CascProvider {
 			return ['items' => [], 'errors' => ['Empty YAML manifest']];
 		}
 
-		$lines      = preg_split('/\r?\n/', $content);
-		$lines      = is_array($lines) ? $lines : [];
-		$inAccounts = false;
-		$inScope    = false;
-		$items      = [];
-		$current    = null;
-		$errors     = [];
+		$lines         = preg_split('/\r?\n/', $content);
+		$lines         = is_array($lines) ? $lines : [];
+		$inAccounts    = false;
+		$explicitEmpty = false;
+		$inScope       = false;
+		$items         = [];
+		$current       = null;
+		$errors        = [];
 
 		foreach ($lines as $lineNo => $rawLine) {
 			$trimmed = trim($rawLine);
@@ -678,8 +717,16 @@ final class CascProvider {
 
 				$inScope = false;
 
-				if ($trimmed === 'accounts:' || $trimmed === 'accounts: []') {
-					$inAccounts = true;
+				if ($trimmed === 'accounts: []') {
+					$inAccounts    = true;
+					$explicitEmpty = true;
+
+					continue;
+				}
+
+				if ($trimmed === 'accounts:') {
+					$inAccounts    = true;
+					$explicitEmpty = false;
 
 					continue;
 				}
@@ -762,6 +809,8 @@ final class CascProvider {
 
 		if (!$inAccounts && $items === [] && $errors === []) {
 			$errors[] = 'Missing required top-level "accounts:" section';
+		} elseif ($inAccounts && !$explicitEmpty && $items === [] && $errors === []) {
+			$errors[] = 'Empty "accounts:" block must be written explicitly as "accounts: []"';
 		}
 
 		return ['items' => $items, 'errors' => $errors];
