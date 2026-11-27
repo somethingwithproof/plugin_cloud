@@ -29,7 +29,17 @@ final class AzureDriver implements ProviderDriver {
 	/**
 	 * Resource type identifier for Azure Virtual Machines.
 	 */
-	public const TYPE_VM   = 'azure_vm';
+	public const TYPE_VM    = 'azure_vm';
+
+	/**
+	 * Resource type identifier for Azure SQL databases.
+	 */
+	public const TYPE_SQL   = 'azure_sql';
+
+	/**
+	 * Resource type identifier for Azure Application Gateways and Load Balancers.
+	 */
+	public const TYPE_APPGW = 'azure_appgw';
 
 	/**
 	 * Azure Resource Manager API host.
@@ -87,27 +97,55 @@ final class AzureDriver implements ProviderDriver {
 	private const RESOURCE_ID_RE   = '#^/subscriptions/[0-9a-f-]{36}/resourceGroups/[^/]+/providers/Microsoft\.Compute/virtualMachines/[^/]+$#i';
 
 	/**
+	 * Strict ARM resource ID patterns indexed by plugin resource type.
+	 *
+	 * @var array<string, string>
+	 */
+	private const ID_PATTERNS = [
+		self::TYPE_VM    => self::RESOURCE_ID_RE,
+		self::TYPE_SQL   => '#^/subscriptions/[0-9a-f-]{36}/resourceGroups/[^/]+/providers/Microsoft\.Sql/servers/[^/]+/databases/[^/]+$#i',
+		self::TYPE_APPGW => '#^/subscriptions/[0-9a-f-]{36}/resourceGroups/[^/]+/providers/Microsoft\.Network/(?:applicationGateways|loadBalancers)/[^/]+$#i',
+	];
+
+	/**
 	 * Azure Monitor metric namespace for Virtual Machines.
 	 */
 	private const METRIC_NAMESPACE = 'Microsoft.Compute/virtualMachines';
 
 	/**
 	 * Metric catalog from docs/research/metric-catalogs.md.
-	 * Row format: [metricName, aggregation, convert].
+	 * Row format: [resourceType, metricNamespace, metricName, aggregation, convert].
 	 *
-	 * @var array<string, array{0: string, 1: string, 2: string}>
+	 * @var array<string, array{0: string, 1: string, 2: string, 3: string, 4: string}>
 	 */
 	private const METRICS = [
-		'azvm_cpu_pct'    => ['Percentage CPU', 'Average', 'value'],
-		'azvm_net_in_Bps' => ['Network In Total', 'Total', 'rate60'],
-		'azvm_net_out_Bps' => ['Network Out Total', 'Total', 'rate60'],
-		'azvm_dsk_rd_Bps' => ['Disk Read Bytes', 'Total', 'rate60'],
-		'azvm_dsk_wr_Bps' => ['Disk Write Bytes', 'Total', 'rate60'],
-		'azvm_dsk_rd_ops' => ['Disk Read Operations/Sec', 'Average', 'value'],
-		'azvm_dsk_wr_ops' => ['Disk Write Operations/Sec', 'Average', 'value'],
-		'azvm_avail'      => ['VmAvailabilityMetric', 'Minimum', 'value'],
-		'azvm_mem_avail'  => ['Available Memory Bytes', 'Average', 'value'],
+		'azvm_cpu_pct'           => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Percentage CPU', 'Average', 'value'],
+		'azvm_net_in_Bps'        => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Network In Total', 'Total', 'rate60'],
+		'azvm_net_out_Bps'       => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Network Out Total', 'Total', 'rate60'],
+		'azvm_dsk_rd_Bps'        => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Disk Read Bytes', 'Total', 'rate60'],
+		'azvm_dsk_wr_Bps'        => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Disk Write Bytes', 'Total', 'rate60'],
+		'azvm_dsk_rd_ops'        => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Disk Read Operations/Sec', 'Average', 'value'],
+		'azvm_dsk_wr_ops'        => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Disk Write Operations/Sec', 'Average', 'value'],
+		'azvm_os_dsk_qdepth'     => [self::TYPE_VM, self::METRIC_NAMESPACE, 'OS Disk Queue Depth', 'Average', 'value'],
+		'azvm_data_dsk_iops_pct' => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Data Disk IOPS Consumed Percentage', 'Average', 'value'],
+		'azvm_avail'             => [self::TYPE_VM, self::METRIC_NAMESPACE, 'VmAvailabilityMetric', 'Minimum', 'value'],
+		'azvm_mem_avail'         => [self::TYPE_VM, self::METRIC_NAMESPACE, 'Available Memory Bytes', 'Average', 'value'],
+		'azsql_cpu_pct'          => [self::TYPE_SQL, 'Microsoft.Sql/servers/databases', 'cpu_percent', 'Average', 'value'],
+		'azsql_dtu_pct'          => [self::TYPE_SQL, 'Microsoft.Sql/servers/databases', 'dtu_consumption_percent', 'Average', 'value'],
+		'azsql_storage_pct'      => [self::TYPE_SQL, 'Microsoft.Sql/servers/databases', 'storage_percent', 'Average', 'value'],
+		'azgw_healthy_hosts'     => [self::TYPE_APPGW, 'Microsoft.Network/applicationGateways', 'HealthyHostCount', 'Average', 'value'],
+		'azgw_failed_reqs'       => [self::TYPE_APPGW, 'Microsoft.Network/applicationGateways', 'FailedRequests', 'Total', 'value'],
+		'azgw_total_reqs'        => [self::TYPE_APPGW, 'Microsoft.Network/applicationGateways', 'TotalRequests', 'Total', 'value'],
 	];
+
+	/**
+	 * Return the read-only Azure Monitor metric catalog.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: string}>
+	 */
+	public static function metricCatalog(): array {
+		return self::METRICS;
+	}
 
 	/** @var array<string, array{token: Secret, expiresAt: int}> */
 	private array $tokens = [];
@@ -195,7 +233,7 @@ final class AzureDriver implements ProviderDriver {
 				"#^$region\\.metrics\\.monitor\\.azure\\.com$#",
 				"#^/subscriptions/$uuid/metrics:getBatch$#",
 				'/^\{"resourceids":\[[^\]]+\]\}$/',
-				'/^metricnamespace=Microsoft\.Compute%2FvirtualMachines&metricnames=[^&]+&aggregation=(Average|Total|Minimum|Maximum)&interval=PT1M&starttime=[^&]+&endtime=[^&]+&api-version=2023-10-01$/'
+				'/^metricnamespace=(Microsoft\.Compute%2FvirtualMachines|Microsoft\.Sql%2Fservers%2Fdatabases|Microsoft\.Network%2FapplicationGateways|Microsoft\.Network%2FloadBalancers)&metricnames=[^&]+&aggregation=(Average|Total|Minimum|Maximum)&interval=PT1M&starttime=[^&]+&endtime=[^&]+&api-version=2023-10-01$/'
 			),
 		];
 	}
@@ -238,6 +276,7 @@ final class AzureDriver implements ProviderDriver {
 	public function discover(Account $account, Secret $credential): Inventory {
 		$subscription = $this->subscription($account);
 		$regions      = $this->regions($account);
+		$regionSet    = array_flip($regions);
 		$armToken     = $this->tokenFor($account, $credential, 'arm');
 
 		// Eventual-consistency safe: deduplicate across pages by lower-cased resource id.
@@ -289,7 +328,7 @@ final class AzureDriver implements ProviderDriver {
 					continue;
 				}
 
-				if ($regions !== [] && $location !== '' && !in_array($location, $regions, true)) {
+				if ($regionSet !== [] && $location !== '' && !isset($regionSet[$location])) {
 					continue;
 				}
 
@@ -338,10 +377,13 @@ final class AzureDriver implements ProviderDriver {
 			return new CollectResult([], 0, $e->errorClass, $e->retryAfter);
 		}
 
+		$regionSet     = array_flip($regions);
+		$defaultRegion = $regions[0] ?? null;
+
 		/**
-		 * Group by region and aggregation, then by resource ARM ID.
+		 * Group by region, metric namespace, and aggregation, then by resource ARM ID.
 		 *
-		 * @var array<string, array<string, array<string, list<MetricRequest>>>> $grouped
+		 * @var array<string, array<string, array<string, array<string, list<MetricRequest>>>>> $grouped
 		 */
 		$grouped = [];
 		$error   = null;
@@ -349,22 +391,28 @@ final class AzureDriver implements ProviderDriver {
 		foreach ($requests as $request) {
 			$spec = self::METRICS[$request->metric] ?? null;
 
-			if ($spec === null || $request->resourceType !== self::TYPE_VM) {
+			if ($spec === null || $request->resourceType !== $spec[0]) {
 				$error ??= ErrorClass::Config;
 
 				continue;
 			}
 
-			[$region, $armId] = $this->splitRegionAndArmId($request->providerId, $regions);
+			[$region, $armId] = self::splitRegionAndArmId($request->providerId, $regionSet, $defaultRegion);
 
-			if ($region === null || preg_match(self::RESOURCE_ID_RE, $armId) !== 1) {
+			if ($region === null || preg_match(self::ID_PATTERNS[$spec[0]], $armId) !== 1) {
 				$error ??= ErrorClass::Config;
 
 				continue;
 			}
 
-			$aggregation                      = $spec[1];
-			$grouped[$region][$aggregation][$armId][] = $request;
+			$namespace = $spec[1];
+
+			if ($spec[0] === self::TYPE_APPGW && stripos($armId, '/providers/Microsoft.Network/loadBalancers/') !== false) {
+				$namespace = 'Microsoft.Network/loadBalancers';
+			}
+
+			$aggregation                                          = $spec[3];
+			$grouped[$region][$namespace][$aggregation][$armId][] = $request;
 		}
 
 		$now          = $this->clock->now();
@@ -373,113 +421,120 @@ final class AzureDriver implements ProviderDriver {
 		$observations = [];
 		$sent         = 0;
 		$retryAfter   = 0;
+		/** @var array<string, int|false> $tsCache */
+		$tsCache      = [];
 
-		foreach ($grouped as $region => $byAggregation) {
-			foreach ($byAggregation as $aggregation => $byResource) {
-				$armIds = array_keys($byResource);
+		foreach ($grouped as $region => $byNamespace) {
+			foreach ($byNamespace as $namespace => $byAggregation) {
+				foreach ($byAggregation as $aggregation => $byResource) {
+					$armIds = array_keys($byResource);
 
-				foreach (array_chunk($armIds, self::MAX_BATCH) as $batchIds) {
-					$metricNames = [];
-					/** @var array<string, array<string, MetricRequest>> $lookup lowerArmId => (providerMetricName => MetricRequest) */
-					$lookup = [];
+					foreach (array_chunk($armIds, self::MAX_BATCH) as $batchIds) {
+						$metricNames = [];
+						/** @var array<string, array<string, MetricRequest>> $lookup lowerArmId => (providerMetricName => MetricRequest) */
+						$lookup = [];
 
-					foreach ($batchIds as $armId) {
-						foreach ($byResource[$armId] as $req) {
-							$providerMetric                     = self::METRICS[$req->metric][0];
-							$metricNames[$providerMetric]       = true;
-							$lookup[strtolower($armId)][$providerMetric] = $req;
-						}
-					}
+						foreach ($batchIds as $armId) {
+							$lowerArm = strtolower($armId);
 
-					$query = http_build_query([
-						'metricnamespace' => self::METRIC_NAMESPACE,
-						'metricnames'     => implode(',', array_keys($metricNames)),
-						'aggregation'     => $aggregation,
-						'interval'        => 'PT1M',
-						'starttime'       => $startTime,
-						'endtime'         => $endTime,
-						'api-version'     => '2023-10-01',
-					], '', '&', PHP_QUERY_RFC3986);
-
-					try {
-						$jsonBody = json_encode(['resourceids' => $batchIds], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-					} catch (\JsonException) {
-						$error ??= ErrorClass::Config;
-
-						continue;
-					}
-
-					$url = 'https://' . $region . '.metrics.monitor.azure.com/subscriptions/'
-						. $subscription . '/metrics:getBatch?' . $query;
-
-					try {
-						$sent++;
-						$body = $this->sendJson('POST', $url, $metricsToken, $jsonBody);
-					} catch (DriverError $e) {
-						$stops      = in_array($e->errorClass, [ErrorClass::Auth, ErrorClass::Permission, ErrorClass::Throttled], true);
-						$error      = $stops || $error === null ? $e->errorClass : $error;
-						$retryAfter = $e->retryAfter;
-
-						if ($stops) {
-							return new CollectResult($observations, $sent, $error, $retryAfter);
+							foreach ($byResource[$armId] as $req) {
+								$providerMetric              = self::METRICS[$req->metric][2];
+								$metricNames[$providerMetric] = true;
+								$lookup[$lowerArm][$providerMetric] = $req;
+							}
 						}
 
-						continue;
-					}
+						$query = http_build_query([
+							'metricnamespace' => $namespace,
+							'metricnames'     => implode(',', array_keys($metricNames)),
+							'aggregation'     => $aggregation,
+							'interval'        => 'PT1M',
+							'starttime'       => $startTime,
+							'endtime'         => $endTime,
+							'api-version'     => '2023-10-01',
+						], '', '&', PHP_QUERY_RFC3986);
 
-					$values = is_array($body['values'] ?? null) ? $body['values'] : [];
+						try {
+							$jsonBody = json_encode(['resourceids' => $batchIds], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+						} catch (\JsonException) {
+							$error ??= ErrorClass::Config;
 
-					foreach ($values as $entry) {
-						if (!is_array($entry)) {
 							continue;
 						}
 
-						$resId = is_string($entry['resourceid'] ?? null) ? strtolower(trim($entry['resourceid'])) : '';
+						$url = 'https://' . $region . '.metrics.monitor.azure.com/subscriptions/'
+							. $subscription . '/metrics:getBatch?' . $query;
 
-						if ($resId === '' || !isset($lookup[$resId])) {
+						try {
+							$sent++;
+							$body = $this->sendJson('POST', $url, $metricsToken, $jsonBody);
+						} catch (DriverError $e) {
+							$stops      = in_array($e->errorClass, [ErrorClass::Auth, ErrorClass::Permission, ErrorClass::Throttled], true);
+							$error      = $stops || $error === null ? $e->errorClass : $error;
+							$retryAfter = $e->retryAfter;
+
+							if ($stops) {
+								return new CollectResult($observations, $sent, $error, $retryAfter);
+							}
+
 							continue;
 						}
 
-						$metricsList = is_array($entry['value'] ?? null) ? $entry['value'] : [];
+						$values    = is_array($body['values'] ?? null) ? $body['values'] : [];
+						$fetchedAt = $this->clock->now();
 
-						foreach ($metricsList as $metricBlock) {
-							if (!is_array($metricBlock)) {
+						foreach ($values as $entry) {
+							if (!is_array($entry)) {
 								continue;
 							}
 
-							$errCode = is_string($metricBlock['errorCode'] ?? null) ? trim($metricBlock['errorCode']) : '';
+							$resId = is_string($entry['resourceid'] ?? null) ? strtolower(trim($entry['resourceid'])) : '';
 
-							if ($errCode !== '' && strcasecmp($errCode, 'Success') !== 0) {
-								$error ??= ErrorClass::Transient;
-
+							if ($resId === '' || !isset($lookup[$resId])) {
 								continue;
 							}
 
-							$nameObj = $metricBlock['name'] ?? null;
-							$mName   = is_array($nameObj) && is_string($nameObj['value'] ?? null)
-								? $nameObj['value']
-								: (is_string($nameObj) ? $nameObj : '');
+							$metricsList = is_array($entry['value'] ?? null) ? $entry['value'] : [];
 
-							if ($mName === '' || !isset($lookup[$resId][$mName])) {
-								continue;
+							foreach ($metricsList as $metricBlock) {
+								if (!is_array($metricBlock)) {
+									continue;
+								}
+
+								$errCode = is_string($metricBlock['errorCode'] ?? null) ? trim($metricBlock['errorCode']) : '';
+
+								if ($errCode !== '' && strcasecmp($errCode, 'Success') !== 0) {
+									$error ??= ErrorClass::Transient;
+
+									continue;
+								}
+
+								$nameObj = $metricBlock['name'] ?? null;
+								$mName   = is_array($nameObj) && is_string($nameObj['value'] ?? null)
+									? $nameObj['value']
+									: (is_string($nameObj) ? $nameObj : '');
+
+								if ($mName === '' || !isset($lookup[$resId][$mName])) {
+									continue;
+								}
+
+								$req   = $lookup[$resId][$mName];
+								$point = self::latestPoint($metricBlock, $aggregation, $tsCache);
+
+								if ($point === null) {
+									continue;
+								}
+
+								$convert        = self::METRICS[$req->metric][4];
+								$val            = $convert === 'rate60' ? $point[1] / 60.0 : $point[1];
+								$observations[] = new Observation(
+									$req->resourceId,
+									$req->metric,
+									$val,
+									$point[0],
+									$fetchedAt
+								);
 							}
-
-							$req   = $lookup[$resId][$mName];
-							$point = self::latestPoint($metricBlock, $aggregation);
-
-							if ($point === null) {
-								continue;
-							}
-
-							$convert        = self::METRICS[$req->metric][2];
-							$val            = $convert === 'rate60' ? $point[1] / 60.0 : $point[1];
-							$observations[] = new Observation(
-								$req->resourceId,
-								$req->metric,
-								$val,
-								$point[0],
-								$this->clock->now()
-							);
 						}
 					}
 				}
@@ -491,7 +546,7 @@ final class AzureDriver implements ProviderDriver {
 
 	/**
 	 * Azure Monitor metrics:getBatch accepts up to 50 resources per call for
-	 * one region and aggregation, billed at $0.01 per 1,000 calls at list
+	 * one region, namespace, and aggregation, billed at $0.01 per 1,000 calls at list
 	 * price (excluding shared subscription free tiers, per UsageEstimate).
 	 */
 	public function estimate(array $requests, int $intervalSeconds): UsageEstimate {
@@ -499,12 +554,13 @@ final class AzureDriver implements ProviderDriver {
 			return new UsageEstimate(0, 0, 0.0, self::PRICE_SOURCE, self::PRICE_CHECKED);
 		}
 
-		/** @var array<string, array<string, true>> $buckets aggregation => (providerId => true) */
+		/** @var array<string, array<string, true>> $buckets namespace|aggregation => (providerId => true) */
 		$buckets = [];
 
 		foreach ($requests as $request) {
-			$agg                                 = self::METRICS[$request->metric][1] ?? 'Average';
-			$buckets[$agg][$request->providerId] = true;
+			$spec                                    = self::METRICS[$request->metric] ?? null;
+			$bucket                                  = ($spec !== null ? $spec[1] : self::METRIC_NAMESPACE) . '|' . ($spec !== null ? $spec[3] : 'Average');
+			$buckets[$bucket][$request->providerId] = true;
 		}
 
 		$perCollection = 0;
@@ -521,10 +577,14 @@ final class AzureDriver implements ProviderDriver {
 	}
 
 	/**
-	 * @param array<array-key, mixed> $metricBlock
+	 * Extract the newest finite datapoint for an Azure Monitor metric block.
+	 *
+	 * @param array<array-key, mixed>  $metricBlock decoded Azure metric block
+	 * @param string                   $aggregation Azure aggregation field name
+	 * @param array<string, int|false> $tsCache     memoized ISO-8601 timestamp map
 	 * @return array{int, float}|null
 	 */
-	private static function latestPoint(array $metricBlock, string $aggregation): ?array {
+	private static function latestPoint(array $metricBlock, string $aggregation, array &$tsCache): ?array {
 		$field      = strtolower($aggregation);
 		$timeseries = is_array($metricBlock['timeseries'] ?? null) ? $metricBlock['timeseries'] : [];
 		$bestTs     = null;
@@ -541,8 +601,17 @@ final class AzureDriver implements ProviderDriver {
 				}
 
 				$timeStr = is_string($sample['timeStamp'] ?? null) ? $sample['timeStamp'] : '';
-				$ts      = $timeStr !== '' ? strtotime($timeStr) : false;
-				$raw     = $sample[$field] ?? null;
+
+				if ($timeStr === '') {
+					continue;
+				}
+
+				if (!array_key_exists($timeStr, $tsCache)) {
+					$tsCache[$timeStr] = strtotime($timeStr);
+				}
+
+				$ts  = $tsCache[$timeStr];
+				$raw = $sample[$field] ?? null;
 
 				if ($ts === false || !is_numeric($raw) || !is_finite((float) $raw)) {
 					continue;
@@ -585,24 +654,31 @@ final class AzureDriver implements ProviderDriver {
 	}
 
 	/**
-	 * @param list<string> $regions
+	 * Split a region-prefixed ARM resource ID using an O(1) region hash set.
+	 *
+	 * @param string             $providerId    stored provider resource identifier
+	 * @param array<string, int> $regionSet     flipped allowlisted region map
+	 * @param ?string            $defaultRegion fallback region when no prefix is present
 	 * @return array{?string, string}
 	 */
-	private function splitRegionAndArmId(string $providerId, array $regions): array {
+	private static function splitRegionAndArmId(string $providerId, array $regionSet, ?string $defaultRegion): array {
 		$pipe = strpos($providerId, '|');
 
 		if ($pipe !== false) {
 			$region = strtolower(substr($providerId, 0, $pipe));
 			$armId  = substr($providerId, $pipe + 1);
 
-			if (preg_match('/^' . self::REGION_RE . '$/', $region) === 1 && ($regions === [] || in_array($region, $regions, true))) {
+			if (
+				($regionSet !== [] && isset($regionSet[$region]))
+				|| ($regionSet === [] && preg_match('/^' . self::REGION_RE . '$/', $region) === 1)
+			) {
 				return [$region, $armId];
 			}
 
 			return [null, $armId];
 		}
 
-		return [$regions[0] ?? null, $providerId];
+		return [$defaultRegion, $providerId];
 	}
 
 	/**

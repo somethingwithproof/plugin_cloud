@@ -69,7 +69,7 @@ final class ResourceRepository {
 				Lifecycle::Active->value, $now, $now, $accountId, $holder, $now,
 			], true, $this->connection);
 
-			$seen[] = $resource->type . "\0" . $resource->providerId;
+			$seen[$resource->type . "\0" . $resource->providerId] = true;
 		}
 
 		if (!$leases->holds($accountId, $holder)) {
@@ -82,7 +82,7 @@ final class ResourceRepository {
 			true,
 			$this->connection
 		)) as $row) {
-			if (in_array(Row::string($row, 'type') . "\0" . Row::string($row, 'provider_id'), $seen, true)) {
+			if (isset($seen[Row::string($row, 'type') . "\0" . Row::string($row, 'provider_id')])) {
 				continue;
 			}
 

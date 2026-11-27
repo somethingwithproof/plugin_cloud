@@ -244,8 +244,24 @@ final class AdaptiveConcurrencyController {
 	): int {
 		$key     = self::scopeKey($provider, $region);
 		$latency = max(0.0, $observedLatencyMs);
-		$state   = $this->stateFor($key, $nowMs);
 
+		if (!isset($this->states[$key])) {
+			$this->states[$key] = [
+				'limit'                  => $this->initialConcurrency,
+				'minLatencyMs'           => null,
+				'minLatencyObservedAtMs' => $nowMs,
+				'ewmaLatencyMs'          => null,
+				'firstAboveTimeMs'       => null,
+				'dropping'               => false,
+				'dropCount'              => 0,
+				'dropNextMs'             => 0.0,
+				'lastIncreaseMs'         => $nowMs,
+				'retryUntilMs'           => 0.0,
+				'samples'                => 0,
+			];
+		}
+
+		$state = &$this->states[$key];
 		$state['samples']++;
 
 		if (
@@ -274,8 +290,6 @@ final class AdaptiveConcurrencyController {
 			$state['dropNextMs']       = $nowMs + ($this->intervalMs / sqrt((float) $state['dropCount']));
 			$state['firstAboveTimeMs'] = $nowMs;
 			$state['lastIncreaseMs']   = $nowMs;
-
-			$this->states[$key] = $state;
 
 			return $state['limit'];
 		}
@@ -308,8 +322,6 @@ final class AdaptiveConcurrencyController {
 				$state['lastIncreaseMs'] = $nowMs;
 			}
 		}
-
-		$this->states[$key] = $state;
 
 		return $state['limit'];
 	}
@@ -378,7 +390,8 @@ final class AdaptiveConcurrencyController {
 		float $remainingBudgetMs,
 		float $defaultServiceTimeMs = self::DEFAULT_SERVICE_TIME_MS
 	): int {
-		$limit = $this->currentLimit($provider, $region);
+		$key   = self::scopeKey($provider, $region);
+		$limit = $this->states[$key]['limit'] ?? $this->initialConcurrency;
 
 		if ($pendingRequests <= 0) {
 			return $this->minConcurrency;
@@ -388,7 +401,7 @@ final class AdaptiveConcurrencyController {
 			return $limit;
 		}
 
-		$serviceTimeMs = $this->serviceTimeMs($provider, $region, $defaultServiceTimeMs);
+		$serviceTimeMs = $this->serviceTimeForKey($key, $defaultServiceTimeMs);
 		$lambda        = $pendingRequests / $remainingBudgetMs;
 		$required      = (int) ceil($lambda * $serviceTimeMs);
 
@@ -431,9 +444,10 @@ final class AdaptiveConcurrencyController {
 		$scope           = self::scopeKey($provider, $region);
 		$pending         = max(0, $pendingRequests);
 		$budget          = max(0.0, $remainingBudgetMs);
-		$currentLimit    = $this->currentLimit($provider, $region);
-		$serviceTimeMs   = $this->serviceTimeMs($provider, $region, $defaultServiceTimeMs);
-		$backoffMs       = $this->retryAfterMs($provider, $region, $nowMs);
+		$state           = $this->states[$scope] ?? null;
+		$currentLimit    = $state !== null ? $state['limit'] : $this->initialConcurrency;
+		$serviceTimeMs   = $this->serviceTimeForKey($scope, $defaultServiceTimeMs);
+		$backoffMs       = $state !== null ? max(0.0, $state['retryUntilMs'] - $nowMs) : 0.0;
 		$effectiveBudget = max(0.0, $budget - $backoffMs);
 
 		if ($pending === 0) {
@@ -454,7 +468,9 @@ final class AdaptiveConcurrencyController {
 		$required    = $effectiveBudget > 0.0
 			? max(1, (int) ceil(($pending / $effectiveBudget) * $serviceTimeMs))
 			: $pending;
-		$recommended = $this->recommendedConcurrency($provider, $region, $pending, $effectiveBudget, $defaultServiceTimeMs);
+		$recommended = $effectiveBudget <= 0.0
+			? $currentLimit
+			: max($this->minConcurrency, min($currentLimit, $required));
 		$batches     = (int) ceil($pending / max(1, $recommended));
 		$estimatedMs = $backoffMs + ($batches * $serviceTimeMs);
 
@@ -522,54 +538,13 @@ final class AdaptiveConcurrencyController {
 	}
 
 	/**
-	 * Initialize or retrieve mutable state for a normalized scope key.
+	 * Resolve effective EWMA service time W in milliseconds for a normalized scope key.
 	 *
-	 * @param string $key   normalized "provider:region" key
-	 * @param float  $nowMs monotonic timestamp in milliseconds
-	 * @return array{
-	 *     limit: int,
-	 *     minLatencyMs: ?float,
-	 *     minLatencyObservedAtMs: float,
-	 *     ewmaLatencyMs: ?float,
-	 *     firstAboveTimeMs: ?float,
-	 *     dropping: bool,
-	 *     dropCount: int,
-	 *     dropNextMs: float,
-	 *     lastIncreaseMs: float,
-	 *     retryUntilMs: float,
-	 *     samples: int
-	 * }
-	 */
-	private function stateFor(string $key, float $nowMs): array {
-		if (!isset($this->states[$key])) {
-			$this->states[$key] = [
-				'limit'                  => $this->initialConcurrency,
-				'minLatencyMs'           => null,
-				'minLatencyObservedAtMs' => $nowMs,
-				'ewmaLatencyMs'          => null,
-				'firstAboveTimeMs'       => null,
-				'dropping'               => false,
-				'dropCount'              => 0,
-				'dropNextMs'             => 0.0,
-				'lastIncreaseMs'         => $nowMs,
-				'retryUntilMs'           => 0.0,
-				'samples'                => 0,
-			];
-		}
-
-		return $this->states[$key];
-	}
-
-	/**
-	 * Resolve effective EWMA service time W in milliseconds.
-	 *
-	 * @param string $provider             provider identifier
-	 * @param string $region               region identifier
+	 * @param string $key                  normalized "provider:region" key
 	 * @param float  $defaultServiceTimeMs fallback service time when no samples exist
 	 * @return float positive service time estimate in milliseconds
 	 */
-	private function serviceTimeMs(string $provider, string $region, float $defaultServiceTimeMs): float {
-		$key      = self::scopeKey($provider, $region);
+	private function serviceTimeForKey(string $key, float $defaultServiceTimeMs): float {
 		$fallback = $defaultServiceTimeMs > 0.0 ? $defaultServiceTimeMs : self::DEFAULT_SERVICE_TIME_MS;
 		$ewma     = $this->states[$key]['ewmaLatencyMs'] ?? null;
 

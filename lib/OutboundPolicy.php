@@ -52,6 +52,27 @@ final readonly class OutboundPolicy {
 	}
 
 	/**
+	 * O(1) lookup set for allowed HTTPS hosts.
+	 *
+	 * @var array<string, int>
+	 */
+	private array $hostSet;
+
+	/**
+	 * O(1) lookup set for allowed HTTPS ports.
+	 *
+	 * @var array<int, int>
+	 */
+	private array $portSet;
+
+	/**
+	 * O(1) lookup set for allowed plain-HTTP metadata hosts.
+	 *
+	 * @var array<string, int>
+	 */
+	private array $plainHostSet;
+
+	/**
 	 * @param list<string> $hosts          exact lower-case HTTPS host names
 	 * @param list<int>    $ports          allowed HTTPS ports
 	 * @param list<string> $plainHttpHosts exact lower-case link-local metadata hosts allowed over HTTP port 80
@@ -61,6 +82,9 @@ final readonly class OutboundPolicy {
 		public array $ports = [443],
 		public array $plainHttpHosts = [],
 	) {
+		$this->hostSet      = array_flip($hosts);
+		$this->portSet      = array_flip($ports);
+		$this->plainHostSet = array_flip($plainHttpHosts);
 	}
 
 	/**
@@ -85,17 +109,17 @@ final readonly class OutboundPolicy {
 		if ($tls) {
 			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 443;
 
-			if (!in_array($host, $this->hosts, true)) {
+			if (!isset($this->hostSet[$host])) {
 				throw new TransportError('host_refused', $host);
 			}
 
-			if (!in_array($port, $this->ports, true)) {
+			if (!isset($this->portSet[$port])) {
 				throw new TransportError('url_rejected', 'port');
 			}
 		} else {
 			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 80;
 
-			if (!in_array($host, $this->plainHttpHosts, true)) {
+			if (!isset($this->plainHostSet[$host])) {
 				throw new TransportError('url_rejected', 'form');
 			}
 

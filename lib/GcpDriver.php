@@ -31,6 +31,16 @@ final class GcpDriver implements ProviderDriver {
 	public const TYPE_INSTANCE   = 'gce_instance';
 
 	/**
+	 * Resource type identifier for Google Cloud SQL database instances.
+	 */
+	public const TYPE_CLOUDSQL   = 'gcp_cloudsql';
+
+	/**
+	 * Resource type identifier for Google Cloud HTTPS Load Balancers.
+	 */
+	public const TYPE_HTTPS_LB   = 'gcp_https_lb';
+
+	/**
 	 * Google Compute Engine API hostname.
 	 */
 	public const COMPUTE_HOST    = 'compute.googleapis.com';
@@ -81,22 +91,49 @@ final class GcpDriver implements ProviderDriver {
 	private const INSTANCE_ID_RE = '/^[0-9]{1,20}$/';
 
 	/**
-	 * Metric catalog from docs/research/metric-catalogs.md.
-	 * Row format: [metricType, aligner, reducer, convert].
+	 * Strict validation patterns for GCP resource identifiers by type.
 	 *
-	 * @var array<string, array{0: string, 1: string, 2: ?string, 3: string}>
+	 * @var array<string, string>
+	 */
+	private const ID_PATTERNS = [
+		self::TYPE_INSTANCE => self::INSTANCE_ID_RE,
+		self::TYPE_CLOUDSQL => '/^(?:[a-z][a-z0-9-]{4,28}[a-z0-9]:)?[a-z][a-z0-9-]{0,97}$/',
+		self::TYPE_HTTPS_LB => '/^[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?$/',
+	];
+
+	/**
+	 * Metric catalog from docs/research/metric-catalogs.md.
+	 * Row format: [resourceType, metricType, aligner, reducer, convert, resourceLabel].
+	 *
+	 * @var array<string, array{0: string, 1: string, 2: string, 3: ?string, 4: string, 5: string}>
 	 */
 	private const METRICS = [
-		'gce_cpu_pct'     => ['compute.googleapis.com/instance/cpu/utilization', 'ALIGN_MEAN', null, 'percent'],
-		'gce_net_in_Bps'  => ['compute.googleapis.com/instance/network/received_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_net_out_Bps' => ['compute.googleapis.com/instance/network/sent_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_pkt_in_ps'   => ['compute.googleapis.com/instance/network/received_packets_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_pkt_out_ps'  => ['compute.googleapis.com/instance/network/sent_packets_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_dsk_rd_Bps'  => ['compute.googleapis.com/instance/disk/read_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_dsk_wr_Bps'  => ['compute.googleapis.com/instance/disk/write_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_dsk_rd_ops'  => ['compute.googleapis.com/instance/disk/read_ops_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
-		'gce_dsk_wr_ops'  => ['compute.googleapis.com/instance/disk/write_ops_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
+		'gce_cpu_pct'      => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/cpu/utilization', 'ALIGN_MEAN', null, 'percent', 'instance_id'],
+		'gce_mem_used_pct' => [self::TYPE_INSTANCE, 'agent.googleapis.com/memory/percent_used', 'ALIGN_MEAN', null, 'value', 'instance_id'],
+		'gce_net_in_Bps'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/network/received_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_net_out_Bps'  => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/network/sent_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_pkt_in_ps'    => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/network/received_packets_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_pkt_out_ps'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/network/sent_packets_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_dsk_rd_Bps'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/disk/read_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_dsk_wr_Bps'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/disk/write_bytes_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_dsk_rd_ops'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/disk/read_ops_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'gce_dsk_wr_ops'   => [self::TYPE_INSTANCE, 'compute.googleapis.com/instance/disk/write_ops_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'instance_id'],
+		'csql_cpu_pct'     => [self::TYPE_CLOUDSQL, 'cloudsql.googleapis.com/database/cpu/utilization', 'ALIGN_MEAN', null, 'percent', 'database_id'],
+		'csql_mem_pct'     => [self::TYPE_CLOUDSQL, 'cloudsql.googleapis.com/database/memory/utilization', 'ALIGN_MEAN', null, 'percent', 'database_id'],
+		'csql_disk_pct'    => [self::TYPE_CLOUDSQL, 'cloudsql.googleapis.com/database/disk/utilization', 'ALIGN_MEAN', null, 'percent', 'database_id'],
+		'csql_conns'       => [self::TYPE_CLOUDSQL, 'cloudsql.googleapis.com/database/network/connections', 'ALIGN_MEAN', null, 'value', 'database_id'],
+		'glb_req_ps'       => [self::TYPE_HTTPS_LB, 'loadbalancing.googleapis.com/https/request_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value', 'url_map_name'],
+		'glb_lat_p95_ms'   => [self::TYPE_HTTPS_LB, 'loadbalancing.googleapis.com/https/total_latencies', 'ALIGN_PERCENTILE_95', 'REDUCE_MEAN', 'value', 'url_map_name'],
 	];
+
+	/**
+	 * Return the read-only GCP Cloud Monitoring metric catalog.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: ?string, 4: string, 5: string}>
+	 */
+	public static function metricCatalog(): array {
+		return self::METRICS;
+	}
 
 	/**
 	 * Cached short-lived OAuth2 access token for the active run.
@@ -179,7 +216,7 @@ final class GcpDriver implements ProviderDriver {
 				self::MONITORING_HOST,
 				"#^/v3/projects/$project/timeSeries$#",
 				null,
-				'/^filter=[^&]+&interval\.startTime=[^&]+&interval\.endTime=[^&]+(&aggregation\.alignmentPeriod=[0-9]+s)?(&aggregation\.perSeriesAligner=ALIGN_[A-Z_]+)?(&aggregation\.crossSeriesReducer=REDUCE_[A-Z_]+)?(&aggregation\.groupByFields=[^&]+)?(&view=(FULL|HEADERS))?(&pageSize=[0-9]{1,4})?(&pageToken=[A-Za-z0-9._~%+=\\/-]+)?$/'
+				'/^filter=[^&]+&interval\.startTime=[^&]+&interval\.endTime=[^&]+(&aggregation\.alignmentPeriod=[0-9]+s)?(&aggregation\.perSeriesAligner=ALIGN_[A-Z0-9_]+)?(&aggregation\.crossSeriesReducer=REDUCE_[A-Z0-9_]+)?(&aggregation\.groupByFields=[^&]+)?(&view=(FULL|HEADERS))?(&pageSize=[0-9]{1,4})?(&pageToken=[A-Za-z0-9._~%+=\\/-]+)?$/'
 			),
 		];
 	}
@@ -310,15 +347,17 @@ final class GcpDriver implements ProviderDriver {
 			return new CollectResult([], 0, $e->errorClass, $e->retryAfter);
 		}
 
-		/** @var array<string, array<string, MetricRequest>> $byMetric metricName => (instanceId => MetricRequest) */
+		/** @var array<string, array<string, MetricRequest>> $byMetric metricName => (resourceId => MetricRequest) */
 		$byMetric = [];
 		$error    = null;
 
 		foreach ($requests as $request) {
+			$spec = self::METRICS[$request->metric] ?? null;
+
 			if (
-				!isset(self::METRICS[$request->metric])
-				|| $request->resourceType !== self::TYPE_INSTANCE
-				|| preg_match(self::INSTANCE_ID_RE, $request->providerId) !== 1
+				$spec === null
+				|| $request->resourceType !== $spec[0]
+				|| preg_match(self::ID_PATTERNS[$spec[0]], $request->providerId) !== 1
 			) {
 				$error ??= ErrorClass::Config;
 
@@ -332,37 +371,39 @@ final class GcpDriver implements ProviderDriver {
 		$alignment    = max(60, $account->collectInterval);
 		$endTime      = $now;
 		$startTime    = $endTime - max($alignment * 2, 600);
+		$startIso     = gmdate('Y-m-d\TH:i:s\Z', $startTime);
+		$endIso       = gmdate('Y-m-d\TH:i:s\Z', $endTime);
+		$alignStr     = $alignment . 's';
 		$observations = [];
 		$sent         = 0;
 		$retryAfter   = 0;
+		/** @var array<string, int|false> $tsCache */
+		$tsCache      = [];
 
-		foreach ($byMetric as $metricName => $wantedByInstance) {
-			[$metricType, $aligner, $reducer, $convert] = self::METRICS[$metricName];
+		foreach ($byMetric as $metricName => $wantedByResource) {
+			[, $metricType, $aligner, $reducer, $convert, $resourceLabel] = self::METRICS[$metricName];
 			/** @var array<string, array{int, float}> $latest */
 			$latest    = [];
 			$pageToken = null;
 			$stopped   = false;
+			$baseQuery = [
+				'filter'                       => 'metric.type="' . $metricType . '"',
+				'interval.startTime'           => $startIso,
+				'interval.endTime'             => $endIso,
+				'aggregation.alignmentPeriod'  => $alignStr,
+				'aggregation.perSeriesAligner' => $aligner,
+			];
+
+			if ($reducer !== null) {
+				$baseQuery['aggregation.crossSeriesReducer'] = $reducer;
+				$baseQuery['aggregation.groupByFields']      = 'resource.label.' . $resourceLabel;
+			}
+
+			$baseQuery['view']     = 'FULL';
+			$baseQuery['pageSize'] = '500';
 
 			for ($page = 1; $page <= self::MAX_PAGES; $page++) {
-				$query = [
-					'filter'                        => 'metric.type="' . $metricType . '"',
-					'interval.startTime'            => gmdate('Y-m-d\TH:i:s\Z', $startTime),
-					'interval.endTime'              => gmdate('Y-m-d\TH:i:s\Z', $endTime),
-					'aggregation.alignmentPeriod'   => $alignment . 's',
-					'aggregation.perSeriesAligner'  => $aligner,
-				];
-
-				if ($reducer !== null) {
-					$query['aggregation.crossSeriesReducer'] = $reducer;
-					$query['aggregation.groupByFields']      = 'resource.label.instance_id';
-				}
-
-				$query['view']     = 'FULL';
-				$query['pageSize'] = '500';
-
-				if ($pageToken !== null) {
-					$query['pageToken'] = $pageToken;
-				}
+				$query = $pageToken === null ? $baseQuery : $baseQuery + ['pageToken' => $pageToken];
 
 				try {
 					$sent++;
@@ -395,9 +436,20 @@ final class GcpDriver implements ProviderDriver {
 					$labels     = is_array($series['resource'] ?? null) && is_array($series['resource']['labels'] ?? null)
 						? $series['resource']['labels']
 						: [];
-					$instanceId = is_string($labels['instance_id'] ?? null) ? trim($labels['instance_id']) : '';
+					$rawLabelId = is_string($labels[$resourceLabel] ?? null) ? trim($labels[$resourceLabel]) : '';
+					$matchedId  = '';
 
-					if ($instanceId === '' || !isset($wantedByInstance[$instanceId])) {
+					if ($rawLabelId !== '' && isset($wantedByResource[$rawLabelId])) {
+						$matchedId = $rawLabelId;
+					} elseif ($resourceLabel === 'database_id' && str_contains($rawLabelId, ':')) {
+						$shortDb = substr($rawLabelId, (int) strpos($rawLabelId, ':') + 1);
+
+						if (isset($wantedByResource[$shortDb])) {
+							$matchedId = $shortDb;
+						}
+					}
+
+					if ($matchedId === '') {
 						continue;
 					}
 
@@ -410,9 +462,20 @@ final class GcpDriver implements ProviderDriver {
 
 						$interval = is_array($point['interval'] ?? null) ? $point['interval'] : [];
 						$endStr   = is_string($interval['endTime'] ?? null) ? $interval['endTime'] : '';
-						$ts       = $endStr !== '' ? strtotime($endStr) : false;
+
+						if ($endStr === '') {
+							continue;
+						}
+
+						if (!array_key_exists($endStr, $tsCache)) {
+							$tsCache[$endStr] = strtotime($endStr);
+						}
+
+						$ts       = $tsCache[$endStr];
 						$valBlock = is_array($point['value'] ?? null) ? $point['value'] : [];
-						$rawVal   = $valBlock['doubleValue'] ?? ($valBlock['int64Value'] ?? null);
+						$rawVal   = $valBlock['doubleValue']
+							?? ($valBlock['int64Value']
+							?? (is_array($valBlock['distributionValue'] ?? null) ? ($valBlock['distributionValue']['mean'] ?? null) : null));
 
 						if ($ts === false || !is_numeric($rawVal)) {
 							continue;
@@ -424,8 +487,8 @@ final class GcpDriver implements ProviderDriver {
 							continue;
 						}
 
-						if (!isset($latest[$instanceId]) || $ts > $latest[$instanceId][0]) {
-							$latest[$instanceId] = [$ts, $num];
+						if (!isset($latest[$matchedId]) || $ts > $latest[$matchedId][0]) {
+							$latest[$matchedId] = [$ts, $num];
 						}
 					}
 				}
@@ -439,15 +502,17 @@ final class GcpDriver implements ProviderDriver {
 				$pageToken = $next;
 			}
 
-			foreach ($latest as $instanceId => [$observedAt, $rawVal]) {
-				$req            = $wantedByInstance[$instanceId];
+			$fetchedAt = $this->clock->now();
+
+			foreach ($latest as $resourceId => [$observedAt, $rawVal]) {
+				$req            = $wantedByResource[$resourceId];
 				$converted      = $convert === 'percent' ? $rawVal * 100.0 : $rawVal;
 				$observations[] = new Observation(
 					$req->resourceId,
 					$req->metric,
 					$converted,
 					$observedAt,
-					$this->clock->now()
+					$fetchedAt
 				);
 			}
 

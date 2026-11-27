@@ -465,12 +465,14 @@ final class DigitalOceanDriver implements ProviderDriver {
 	 * @return array{int, ?float}|null
 	 */
 	private static function cpu(array $series): ?array {
-		$times = array_keys($series[0]['points']);
+		$common = $series[0]['points'];
+		$count  = count($series);
 
-		foreach ($series as $one) {
-			$times = array_values(array_intersect($times, array_keys($one['points'])));
+		for ($i = 1; $i < $count; $i++) {
+			$common = array_intersect_key($common, $series[$i]['points']);
 		}
 
+		$times = array_keys($common);
 		sort($times);
 
 		if (count($times) < 2) {

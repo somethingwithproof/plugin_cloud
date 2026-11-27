@@ -40,6 +40,16 @@ final class AwsDriver implements ProviderDriver {
 	 */
 	public const TYPE_ELB = 'aws_elb';
 
+	/**
+	 * Resource type identifier for AWS NAT Gateways.
+	 */
+	public const TYPE_NAT = 'aws_nat_gateway';
+
+	/**
+	 * Resource type identifier for Amazon SQS queues.
+	 */
+	public const TYPE_SQS = 'aws_sqs_queue';
+
 	/** CloudWatch GetMetricData accepts at most 500 MetricDataQueries per call. */
 	public const MAX_BATCH = 500;
 
@@ -103,23 +113,32 @@ final class AwsDriver implements ProviderDriver {
 		'ec2_dsk_wr_Bps'  => [self::TYPE_EC2, 'AWS/EC2', 'DiskWriteBytes', 'InstanceId', 'Sum', 'rate'],
 		'ec2_dsk_rd_ops'  => [self::TYPE_EC2, 'AWS/EC2', 'DiskReadOps', 'InstanceId', 'Sum', 'rate'],
 		'ec2_dsk_wr_ops'  => [self::TYPE_EC2, 'AWS/EC2', 'DiskWriteOps', 'InstanceId', 'Sum', 'rate'],
-		'ec2_status_fail' => [self::TYPE_EC2, 'AWS/EC2', 'StatusCheckFailed', 'InstanceId', 'Maximum', 'value'],
-		'rds_cpu_pct'     => [self::TYPE_RDS, 'AWS/RDS', 'CPUUtilization', 'DBInstanceIdentifier', 'Average', 'value'],
-		'rds_free_mem'    => [self::TYPE_RDS, 'AWS/RDS', 'FreeableMemory', 'DBInstanceIdentifier', 'Average', 'value'],
-		'rds_db_conns'    => [self::TYPE_RDS, 'AWS/RDS', 'DatabaseConnections', 'DBInstanceIdentifier', 'Average', 'value'],
-		'rds_read_iops'   => [self::TYPE_RDS, 'AWS/RDS', 'ReadIOPS', 'DBInstanceIdentifier', 'Average', 'value'],
-		'rds_write_iops'  => [self::TYPE_RDS, 'AWS/RDS', 'WriteIOPS', 'DBInstanceIdentifier', 'Average', 'value'],
-		'alb_req_ps'      => [self::TYPE_ELB, 'AWS/ApplicationELB', 'RequestCount', 'LoadBalancer', 'Sum', 'rate'],
-		'alb_conn_act'    => [self::TYPE_ELB, 'AWS/ApplicationELB', 'ActiveConnectionCount', 'LoadBalancer', 'Sum', 'value'],
-		'alb_bytes_ps'    => [self::TYPE_ELB, 'AWS/ApplicationELB', 'ProcessedBytes', 'LoadBalancer', 'Sum', 'rate'],
-		'alb_t5xx_ps'     => [self::TYPE_ELB, 'AWS/ApplicationELB', 'HTTPCode_Target_5XX_Count', 'LoadBalancer', 'Sum', 'rate'],
-		'alb_e5xx_ps'     => [self::TYPE_ELB, 'AWS/ApplicationELB', 'HTTPCode_ELB_5XX_Count', 'LoadBalancer', 'Sum', 'rate'],
-		'alb_resp_s'      => [self::TYPE_ELB, 'AWS/ApplicationELB', 'TargetResponseTime', 'LoadBalancer', 'Average', 'value'],
-		'nlb_flow_act'    => [self::TYPE_ELB, 'AWS/NetworkELB', 'ActiveFlowCount', 'LoadBalancer', 'Average', 'value'],
-		'nlb_flow_new_ps' => [self::TYPE_ELB, 'AWS/NetworkELB', 'NewFlowCount', 'LoadBalancer', 'Sum', 'rate'],
-		'nlb_bytes_ps'    => [self::TYPE_ELB, 'AWS/NetworkELB', 'ProcessedBytes', 'LoadBalancer', 'Sum', 'rate'],
-		'nlb_pkts_ps'     => [self::TYPE_ELB, 'AWS/NetworkELB', 'ProcessedPackets', 'LoadBalancer', 'Sum', 'rate'],
-		'nlb_tgt_rst_ps'  => [self::TYPE_ELB, 'AWS/NetworkELB', 'TCP_Target_Reset_Count', 'LoadBalancer', 'Sum', 'rate'],
+		'ec2_status_fail'     => [self::TYPE_EC2, 'AWS/EC2', 'StatusCheckFailed', 'InstanceId', 'Maximum', 'value'],
+		'ec2_cpu_credits'     => [self::TYPE_EC2, 'AWS/EC2', 'CPUCreditBalance', 'InstanceId', 'Average', 'value'],
+		'rds_cpu_pct'         => [self::TYPE_RDS, 'AWS/RDS', 'CPUUtilization', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_free_mem'        => [self::TYPE_RDS, 'AWS/RDS', 'FreeableMemory', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_free_storage'    => [self::TYPE_RDS, 'AWS/RDS', 'FreeStorageSpace', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_db_conns'        => [self::TYPE_RDS, 'AWS/RDS', 'DatabaseConnections', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_read_iops'       => [self::TYPE_RDS, 'AWS/RDS', 'ReadIOPS', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_write_iops'      => [self::TYPE_RDS, 'AWS/RDS', 'WriteIOPS', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_read_lat_s'      => [self::TYPE_RDS, 'AWS/RDS', 'ReadLatency', 'DBInstanceIdentifier', 'Average', 'value'],
+		'rds_write_lat_s'     => [self::TYPE_RDS, 'AWS/RDS', 'WriteLatency', 'DBInstanceIdentifier', 'Average', 'value'],
+		'alb_req_ps'          => [self::TYPE_ELB, 'AWS/ApplicationELB', 'RequestCount', 'LoadBalancer', 'Sum', 'rate'],
+		'alb_conn_act'        => [self::TYPE_ELB, 'AWS/ApplicationELB', 'ActiveConnectionCount', 'LoadBalancer', 'Sum', 'value'],
+		'alb_bytes_ps'        => [self::TYPE_ELB, 'AWS/ApplicationELB', 'ProcessedBytes', 'LoadBalancer', 'Sum', 'rate'],
+		'alb_t5xx_ps'         => [self::TYPE_ELB, 'AWS/ApplicationELB', 'HTTPCode_Target_5XX_Count', 'LoadBalancer', 'Sum', 'rate'],
+		'alb_e5xx_ps'         => [self::TYPE_ELB, 'AWS/ApplicationELB', 'HTTPCode_ELB_5XX_Count', 'LoadBalancer', 'Sum', 'rate'],
+		'alb_resp_s'          => [self::TYPE_ELB, 'AWS/ApplicationELB', 'TargetResponseTime', 'LoadBalancer', 'Average', 'value'],
+		'alb_unhealthy_hosts' => [self::TYPE_ELB, 'AWS/ApplicationELB', 'UnHealthyHostCount', 'LoadBalancer', 'Average', 'value'],
+		'nlb_flow_act'        => [self::TYPE_ELB, 'AWS/NetworkELB', 'ActiveFlowCount', 'LoadBalancer', 'Average', 'value'],
+		'nlb_flow_new_ps'     => [self::TYPE_ELB, 'AWS/NetworkELB', 'NewFlowCount', 'LoadBalancer', 'Sum', 'rate'],
+		'nlb_bytes_ps'        => [self::TYPE_ELB, 'AWS/NetworkELB', 'ProcessedBytes', 'LoadBalancer', 'Sum', 'rate'],
+		'nlb_pkts_ps'         => [self::TYPE_ELB, 'AWS/NetworkELB', 'ProcessedPackets', 'LoadBalancer', 'Sum', 'rate'],
+		'nlb_tgt_rst_ps'      => [self::TYPE_ELB, 'AWS/NetworkELB', 'TCP_Target_Reset_Count', 'LoadBalancer', 'Sum', 'rate'],
+		'nat_bytes_out_Bps'   => [self::TYPE_NAT, 'AWS/NATGateway', 'BytesOutToDestination', 'NatGatewayId', 'Sum', 'rate'],
+		'nat_pkt_drop_ps'     => [self::TYPE_NAT, 'AWS/NATGateway', 'PacketsDropCount', 'NatGatewayId', 'Sum', 'rate'],
+		'sqs_msgs_visible'    => [self::TYPE_SQS, 'AWS/SQS', 'ApproximateNumberOfMessagesVisible', 'QueueName', 'Average', 'value'],
+		'sqs_oldest_age_s'    => [self::TYPE_SQS, 'AWS/SQS', 'ApproximateAgeOfOldestMessage', 'QueueName', 'Maximum', 'value'],
 	];
 
 	/**
@@ -129,7 +148,18 @@ final class AwsDriver implements ProviderDriver {
 		self::TYPE_EC2 => '/^i-[0-9a-f]{8,17}$/',
 		self::TYPE_RDS => '/^[a-zA-Z][a-zA-Z0-9-]{0,62}$/',
 		self::TYPE_ELB => '/^(?:app|net|gwy)\/[A-Za-z0-9-]{1,64}\/[0-9a-f]{16}$/',
+		self::TYPE_NAT => '/^nat-[0-9a-f]{8,17}$/',
+		self::TYPE_SQS => '/^[A-Za-z0-9._-]{1,80}(?:\.fifo)?$/',
 	];
+
+	/**
+	 * Return the read-only AWS CloudWatch metric catalog.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string}>
+	 */
+	public static function metricCatalog(): array {
+		return self::METRICS;
+	}
 
 	/**
 	 * Construct an AWS driver bound to a guarded HTTP transport and clock.
@@ -310,15 +340,27 @@ final class AwsDriver implements ProviderDriver {
 
 		foreach ($regions as $region) {
 			[$ec2, $n] = $this->discoverEc2($region, $creds);
-			$resources = array_merge($resources, $ec2);
+
+			if ($ec2 !== []) {
+				array_push($resources, ...$ec2);
+			}
+
 			$requests += $n;
 
 			[$rds, $n] = $this->discoverRds($region, $creds);
-			$resources = array_merge($resources, $rds);
+
+			if ($rds !== []) {
+				array_push($resources, ...$rds);
+			}
+
 			$requests += $n;
 
 			[$elb, $n] = $this->discoverElb($region, $creds);
-			$resources = array_merge($resources, $elb);
+
+			if ($elb !== []) {
+				array_push($resources, ...$elb);
+			}
+
 			$requests += $n;
 		}
 
@@ -350,10 +392,14 @@ final class AwsDriver implements ProviderDriver {
 			return new CollectResult([], 0, $e->errorClass, $e->retryAfter);
 		}
 
-		$period  = max(60, (int) (intdiv($account->collectInterval, 60) * 60));
-		$now     = $this->clock->now();
-		$endTime = intdiv($now, $period) * $period;
-		$start   = $endTime - max($period * 2, 600);
+		$period        = max(60, (int) (intdiv($account->collectInterval, 60) * 60));
+		$now           = $this->clock->now();
+		$endTime       = intdiv($now, $period) * $period;
+		$start         = $endTime - max($period * 2, 600);
+		$startIso      = gmdate('Y-m-d\TH:i:s\Z', $start);
+		$endIso        = gmdate('Y-m-d\TH:i:s\Z', $endTime);
+		$regionSet     = array_flip($regions);
+		$defaultRegion = $regions[0];
 
 		/** @var array<string, list<array{request: MetricRequest, id: string, spec: array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string}}>> $byRegion */
 		$byRegion = [];
@@ -368,7 +414,7 @@ final class AwsDriver implements ProviderDriver {
 				continue;
 			}
 
-			[$region, $providerId] = $this->splitRegionAndId($request->providerId, $regions);
+			[$region, $providerId] = self::splitRegionAndId($request->providerId, $regionSet, $defaultRegion);
 			$pattern               = self::ID_PATTERNS[$request->resourceType];
 
 			if ($region === null || preg_match($pattern, $providerId) !== 1) {
@@ -387,6 +433,9 @@ final class AwsDriver implements ProviderDriver {
 		$observations = [];
 		$sent         = 0;
 		$retryAfter   = 0;
+		/** @var array<string, int|false> $tsCache */
+		$tsCache      = [];
+		$periodStr    = (string) $period;
 
 		foreach ($byRegion as $region => $items) {
 			foreach (array_chunk($items, self::MAX_BATCH) as $chunk) {
@@ -394,24 +443,24 @@ final class AwsDriver implements ProviderDriver {
 				$params   = [
 					'Action'    => 'GetMetricData',
 					'Version'   => '2010-08-01',
-					'StartTime' => gmdate('Y-m-d\TH:i:s\Z', $start),
-					'EndTime'   => gmdate('Y-m-d\TH:i:s\Z', $endTime),
+					'StartTime' => $startIso,
+					'EndTime'   => $endIso,
 					'ScanBy'    => 'TimestampDescending',
 				];
 
 				foreach ($chunk as $idx => $entry) {
-					$n             = $idx + 1;
-					$qId           = 'm' . $n;
+					$n              = $idx + 1;
+					$qId            = 'm' . $n;
 					$queryMap[$qId] = $entry;
-					$prefix        = "MetricDataQueries.member.$n";
+					$prefix         = "MetricDataQueries.member.$n";
 
-					$params[$prefix . '.Id']                                       = $qId;
-					$params[$prefix . '.MetricStat.Metric.Namespace']              = $entry['spec'][1];
-					$params[$prefix . '.MetricStat.Metric.MetricName']             = $entry['spec'][2];
+					$params[$prefix . '.Id']                                          = $qId;
+					$params[$prefix . '.MetricStat.Metric.Namespace']                 = $entry['spec'][1];
+					$params[$prefix . '.MetricStat.Metric.MetricName']                = $entry['spec'][2];
 					$params[$prefix . '.MetricStat.Metric.Dimensions.member.1.Name']  = $entry['spec'][3];
 					$params[$prefix . '.MetricStat.Metric.Dimensions.member.1.Value'] = $entry['id'];
-					$params[$prefix . '.MetricStat.Period']                        = (string) $period;
-					$params[$prefix . '.MetricStat.Stat']                          = $entry['spec'][4];
+					$params[$prefix . '.MetricStat.Period']                           = $periodStr;
+					$params[$prefix . '.MetricStat.Stat']                             = $entry['spec'][4];
 				}
 
 				/** @var array<string, array{int, float}> $latest */
@@ -460,7 +509,13 @@ final class AwsDriver implements ProviderDriver {
 
 							if (isset($member->Timestamps->member)) {
 								foreach ($member->Timestamps->member as $ts) {
-									$parsed = strtotime(trim((string) $ts));
+									$rawTs = trim((string) $ts);
+
+									if (!array_key_exists($rawTs, $tsCache)) {
+										$tsCache[$rawTs] = strtotime($rawTs);
+									}
+
+									$parsed = $tsCache[$rawTs];
 
 									if ($parsed !== false) {
 										$timestamps[] = $parsed;
@@ -495,6 +550,8 @@ final class AwsDriver implements ProviderDriver {
 					}
 				}
 
+				$fetchedAt = $this->clock->now();
+
 				foreach ($latest as $qId => [$observedAt, $rawValue]) {
 					$entry          = $queryMap[$qId];
 					$converted      = $entry['spec'][5] === 'rate' ? $rawValue / $period : $rawValue;
@@ -503,7 +560,7 @@ final class AwsDriver implements ProviderDriver {
 						$entry['request']->metric,
 						$converted,
 						$observedAt,
-						$this->clock->now()
+						$fetchedAt
 					);
 				}
 
@@ -549,21 +606,25 @@ final class AwsDriver implements ProviderDriver {
 	}
 
 	/**
-	 * @param list<string> $regions
+	 * Split a region-prefixed provider ID using an O(1) region hash set.
+	 *
+	 * @param string             $providerId    stored provider resource identifier
+	 * @param array<string, int> $regionSet     flipped allowlisted region map
+	 * @param ?string            $defaultRegion fallback region when no prefix is present
 	 * @return array{?string, string}
 	 */
-	private function splitRegionAndId(string $providerId, array $regions): array {
+	private static function splitRegionAndId(string $providerId, array $regionSet, ?string $defaultRegion): array {
 		$slash = strpos($providerId, '/');
 
 		if ($slash !== false) {
 			$prefix = substr($providerId, 0, $slash);
 
-			if (in_array($prefix, $regions, true)) {
+			if (isset($regionSet[$prefix])) {
 				return [$prefix, substr($providerId, $slash + 1)];
 			}
 		}
 
-		return [$regions[0] ?? null, $providerId];
+		return [$defaultRegion, $providerId];
 	}
 
 	/**

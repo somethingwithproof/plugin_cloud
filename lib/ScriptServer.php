@@ -98,21 +98,32 @@ final class ScriptServer {
 	}
 
 	/**
+	 * Memoized data query fields by resource type.
+	 *
+	 * @var array<string, list<string>>
+	 */
+	private static array $fieldCache = [];
+
+	/**
 	 * The data query fields of a resource type: its index and name, then
 	 * every data source its graphs use. Empty for an unknown type.
 	 *
 	 * @return list<string>
 	 */
 	public static function fields(string $type): array {
+		if (isset(self::$fieldCache[$type])) {
+			return self::$fieldCache[$type];
+		}
+
 		$fields = [];
 
 		foreach (DigitalOceanCatalog::GRAPHS as $graph) {
 			if ($graph[0] === $type) {
-				$fields = array_merge($fields, $graph[4]);
+				array_push($fields, ...$graph[4]);
 			}
 		}
 
-		return $fields === [] ? [] : array_merge(['resourceId', 'resourceName'], $fields);
+		return self::$fieldCache[$type] = $fields === [] ? [] : array_merge(['resourceId', 'resourceName'], $fields);
 	}
 
 	/**
