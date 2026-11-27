@@ -25,16 +25,52 @@ namespace Somethingwithproof\Cloud;
  * acquisition for instance-identity accounts.
  */
 final class GcpAuth {
+	/**
+	 * Google OAuth2 token exchange hostname.
+	 */
 	public const TOKEN_HOST    = 'oauth2.googleapis.com';
+
+	/**
+	 * Google OAuth2 token exchange endpoint URL.
+	 */
 	public const TOKEN_URL     = 'https://oauth2.googleapis.com/token';
+
+	/**
+	 * Link-local Google Compute Engine metadata server hostname.
+	 */
 	public const METADATA_HOST = 'metadata.google.internal';
+
+	/**
+	 * GCE instance metadata default service-account token URL.
+	 */
 	public const METADATA_URL  = 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token';
+
+	/**
+	 * OAuth2 JWT bearer assertion grant type URN.
+	 */
 	public const GRANT_TYPE    = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
+
+	/**
+	 * Default read-only Compute Engine and Cloud Monitoring OAuth2 scopes.
+	 */
 	public const DEFAULT_SCOPE = 'https://www.googleapis.com/auth/compute.readonly https://www.googleapis.com/auth/monitoring.read';
 
+	/**
+	 * Minimum permitted JWT lifetime in seconds.
+	 */
 	private const MIN_LIFETIME = 60;
+
+	/**
+	 * Maximum permitted JWT lifetime in seconds.
+	 */
 	private const MAX_LIFETIME = 3600;
 
+	/**
+	 * Encode binary data with unpadded RFC 4648 base64url encoding.
+	 *
+	 * @param string $data raw bytes
+	 * @return string base64url-encoded string
+	 */
 	public static function base64UrlEncode(string $data): string {
 		return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 	}

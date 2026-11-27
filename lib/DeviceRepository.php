@@ -29,11 +29,23 @@ namespace Somethingwithproof\Cloud;
  * not inherit the account.
  */
 final class DeviceRepository {
+	/**
+	 * Construct a scope-device repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for creation timestamps
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Prefix stored in Cacti's host.external_id to authenticate scope device links.
+	 */
 	public const EXTERNAL_PREFIX = 'cloud:';
 
+	/**
+	 * MariaDB named-lock prefix serializing scope device creation per account.
+	 */
 	private const LOCK = 'plugin_cloud_device_';
 
 	/**
@@ -52,6 +64,12 @@ final class DeviceRepository {
 		return (string) $locked === '1';
 	}
 
+	/**
+	 * Release the per-account scope device creation lock.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return void
+	 */
 	public function unlock(int $accountId): void {
 		db_execute_prepared('DO RELEASE_LOCK(?)', [self::LOCK . $accountId], true, $this->connection);
 	}
@@ -87,6 +105,12 @@ final class DeviceRepository {
 		db_execute_prepared('DELETE FROM plugin_cloud_device WHERE host_id = ?', [$hostId], true, $this->connection);
 	}
 
+	/**
+	 * Look up the cloud account ID owned by a live scope device host ID.
+	 *
+	 * @param int $hostId Cacti host ID
+	 * @return int|null linked account ID, or null when unlinked or stale
+	 */
 	public function accountFor(int $hostId): ?int {
 		$id = (int) db_fetch_cell_prepared(
 			'SELECT d.account_id FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id
@@ -172,6 +196,12 @@ final class DeviceRepository {
 		return $methods;
 	}
 
+	/**
+	 * Look up the live Cacti scope device host ID for a cloud account.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return int|null linked Cacti host ID, or null when unlinked or stale
+	 */
 	public function hostFor(int $accountId): ?int {
 		$id = (int) db_fetch_cell_prepared(
 			'SELECT d.host_id FROM plugin_cloud_device d INNER JOIN host h ON h.id = d.host_id

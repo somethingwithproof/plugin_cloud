@@ -25,15 +25,33 @@ namespace Somethingwithproof\Cloud;
  * or credential path history accumulates there (REQ-ACCT-005).
  */
 final class AccountRepository {
+	/**
+	 * Construct an account repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for timestamps and audit entries
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Look up one account by primary key.
+	 *
+	 * @param int $id account ID
+	 * @return Account|null matching account, or null when absent or invalid
+	 */
 	public function find(int $id): ?Account {
 		$row = db_fetch_row_prepared('SELECT * FROM plugin_cloud_account WHERE id = ?', [$id], true, $this->connection);
 
 		return is_array($row) ? Account::fromRow($row) : null;
 	}
 
+	/**
+	 * Look up one account by unique name.
+	 *
+	 * @param string $name account name
+	 * @return Account|null matching account, or null when absent or invalid
+	 */
 	public function findByName(string $name): ?Account {
 		$row = db_fetch_row_prepared('SELECT * FROM plugin_cloud_account WHERE name = ?', [$name], true, $this->connection);
 
@@ -104,6 +122,13 @@ final class AccountRepository {
 		)));
 	}
 
+	/**
+	 * Report whether another account already uses the given unique name.
+	 *
+	 * @param string $name     candidate account name
+	 * @param int    $exceptId account ID excluded from the uniqueness check
+	 * @return bool true when a different account holds the name
+	 */
 	public function nameTaken(string $name, int $exceptId): bool {
 		return (int) db_fetch_cell_prepared(
 			'SELECT COUNT(*) FROM plugin_cloud_account WHERE name = ? AND id != ?',
@@ -158,6 +183,9 @@ final class AccountRepository {
 		return $id;
 	}
 
+	/**
+	 * Maximum transactional retry attempts when deleting an account under deadlock.
+	 */
 	private const DELETE_ATTEMPTS = 3;
 
 	/**
@@ -221,6 +249,14 @@ final class AccountRepository {
 		return false;
 	}
 
+	/**
+	 * Record the latest credential verification status and write an audit row.
+	 *
+	 * @param int          $id     account ID
+	 * @param VerifyStatus $status verification outcome
+	 * @param int          $userId Cacti user ID performing verification
+	 * @return void
+	 */
 	public function recordVerify(int $id, VerifyStatus $status, int $userId): void {
 		db_execute_prepared(
 			'UPDATE plugin_cloud_account SET verify_status = ?, verified_at = ? WHERE id = ?',
@@ -265,6 +301,11 @@ final class AccountRepository {
 		return $entries;
 	}
 
+	/**
+	 * Check whether the database connection is still inside an active transaction.
+	 *
+	 * @return bool true when @@in_transaction equals 1
+	 */
 	private function inTransaction(): bool {
 		return (int) db_fetch_cell_prepared('SELECT @@in_transaction', [], '', true, $this->connection) === 1;
 	}

@@ -28,7 +28,16 @@ namespace Somethingwithproof\Cloud;
  */
 final class DoctorChecks {
 	/**
-	 * @param \Closure(string): void $keyCheck throws CredentialError when the vault key is unusable
+	 * Build the Doctor diagnostic runner for Cloud checks and debug snapshots.
+	 *
+	 * @param Schema                 $schema         schema version reader
+	 * @param Settings               $settings       active plugin settings
+	 * @param AccountRepository      $accounts       configured accounts store
+	 * @param HealthRepository       $health         collector health store
+	 * @param Drivers                $drivers        registered provider drivers
+	 * @param Clock                  $clock          clock for staleness and backoff checks
+	 * @param int                    $pollerInterval configured Cacti poller interval in seconds
+	 * @param \Closure(string): void $keyCheck       throws CredentialError when the vault key is unusable
 	 */
 	public function __construct(
 		private readonly Schema $schema,
@@ -274,6 +283,120 @@ final class DoctorChecks {
 			'status'  => 'ok',
 			'message' => 'All enabled cloud account collection intervals align with the poller interval.',
 			'details' => ['poller_interval' => $this->pollerInterval, 'misaligned' => []],
+		];
+	}
+
+	/**
+	 * Return a redacted diagnostic snapshot for doctor_register_debug_info.
+	 *
+	 * Reports plugin version, schema currency, non-secret settings metadata,
+	 * account/provider/driver counts, and aggregate collection health without
+	 * ever reading or emitting raw vault key material or credential values.
+	 *
+	 * @param string $pluginVersion plugin version reported by INFO
+	 * @return array{
+	 *     id: string,
+	 *     label: string,
+	 *     fields: array<string, mixed>
+	 * }
+	 */
+	public function debugInfo(string $pluginVersion = ''): array {
+		$accounts          = $this->accounts->all();
+		$enabled           = 0;
+		$disabled          = 0;
+		$byProvider        = [];
+		$byCredentialSrc   = [];
+		$healthSummary     = [
+			'ok'        => 0,
+			'partial'   => 0,
+			'budget'    => 0,
+			'failed'    => 0,
+			'throttled' => 0,
+			'never'     => 0,
+		];
+		$now               = $this->clock->now();
+
+		foreach ($accounts as $account) {
+			if ($account->enabled()) {
+				$enabled++;
+			} else {
+				$disabled++;
+			}
+
+			$provider                      = $account->provider->value;
+			$byProvider[$provider]         = ($byProvider[$provider] ?? 0) + 1;
+			$source                        = $account->credentialSource->value;
+			$byCredentialSrc[$source]      = ($byCredentialSrc[$source] ?? 0) + 1;
+			$h                             = $this->health->find($account->id);
+
+			if ($h->retryAt > $now || $h->error === ErrorClass::Throttled) {
+				$healthSummary['throttled']++;
+			} else {
+				$stateKey = $h->collection->value;
+
+				if (isset($healthSummary[$stateKey])) {
+					$healthSummary[$stateKey]++;
+				}
+			}
+		}
+
+		ksort($byProvider);
+		ksort($byCredentialSrc);
+
+		$driverCheck = $this->checkDrivers();
+		$vaultCheck  = $this->checkVaultKey();
+		$stored      = $this->schema->storedVersion();
+
+		return [
+			'id'     => 'cloud',
+			'label'  => 'Cloud Plugin',
+			'fields' => [
+				'version' => [
+					'label' => 'Plugin Version',
+					'value' => $pluginVersion,
+				],
+				'schema_version' => [
+					'label' => 'Schema Version',
+					'value' => [
+						'stored'   => $stored,
+						'expected' => Schema::VERSION,
+						'current'  => $stored === Schema::VERSION,
+					],
+				],
+				'settings' => [
+					'label' => 'Settings (Redacted)',
+					'value' => [
+						'collector_budget'          => $this->settings->collectorBudget,
+						'keep_tables_on_uninstall'  => $this->settings->keepTablesOnUninstall,
+						'vault_key_configured'      => $this->settings->vaultKeyFile !== '',
+						'vault_key_status'          => $vaultCheck['status'],
+						'credential_dir_configured' => $this->settings->credentialDir !== '',
+						'poller_interval'           => $this->pollerInterval,
+					],
+				],
+				'accounts' => [
+					'label' => 'Accounts',
+					'value' => [
+						'total'                => count($accounts),
+						'enabled'              => $enabled,
+						'disabled'             => $disabled,
+						'by_provider'          => $byProvider,
+						'by_credential_source' => $byCredentialSrc,
+					],
+				],
+				'drivers' => [
+					'label' => 'Provider Drivers',
+					'value' => [
+						'released_count' => count(Provider::released()),
+						'ready'          => $driverCheck['details']['ready'],
+						'missing'        => $driverCheck['details']['missing'],
+					],
+				],
+				'health' => [
+					'label' => 'Health Summary',
+					'value' => $healthSummary,
+				],
+			],
 		];
 	}
 }

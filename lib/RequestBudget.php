@@ -30,6 +30,9 @@ namespace Somethingwithproof\Cloud;
  * ones are read each run and the rest are marked unread with reason budget.
  */
 final class RequestBudget {
+	/**
+	 * Observation status recorded when a series is deferred due to request budget.
+	 */
 	public const REASON = 'budget';
 
 	/**
@@ -51,6 +54,12 @@ final class RequestBudget {
 		return $limits === null ? null : intdiv($limits[0] * $account->requestShare, 100);
 	}
 
+	/**
+	 * Compute the maximum provider API requests allowed in a single collector run.
+	 *
+	 * @param Account $account target cloud account
+	 * @return int|null request budget per run, or null when the provider has no fixed cap
+	 */
 	public static function perRun(Account $account): ?int {
 		$limits = self::LIMITS[$account->provider->value] ?? null;
 

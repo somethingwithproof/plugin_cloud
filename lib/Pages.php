@@ -28,8 +28,19 @@ namespace Somethingwithproof\Cloud;
  * Cloud Admin pages (REQ-UI-002).
  */
 final class Pages {
+	/**
+	 * Page files protected by the Cloud Operator realm.
+	 */
 	public const OPERATOR = ['cloud_operator.php'];
+
+	/**
+	 * Page files protected by the Cloud View realm.
+	 */
 	public const VIEW  = ['cloud_health.php'];
+
+	/**
+	 * Page files protected by the Cloud Admin realm.
+	 */
 	public const ADMIN = ['cloud_accounts.php'];
 
 	/**

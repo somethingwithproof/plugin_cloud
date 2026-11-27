@@ -23,13 +23,29 @@ namespace Somethingwithproof\Cloud;
  * A clock that stays where it is put, for tests and for replaying a run.
  */
 final class FixedClock implements Clock {
+	/**
+	 * Initialize the fixed clock at a specific Unix timestamp.
+	 *
+	 * @param int $time initial Unix epoch seconds
+	 */
 	public function __construct(private int $time) {
 	}
 
+	/**
+	 * Return the current simulated Unix timestamp.
+	 *
+	 * @return int Unix epoch seconds
+	 */
 	public function now(): int {
 		return $this->time;
 	}
 
+	/**
+	 * Move the simulated clock forward (or backward) by the given number of seconds.
+	 *
+	 * @param int $seconds delta in seconds
+	 * @return void
+	 */
 	public function advance(int $seconds): void {
 		$this->time += $seconds;
 	}

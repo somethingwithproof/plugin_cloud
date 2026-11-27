@@ -25,6 +25,13 @@ namespace Somethingwithproof\Cloud;
  * text out of here; anything unexpected is a configuration status.
  */
 final class Verifier {
+	/**
+	 * Construct a credential verifier service.
+	 *
+	 * @param Drivers           $drivers     provider driver registry
+	 * @param CredentialStore   $credentials credential store
+	 * @param AccountRepository $accounts    account repository for recording verify results
+	 */
 	public function __construct(
 		private readonly Drivers $drivers,
 		private readonly CredentialStore $credentials,
@@ -32,6 +39,13 @@ final class Verifier {
 	) {
 	}
 
+	/**
+	 * Verify an account's credential with its provider driver and persist the result.
+	 *
+	 * @param Account $account target cloud account
+	 * @param int     $userId  Cacti user ID initiating verification
+	 * @return VerifyStatus recorded fixed verification status
+	 */
 	public function verify(Account $account, int $userId): VerifyStatus {
 		$status = $this->status($account);
 
@@ -40,6 +54,12 @@ final class Verifier {
 		return $status;
 	}
 
+	/**
+	 * Resolve driver and credential, perform verification, and classify any error.
+	 *
+	 * @param Account $account target cloud account
+	 * @return VerifyStatus normalized verification status
+	 */
 	private function status(Account $account): VerifyStatus {
 		try {
 			$driver = $this->drivers->for($account);

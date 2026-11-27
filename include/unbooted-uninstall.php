@@ -26,6 +26,11 @@
  * lifecycle integration tests run both paths.
  */
 
+/**
+ * Apply the keep-tables uninstall preference without loading PHP 8.2 classes.
+ *
+ * @return void
+ */
 function cloud_uninstall_unbooted(): void {
 	$row  = db_fetch_row_prepared('SELECT value FROM settings WHERE name = ?', array('cloud_uninstall_keep_tables'));
 	$keep = !is_array($row) || $row === array() || (isset($row['value']) && $row['value'] === 'on');

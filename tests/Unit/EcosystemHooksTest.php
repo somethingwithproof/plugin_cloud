@@ -20,6 +20,7 @@
 use Somethingwithproof\Cloud\Abilities;
 use Somethingwithproof\Cloud\Account;
 use Somethingwithproof\Cloud\AccountRepository;
+use Somethingwithproof\Cloud\ApiResources;
 use Somethingwithproof\Cloud\CredentialError;
 use Somethingwithproof\Cloud\DoctorChecks;
 use Somethingwithproof\Cloud\Drivers;
@@ -191,10 +192,196 @@ it('runs all five Doctor diagnostic checks across healthy and degraded states', 
 it('wires ecosystem registration hooks in setup.php cleanly', function () {
 	$abilities = cloud_abilities_register([]);
 	$checks    = cloud_doctor_register_checks([]);
+	$debugInfo = cloud_doctor_register_debug_info([]);
+	$resources = cloud_api_register_resources([]);
 	$providers = cloud_casc_register_providers([]);
 
 	expect(array_keys($abilities))->toBe(['cloud-list-accounts', 'cloud-list-resources', 'cloud-get-health'])
 		->and(array_column($checks, 'id'))->toContain('cloud_schema', 'cloud_vault_key', 'cloud_drivers')
+		->and($debugInfo)->toHaveKey('cloud')
+		->and($debugInfo['cloud']['id'])->toBe('cloud')
+		->and(array_keys($resources))->toBe([
+			ApiResources::TYPE_ACCOUNT,
+			ApiResources::TYPE_RESOURCE,
+			ApiResources::TYPE_HEALTH,
+		])
 		->and($providers)->toHaveKey('cloud')
 		->and($providers['cloud']['formats'])->toBe(['yaml', 'xml']);
+});
+
+it('produces a redacted Doctor debugInfo snapshot standalone with zero secrets', function () {
+	$clock = new FixedClock(1731542400);
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM settings WHERE name = ?' => [['value' => (string) Schema::VERSION]],
+		'FROM plugin_cloud_account ORDER BY name' => [
+			[
+				'id'                => 1,
+				'provider'          => 'aws',
+				'name'              => 'aws-prod',
+				'poller_id'         => 1,
+				'credential_source' => 'vault',
+				'credential_file'   => '/etc/cacti/super-secret-aws.json',
+				'collect_interval'  => 300,
+				'admin_state'       => 'enabled',
+			],
+			[
+				'id'                => 2,
+				'provider'          => 'gcp',
+				'name'              => 'gcp-stage',
+				'poller_id'         => 1,
+				'credential_source' => 'file',
+				'credential_file'   => '/etc/cacti/gcp-private-key.json',
+				'collect_interval'  => 300,
+				'admin_state'       => 'disabled',
+			],
+		],
+		'FROM plugin_cloud_health' => [
+			[
+				'account_id'  => 1,
+				'run_started' => 1731542300,
+				'collection'  => 'ok',
+			],
+		],
+	];
+
+	$settings = Settings::fromRow([
+		'cloud_vault_key_file'   => '/etc/cacti/vault-secret-key.bin',
+		'cloud_credential_dir'   => '/etc/cacti/secret-creds',
+		'cloud_collector_budget' => '180',
+	]);
+
+	$doctor = new DoctorChecks(
+		new Schema(false),
+		$settings,
+		new AccountRepository(false, $clock),
+		new HealthRepository(false),
+		Drivers::production(),
+		$clock,
+		300,
+		static function (string $path): void {
+		}
+	);
+
+	$info       = $doctor->debugInfo('0.1.0-dev');
+	$serialized = (string) json_encode($info);
+
+	expect($info['id'])->toBe('cloud')
+		->and($info['fields']['version']['value'])->toBe('0.1.0-dev')
+		->and($info['fields']['schema_version']['value'])->toBe([
+			'stored'   => Schema::VERSION,
+			'expected' => Schema::VERSION,
+			'current'  => true,
+		])
+		->and($info['fields']['settings']['value'])->toMatchArray([
+			'collector_budget'          => 180,
+			'keep_tables_on_uninstall'  => true,
+			'vault_key_configured'      => true,
+			'vault_key_status'          => 'ok',
+			'credential_dir_configured' => true,
+			'poller_interval'           => 300,
+		])
+		->and($info['fields']['accounts']['value'])->toBe([
+			'total'                => 2,
+			'enabled'              => 1,
+			'disabled'             => 1,
+			'by_provider'          => ['aws' => 1, 'gcp' => 1],
+			'by_credential_source' => ['file' => 1, 'vault' => 1],
+		])
+		->and($info['fields']['drivers']['value']['missing'])->toBe([])
+		->and($serialized)->not->toContain('/etc/cacti/vault-secret-key.bin')
+		->and($serialized)->not->toContain('/etc/cacti/secret-creds')
+		->and($serialized)->not->toContain('super-secret-aws.json')
+		->and($serialized)->not->toContain('gcp-private-key.json');
+});
+
+it('registers standalone Google AIP resource descriptors with strict permission gating and zero secrets', function () {
+	$clock   = new FixedClock(1731542400);
+	$account = Account::fromRow([
+		'id'                => 9,
+		'provider'          => 'azure',
+		'name'              => 'azure-core',
+		'poller_id'         => 1,
+		'scope'             => json_encode(['tenant' => '0f8fad5b-d9cb-469f-a165-70867728950e', 'subscription' => '7c9e6679-7425-40de-944b-e07fc1f90ae7']),
+		'credential_source' => 'file',
+		'credential_file'   => '/etc/cacti/azure-client-secret.json',
+		'admin_state'       => 'enabled',
+		'verify_status'     => 'ok',
+	]);
+
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM plugin_cloud_resource WHERE account_id = ?' => [
+			[
+				'id'          => 42,
+				'account_id'  => 9,
+				'type'        => 'azure_vm',
+				'provider_id' => 'vm-prod-01',
+				'name'        => 'app-node-1',
+				'region'      => 'eastus',
+				'lifecycle'   => 'active',
+				'first_seen'  => 1731500000,
+				'last_seen'   => 1731542100,
+			],
+		],
+		'FROM plugin_cloud_health' => [
+			[
+				'account_id'   => 9,
+				'collection'   => 'ok',
+				'discovery'    => 'ok',
+				'series_read'  => 3,
+				'series_total' => 3,
+				'requests'     => 2,
+			],
+		],
+	];
+
+	$allowed = true;
+	$api     = new ApiResources(
+		static function () use (&$allowed): bool {
+			return $allowed;
+		},
+		static fn (): array => [$account],
+		new ResourceRepository(false, $clock),
+		new HealthRepository(false),
+		$clock
+	);
+
+	$descriptors = $api->descriptors();
+	expect(array_keys($descriptors))->toBe([
+		'cloud.cacti.net/Account',
+		'cloud.cacti.net/Resource',
+		'cloud.cacti.net/Health',
+	]);
+
+	foreach ($descriptors as $descriptor) {
+		expect($descriptor['read_only'])->toBeTrue()
+			->and($descriptor['operations'])->toBe(['list', 'get'])
+			->and($descriptor['permission_callback']())->toBeTrue();
+	}
+
+	$accounts  = $descriptors['cloud.cacti.net/Account']['callbacks']['list']([]);
+	$oneAcc    = $descriptors['cloud.cacti.net/Account']['callbacks']['get'](['account' => 9]);
+	$resources = $descriptors['cloud.cacti.net/Resource']['callbacks']['list'](['account_id' => 9]);
+	$oneRes    = $descriptors['cloud.cacti.net/Resource']['callbacks']['get'](['account_id' => 9, 'resource_id' => 42]);
+	$healthAll = $descriptors['cloud.cacti.net/Health']['callbacks']['list']([]);
+	$oneHealth = $descriptors['cloud.cacti.net/Health']['callbacks']['get'](['account_id' => 9]);
+
+	$serialized = (string) json_encode([$accounts, $oneAcc, $resources, $oneRes, $healthAll, $oneHealth]);
+
+	expect($accounts)->toHaveCount(1)
+		->and($oneAcc['name'])->toBe('accounts/9')
+		->and($oneRes['name'])->toBe('accounts/9/resources/42')
+		->and($oneHealth['name'])->toBe('accounts/9/health')
+		->and($oneHealth['collection'])->toBe('ok')
+		->and($serialized)->not->toContain('azure-client-secret.json')
+		->and($serialized)->not->toContain('credential_file');
+
+	// Denied when Cloud View permission is revoked.
+	$allowed = false;
+	expect($descriptors['cloud.cacti.net/Account']['permission_callback']())->toBeFalse()
+		->and($descriptors['cloud.cacti.net/Account']['callbacks']['list']([]))->toBe([])
+		->and($descriptors['cloud.cacti.net/Account']['callbacks']['get'](['account_id' => 9]))->toBeNull()
+		->and($descriptors['cloud.cacti.net/Resource']['callbacks']['list']([]))->toBe([])
+		->and($descriptors['cloud.cacti.net/Resource']['callbacks']['get'](['resource_id' => 42]))->toBeNull()
+		->and($descriptors['cloud.cacti.net/Health']['callbacks']['list']([]))->toBe([])
+		->and($descriptors['cloud.cacti.net/Health']['callbacks']['get'](['account_id' => 9]))->toBeNull();
 });

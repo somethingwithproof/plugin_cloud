@@ -30,8 +30,16 @@ namespace Somethingwithproof\Cloud;
  * fetch of an old datapoint is still old.
  */
 final class FreshnessEvaluator {
+	/**
+	 * Maximum permitted future clock skew in seconds before flagging clock_skew.
+	 */
 	public const SKEW_ALLOWANCE = 120;
 
+	/**
+	 * Construct a freshness evaluator backed by the given clock.
+	 *
+	 * @param Clock $clock wall clock for age calculations
+	 */
 	public function __construct(private readonly Clock $clock) {
 	}
 
@@ -51,6 +59,15 @@ final class FreshnessEvaluator {
 		};
 	}
 
+	/**
+	 * Classify a datapoint's freshness against metric period, delay, and interval.
+	 *
+	 * @param Observation|null $observation     cached datapoint, or null if none
+	 * @param int              $period          metric sampling period in seconds
+	 * @param int              $delay           provider publication delay in seconds
+	 * @param int              $collectInterval account collection interval in seconds
+	 * @return Freshness evaluated freshness state
+	 */
 	public function evaluate(?Observation $observation, int $period, int $delay, int $collectInterval): Freshness {
 		if ($observation === null || $observation->observedAt <= 0) {
 			return Freshness::Never;

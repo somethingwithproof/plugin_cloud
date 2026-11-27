@@ -25,13 +25,39 @@ namespace Somethingwithproof\Cloud;
  * Certificate assertions (PS256) are intentionally excluded.
  */
 final class AzureAuth {
+	/**
+	 * Microsoft Entra ID OAuth2 token host.
+	 */
 	public const LOGIN_HOST     = 'login.microsoftonline.com';
+
+	/**
+	 * Link-local Azure Instance Metadata Service host.
+	 */
 	public const IMDS_HOST      = '169.254.169.254';
+
+	/**
+	 * Entra ID v2 OAuth2 scope for Azure Resource Manager.
+	 */
 	public const ARM_SCOPE      = 'https://management.azure.com/.default';
+
+	/**
+	 * Entra ID v2 OAuth2 scope for Azure Monitor batch metrics.
+	 */
 	public const METRICS_SCOPE  = 'https://metrics.monitor.azure.com/.default';
+
+	/**
+	 * IMDS resource audience URI for Azure Resource Manager.
+	 */
 	public const ARM_RESOURCE   = 'https://management.azure.com/';
+
+	/**
+	 * IMDS resource audience URI for Azure Monitor metrics.
+	 */
 	public const METRICS_RES    = 'https://metrics.monitor.azure.com/';
 
+	/**
+	 * Strict lowercase UUID regular expression validating tenant and client IDs.
+	 */
 	private const UUID_RE = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
 
 	/**

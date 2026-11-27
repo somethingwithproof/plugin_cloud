@@ -106,6 +106,13 @@ final class ScopeDevices {
 		}
 	}
 
+	/**
+	 * Create and link the scope device while holding the account's creation lock.
+	 *
+	 * @param Account $account  target cloud account
+	 * @param int     $template Cacti host_template ID
+	 * @return int created or existing Cacti host ID, or 0 on failure
+	 */
 	private function createLocked(Account $account, int $template): int {
 		$existing = $this->devices->hostFor($account->id);
 

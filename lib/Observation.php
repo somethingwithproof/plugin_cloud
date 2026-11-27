@@ -24,6 +24,15 @@ namespace Somethingwithproof\Cloud;
  * never zero.
  */
 final readonly class Observation {
+	/**
+	 * Construct an immutable metric datapoint observation.
+	 *
+	 * @param int        $resourceId internal plugin_cloud_resource ID
+	 * @param string     $metric     catalog metric name
+	 * @param float|null $value      measured value, or null for unknown
+	 * @param int        $observedAt provider datapoint Unix timestamp
+	 * @param int        $fetchedAt  collector fetch Unix timestamp
+	 */
 	public function __construct(
 		public int $resourceId,
 		public string $metric,

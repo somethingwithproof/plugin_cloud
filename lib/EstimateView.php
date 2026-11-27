@@ -24,8 +24,17 @@ namespace Somethingwithproof\Cloud;
  * created (REQ-COST-001). Every figure comes from cached inventory.
  */
 final class EstimateView {
+	/**
+	 * HTML anchor prefix for linking directly to an account's estimate row.
+	 */
 	public const ANCHOR = 'cloud-estimate-';
 
+	/**
+	 * Construct the request and cost estimate presenter.
+	 *
+	 * @param CostPreview $cost    cost preview calculator
+	 * @param Drivers     $drivers provider driver registry
+	 */
 	public function __construct(
 		private readonly CostPreview $cost,
 		private readonly Drivers $drivers,
@@ -195,6 +204,12 @@ final class EstimateView {
 		];
 	}
 
+	/**
+	 * Map a catalog resource type key to its translated display label.
+	 *
+	 * @param string $type resource type key
+	 * @return string translated label or raw type key
+	 */
 	private static function typeLabel(string $type): string {
 		return match ($type) {
 			DigitalOceanCatalog::DROPLET       => __('Droplet', 'cloud'),

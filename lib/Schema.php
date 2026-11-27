@@ -34,31 +34,56 @@ namespace Somethingwithproof\Cloud;
  * the next run (REQ-LIFE-003). No migration calls a provider (REQ-LIFE-006).
  */
 final class Schema {
+	/**
+	 * Current schema version applied by migrate().
+	 */
 	public const VERSION = 3;
 
+	/**
+	 * Cacti plugin hooks registered for the Cloud plugin.
+	 */
 	public const HOOKS = [
-		'abilities_register'      => 'cloud_abilities_register',
-		'api_device_new'          => 'cloud_device_saved',
-		'api_device_save'         => 'cloud_device_save',
-		'auth_alternate_realms'   => 'cloud_auth_alternate_realms',
-		'casc_register_providers' => 'cloud_casc_register_providers',
-		'config_arrays'           => 'cloud_config_arrays',
-		'config_settings'         => 'cloud_config_settings',
-		'device_remove'           => 'cloud_device_remove',
-		'doctor_register_checks'  => 'cloud_doctor_register_checks',
-		'draw_navigation_text'    => 'cloud_draw_navigation_text',
-		'graphs_new_top_links'    => 'cloud_graphs_new_top_links',
-		'poller_bottom'           => 'cloud_poller_bottom',
-		'remote_agent'            => 'cloud_remote_agent',
-		'replicate_out'           => 'cloud_replicate_out',
+		'abilities_register'         => 'cloud_abilities_register',
+		'api_device_new'             => 'cloud_device_saved',
+		'api_device_save'            => 'cloud_device_save',
+		'api_register_resources'     => 'cloud_api_register_resources',
+		'auth_alternate_realms'      => 'cloud_auth_alternate_realms',
+		'casc_register_providers'    => 'cloud_casc_register_providers',
+		'config_arrays'              => 'cloud_config_arrays',
+		'config_settings'            => 'cloud_config_settings',
+		'device_remove'              => 'cloud_device_remove',
+		'doctor_register_checks'     => 'cloud_doctor_register_checks',
+		'doctor_register_debug_info' => 'cloud_doctor_register_debug_info',
+		'draw_navigation_text'       => 'cloud_draw_navigation_text',
+		'graphs_new_top_links'       => 'cloud_graphs_new_top_links',
+		'poller_bottom'              => 'cloud_poller_bottom',
+		'remote_agent'               => 'cloud_remote_agent',
+		'replicate_out'              => 'cloud_replicate_out',
 	];
 
+	/**
+	 * Cacti plugin directory slug.
+	 */
 	private const PLUGIN  = 'cloud';
+
+	/**
+	 * Cacti settings key recording the highest completed schema migration.
+	 */
 	private const SETTING = 'cloud_schema_version';
 
+	/**
+	 * Construct a schema manager bound to a Cacti database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
+	/**
+	 * Read the highest completed schema version from Cacti's settings table.
+	 *
+	 * @return int recorded schema version, or 0 before initial installation
+	 */
 	public function storedVersion(): int {
 		$value = db_fetch_cell_prepared(
 			'SELECT value FROM settings WHERE name = ?',
@@ -71,6 +96,11 @@ final class Schema {
 		return is_numeric($value) ? (int) $value : 0;
 	}
 
+	/**
+	 * Report whether the stored schema version matches VERSION.
+	 *
+	 * @return bool true when the database schema is current
+	 */
 	public function isCurrent(): bool {
 		return $this->storedVersion() === self::VERSION;
 	}
@@ -114,6 +144,11 @@ final class Schema {
 		return true;
 	}
 
+	/**
+	 * Read the plugin version recorded in Cacti's plugin_config table.
+	 *
+	 * @return string recorded version string, or empty when not installed
+	 */
 	public function recordedPluginVersion(): string {
 		return (string) db_fetch_cell_prepared(
 			'SELECT version FROM plugin_config WHERE directory = ?',
@@ -124,6 +159,14 @@ final class Schema {
 		);
 	}
 
+	/**
+	 * Update plugin metadata recorded in plugin_config after migration completes.
+	 *
+	 * @param string $version  plugin version from INFO
+	 * @param string $author   plugin author from INFO
+	 * @param string $homepage plugin homepage URL from INFO
+	 * @return void
+	 */
 	public function recordPluginVersion(string $version, string $author, string $homepage): void {
 		db_execute_prepared(
 			'UPDATE plugin_config SET version = ?, author = ?, webpage = ? WHERE directory = ?',
@@ -133,10 +176,20 @@ final class Schema {
 		);
 	}
 
+	/**
+	 * Check whether Cacti currently marks the Cloud plugin as enabled.
+	 *
+	 * @return bool true when plugin_config.status equals 1
+	 */
 	public function pluginEnabled(): bool {
 		return (int) db_fetch_cell_prepared('SELECT status FROM plugin_config WHERE directory = ?', [self::PLUGIN], '', true, $this->connection) === 1;
 	}
 
+	/**
+	 * Verify that all declared hooks and realms are registered in Cacti.
+	 *
+	 * @return bool true when every hook in HOOKS and every realm in Pages::realms() is present
+	 */
 	public function hooksRegistered(): bool {
 		$placeholders = implode(', ', array_fill(0, count(self::HOOKS), '?'));
 
@@ -162,6 +215,8 @@ final class Schema {
 	 * Stop Cacti from dropping the plugin tables, or the columns migrations
 	 * added to them, on uninstall, and keep the schema version so a
 	 * reinstall reuses them.
+	 *
+	 * @return void
 	 */
 	public function untrackTables(): void {
 		db_execute_prepared(
@@ -172,6 +227,11 @@ final class Schema {
 		);
 	}
 
+	/**
+	 * Delete the stored schema version setting when uninstall drops tables.
+	 *
+	 * @return void
+	 */
 	public function forgetVersion(): void {
 		db_execute_prepared('DELETE FROM settings WHERE name = ?', [self::SETTING], true, $this->connection);
 	}
@@ -261,6 +321,12 @@ final class Schema {
 		return ['name' => 'retry_at', 'type' => 'int(10)', 'unsigned' => true, 'NULL' => false, 'default' => '0'];
 	}
 
+	/**
+	 * Check whether a table exists in the active database schema.
+	 *
+	 * @param string $table table name
+	 * @return bool true when the table is present
+	 */
 	private function tableExists(string $table): bool {
 		return db_fetch_cell_prepared(
 			'SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',

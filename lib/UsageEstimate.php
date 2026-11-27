@@ -25,6 +25,15 @@ namespace Somethingwithproof\Cloud;
  * the page the price came from and the date it was checked.
  */
 final readonly class UsageEstimate {
+	/**
+	 * Construct an immutable provider API request and cost usage estimate.
+	 *
+	 * @param int    $requestsPerCollection API requests per collection cycle
+	 * @param int    $requestsPerMonth      projected API requests over 30 days
+	 * @param float  $monthlyCost           estimated monthly list cost in USD
+	 * @param string $priceSource           reference pricing URL
+	 * @param string $priceChecked          date pricing was verified (YYYY-MM-DD)
+	 */
 	public function __construct(
 		public int $requestsPerCollection,
 		public int $requestsPerMonth,

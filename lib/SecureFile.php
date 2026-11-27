@@ -27,6 +27,12 @@ namespace Somethingwithproof\Cloud;
  * handle, so a file swapped between check and read is not read.
  */
 final class SecureFile {
+	/**
+	 * Validate that a filesystem path is absolute, bounded, and free of traversal or control bytes.
+	 *
+	 * @param string $path candidate file or directory path
+	 * @return bool true when the path passes structural checks
+	 */
 	public static function pathAcceptable(string $path): bool {
 		return $path !== ''
 			&& strlen($path) <= 512

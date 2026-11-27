@@ -23,6 +23,15 @@ namespace Somethingwithproof\Cloud;
  * One encrypted vault value as stored in plugin_cloud_secret.
  */
 final readonly class VaultEntry {
+	/**
+	 * Construct an immutable encrypted vault entry record.
+	 *
+	 * @param string $nonce      12-byte AES-256-GCM nonce
+	 * @param string $ciphertext raw encrypted bytes
+	 * @param string $tag        16-byte GCM authentication tag
+	 * @param string $keyId      non-secret vault key fingerprint
+	 * @param int    $expiresAt  optional Unix expiration timestamp
+	 */
 	public function __construct(
 		public string $nonce,
 		public string $ciphertext,

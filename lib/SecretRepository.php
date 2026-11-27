@@ -23,11 +23,27 @@ namespace Somethingwithproof\Cloud;
  * Encrypted vault rows. Only ciphertext passes through here.
  */
 final class SecretRepository {
+	/**
+	 * Vault entry purpose identifier for primary account credentials.
+	 */
 	public const CREDENTIAL = 'credential';
 
+	/**
+	 * Construct a secret repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for update timestamps
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Load an encrypted vault entry for an account and purpose.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $purpose   entry purpose identifier
+	 * @return VaultEntry|null stored ciphertext entry, or null when absent or malformed
+	 */
 	public function load(int $accountId, string $purpose): ?VaultEntry {
 		$row = db_fetch_row_prepared(
 			'SELECT nonce, ciphertext, tag, key_id, expires_at FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
@@ -39,6 +55,14 @@ final class SecretRepository {
 		return is_array($row) ? VaultEntry::fromRow($row) : null;
 	}
 
+	/**
+	 * Store or replace an encrypted vault entry for an account and purpose.
+	 *
+	 * @param int        $accountId cloud account ID
+	 * @param string     $purpose   entry purpose identifier
+	 * @param VaultEntry $entry     encrypted payload
+	 * @return bool true when the database write succeeded
+	 */
 	public function store(int $accountId, string $purpose, VaultEntry $entry): bool {
 		return (bool) db_execute_prepared(
 			'REPLACE INTO plugin_cloud_secret (account_id, purpose, nonce, ciphertext, tag, key_id, expires_at, updated_at)
@@ -58,6 +82,13 @@ final class SecretRepository {
 		);
 	}
 
+	/**
+	 * Report whether a vault row exists for an account and purpose.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $purpose   entry purpose identifier
+	 * @return bool true when at least one row exists
+	 */
 	public function has(int $accountId, string $purpose): bool {
 		return (int) db_fetch_cell_prepared(
 			'SELECT COUNT(*) FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',
@@ -68,6 +99,13 @@ final class SecretRepository {
 		) > 0;
 	}
 
+	/**
+	 * Delete a stored vault entry for an account and purpose.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $purpose   entry purpose identifier
+	 * @return bool true when the delete statement succeeded
+	 */
 	public function delete(int $accountId, string $purpose): bool {
 		return db_execute_prepared(
 			'DELETE FROM plugin_cloud_secret WHERE account_id = ? AND purpose = ?',

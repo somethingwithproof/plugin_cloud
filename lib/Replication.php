@@ -25,8 +25,20 @@ namespace Somethingwithproof\Cloud;
  * encrypted vault entries (never raw vault key files or other pollers' data).
  */
 final class Replication {
+	/**
+	 * Action name handled by the remote_agent hook for read-only health queries.
+	 */
 	public const REMOTE_AGENT_ACTION = 'cloud_health';
 
+	/**
+	 * Construct the remote poller replication and remote-agent health service.
+	 *
+	 * @param ReplicationRepository $replication poller-scoped replication query repository
+	 * @param AccountRepository     $accounts    account repository
+	 * @param HealthRepository      $health      collector health repository
+	 * @param ResourceRepository    $resources   discovered resource repository
+	 * @param Clock                 $clock       wall clock for payload timestamps
+	 */
 	public function __construct(
 		private readonly ReplicationRepository $replication,
 		private readonly AccountRepository $accounts,

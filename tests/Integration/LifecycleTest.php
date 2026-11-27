@@ -39,12 +39,14 @@ const CLOUD_HOOKS = [
 	'abilities_register',
 	'api_device_new',
 	'api_device_save',
+	'api_register_resources',
 	'auth_alternate_realms',
 	'casc_register_providers',
 	'config_arrays',
 	'config_settings',
 	'device_remove',
 	'doctor_register_checks',
+	'doctor_register_debug_info',
 	'draw_navigation_text',
 	'graphs_new_top_links',
 	'poller_bottom',
@@ -186,6 +188,41 @@ it('creates the device table on a version 2 database and tracks it for uninstall
 		->and(array_keys($upgraded['tables']))->toContain('plugin_cloud_device')
 		->and($upgraded['tracked'])->toContain('plugin_cloud_device');
 });
+
+it('upgrades cleanly and idempotently from the prior main schema and 9-hook state while preserving accounts', function (string $fromSchema) {
+	lifecycle('install');
+	lifecycle('seed');
+
+	$prior = lifecycle('simulate_main_state', $fromSchema);
+	expect(array_keys($prior['hooks']))->toBe([
+		'api_device_new',
+		'api_device_save',
+		'auth_alternate_realms',
+		'config_arrays',
+		'config_settings',
+		'device_remove',
+		'draw_navigation_text',
+		'graphs_new_top_links',
+		'poller_bottom',
+	])->and($prior['schema'])->toEqual($fromSchema)
+		->and($prior['tables']['plugin_cloud_account'])->toBe(1);
+
+	$upgraded = lifecycle('upgrade');
+	expect($upgraded['result'])->toBeTrue()
+		->and($upgraded['schema'])->toEqual(CLOUD_SCHEMA)
+		->and($upgraded['plugin']['version'])->toEqual(CLOUD_VERSION)
+		->and(array_keys($upgraded['tables']))->toBe(CLOUD_TABLES)
+		->and($upgraded['health_columns'])->toContain('retry_at')
+		->and(array_keys($upgraded['hooks']))->toBe(CLOUD_HOOKS)
+		->and($upgraded['hooks'])->toHaveKeys(['doctor_register_debug_info', 'api_register_resources'])
+		->and($upgraded['tables']['plugin_cloud_account'])->toBe(1);
+
+	$repeat = lifecycle('upgrade');
+	expect($repeat['result'])->toBeTrue()
+		->and($repeat['hooks'])->toBe($upgraded['hooks'])
+		->and($repeat['tables'])->toBe($upgraded['tables'])
+		->and($repeat['schema'])->toEqual(CLOUD_SCHEMA);
+})->with(['1', '2', '3']);
 
 it('refuses a schema newer than the code and leaves the recorded version alone', function () {
 	lifecycle('install');

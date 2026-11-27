@@ -24,6 +24,22 @@ namespace Somethingwithproof\Cloud;
  * plugin_cloud_health.
  */
 final readonly class AccountHealth {
+	/**
+	 * Construct an immutable collector health snapshot for one account.
+	 *
+	 * @param int             $accountId    account identifier
+	 * @param int             $runStarted   Unix timestamp when the last run began
+	 * @param int             $runFinished  Unix timestamp when the last run finished
+	 * @param float           $runDuration  elapsed seconds for the last run
+	 * @param CollectionState $collection   latest collection outcome
+	 * @param ErrorClass|null $error        latest error classification, if any
+	 * @param int             $requests     provider API requests issued in the run
+	 * @param int             $seriesTotal  total mapped series due for the account
+	 * @param int             $seriesRead   series successfully collected
+	 * @param int             $discoveredAt Unix timestamp of the latest discovery run
+	 * @param CollectionState $discovery    latest discovery outcome
+	 * @param int             $retryAt      Unix timestamp before which throttled runs skip
+	 */
 	public function __construct(
 		public int $accountId,
 		public int $runStarted = 0,

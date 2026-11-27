@@ -25,6 +25,12 @@ namespace Somethingwithproof\Cloud;
  * contents or secret material.
  */
 final class CredentialError extends \RuntimeException {
+	/**
+	 * Construct a CredentialError with a fixed, secret-free diagnostic message.
+	 *
+	 * @param string $reason fixed diagnostic reason
+	 * @return self
+	 */
 	public static function because(string $reason): self {
 		return new self($reason);
 	}

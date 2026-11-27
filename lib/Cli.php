@@ -30,6 +30,11 @@ namespace Somethingwithproof\Cloud;
  *   health   --format=text|json [--poller=<id>]
  */
 final class Cli {
+	/**
+	 * Construct the CLI dispatcher backed by the Cloud CasC provider.
+	 *
+	 * @param CascProvider $casc CasC provider for export, validate, plan, apply, and health
+	 */
 	public function __construct(private readonly CascProvider $casc) {
 	}
 
@@ -320,6 +325,11 @@ final class Cli {
 		return ['values' => $values, 'positional' => $positional, 'error' => null];
 	}
 
+	/**
+	 * Format CLI usage help text.
+	 *
+	 * @return string usage message
+	 */
 	private static function usage(): string {
 		return "Usage: php plugins/cloud/cli/cloud.php <command> [options]\n"
 			. "Commands:\n"

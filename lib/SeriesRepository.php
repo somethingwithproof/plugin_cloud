@@ -25,6 +25,11 @@ namespace Somethingwithproof\Cloud;
  * plugin did not create has no row here and is never read.
  */
 final class SeriesRepository {
+	/**
+	 * Construct a series repository on the given database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
@@ -171,6 +176,12 @@ final class SeriesRepository {
 		return $this->inTransaction() && db_commit_transaction($this->connection) === true;
 	}
 
+	/**
+	 * Roll back an aborted series sync and log a warning for the next cycle.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return bool always false
+	 */
 	private function abandon(int $accountId): bool {
 		$this->rollback();
 		Log::warning(sprintf('Account %d: series sync rolled back; the next run retries it', $accountId));
@@ -182,11 +193,17 @@ final class SeriesRepository {
 	 * InnoDB can end the transaction under any statement.
 	 *
 	 * @phpstan-impure
+	 * @return bool true when @@in_transaction equals 1
 	 */
 	private function inTransaction(): bool {
 		return (int) db_fetch_cell_prepared('SELECT @@in_transaction', [], '', true, $this->connection) === 1;
 	}
 
+	/**
+	 * Roll back the active database transaction if it has not already ended.
+	 *
+	 * @return void
+	 */
 	private function rollback(): void {
 		if ($this->inTransaction()) {
 			db_rollback_transaction($this->connection);

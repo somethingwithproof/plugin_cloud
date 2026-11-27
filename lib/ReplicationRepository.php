@@ -28,6 +28,11 @@ namespace Somethingwithproof\Cloud;
  * that poller.
  */
 final class ReplicationRepository {
+	/**
+	 * Construct a replication repository bound to a Cacti database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 

@@ -29,6 +29,9 @@ namespace Somethingwithproof\Cloud;
  * test binding of the transport.
  */
 final readonly class OutboundPolicy {
+	/**
+	 * Fixed link-local metadata endpoints permitted only for Instance credential accounts.
+	 */
 	private const METADATA_HOSTS = ['169.254.169.254', 'metadata.google.internal'];
 
 	/**

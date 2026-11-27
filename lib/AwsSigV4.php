@@ -190,6 +190,13 @@ final class AwsSigV4 {
 		return new HttpRequest($request->method, $request->url, $headers, $request->body);
 	}
 
+	/**
+	 * Normalize and percent-encode the URI path for SigV4 canonicalization.
+	 *
+	 * @param string $path      request URI path
+	 * @param bool   $normalize whether to resolve dot segments and duplicate slashes
+	 * @return string canonical URI path
+	 */
 	private static function canonicalPath(string $path, bool $normalize): string {
 		$segments = explode('/', $path);
 
@@ -223,6 +230,12 @@ final class AwsSigV4 {
 		return implode('/', array_map(static fn (string $s): string => rawurlencode(rawurldecode($s)), $segments));
 	}
 
+	/**
+	 * Sort and RFC 3986 percent-encode query parameters for SigV4 canonicalization.
+	 *
+	 * @param string $query raw query string without leading '?'
+	 * @return string canonical query string
+	 */
 	private static function canonicalQuery(string $query): string {
 		if ($query === '') {
 			return '';

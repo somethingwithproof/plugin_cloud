@@ -27,11 +27,43 @@ namespace Somethingwithproof\Cloud;
  * made to share one row. Display fields are trimmed to fit.
  */
 final readonly class CloudResource {
+	/**
+	 * Validated resource type identifier.
+	 *
+	 * @var string
+	 */
 	public string $type;
+
+	/**
+	 * Validated provider-scoped resource identifier.
+	 *
+	 * @var string
+	 */
 	public string $providerId;
+
+	/**
+	 * Sanitized human-readable resource display name.
+	 *
+	 * @var string
+	 */
 	public string $name;
+
+	/**
+	 * Sanitized cloud region or location identifier.
+	 *
+	 * @var string
+	 */
 	public string $region;
 
+	/**
+	 * Construct and validate a discovered cloud resource value object.
+	 *
+	 * @param string $type       provider resource type
+	 * @param string $providerId unique provider identifier
+	 * @param string $name       display name
+	 * @param string $region     optional region identifier
+	 * @throws DriverError when identity fields are empty, oversized, or contain control characters
+	 */
 	public function __construct(string $type, string $providerId, string $name, string $region = '') {
 		$this->type       = self::identity($type, 64, 'type');
 		$this->providerId = self::identity($providerId, 255, 'provider id');
@@ -40,6 +72,12 @@ final readonly class CloudResource {
 	}
 
 	/**
+	 * Validate an identity field without silently mutating it.
+	 *
+	 * @param string $value  raw field value
+	 * @param int    $length maximum length in characters
+	 * @param string $what   field label for diagnostics
+	 * @return string validated value
 	 * @throws DriverError
 	 */
 	private static function identity(string $value, int $length, string $what): string {
@@ -53,6 +91,13 @@ final readonly class CloudResource {
 		return $value;
 	}
 
+	/**
+	 * Strip control characters and truncate a display field to fit its column.
+	 *
+	 * @param string $value  raw provider text
+	 * @param int    $length maximum character length
+	 * @return string sanitized bounded string
+	 */
 	private static function bounded(string $value, int $length): string {
 		return mb_substr((string) preg_replace('/[\x00-\x1f\x7f]/', '', $value), 0, $length);
 	}

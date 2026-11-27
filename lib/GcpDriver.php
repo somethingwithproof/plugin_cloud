@@ -25,17 +25,59 @@ namespace Somethingwithproof\Cloud;
  * collection using RS256 service-account JWTs or GCE instance identity.
  */
 final class GcpDriver implements ProviderDriver {
+	/**
+	 * Resource type identifier for Google Compute Engine instances.
+	 */
 	public const TYPE_INSTANCE   = 'gce_instance';
+
+	/**
+	 * Google Compute Engine API hostname.
+	 */
 	public const COMPUTE_HOST    = 'compute.googleapis.com';
+
+	/**
+	 * Google Cloud Monitoring API hostname.
+	 */
 	public const MONITORING_HOST = 'monitoring.googleapis.com';
 
+	/**
+	 * Upper bound on paginated requests per discovery or collection call.
+	 */
 	private const MAX_PAGES      = 200;
+
+	/**
+	 * Maximum bounded Retry-After wait duration in seconds.
+	 */
 	private const MAX_WAIT       = 3600;
+
+	/**
+	 * Nominal 30-day month in seconds for usage estimates.
+	 */
 	private const MONTH          = 2592000;
+
+	/**
+	 * List price in USD per returned Cloud Monitoring time series.
+	 */
 	private const PRICE_PER_TS   = 0.0000005;
+
+	/**
+	 * Public Google Cloud Observability pricing reference URL.
+	 */
 	private const PRICE_SOURCE   = 'https://cloud.google.com/products/observability/pricing';
+
+	/**
+	 * Date the referenced Google Cloud list pricing was last checked.
+	 */
 	private const PRICE_CHECKED  = '2026-11-14';
+
+	/**
+	 * Regular expression fragment matching valid GCP project IDs.
+	 */
 	private const PROJECT_RE     = '[a-z][a-z0-9-]{4,28}[a-z0-9]';
+
+	/**
+	 * Validation pattern for numeric Compute Engine instance IDs.
+	 */
 	private const INSTANCE_ID_RE = '/^[0-9]{1,20}$/';
 
 	/**
@@ -56,16 +98,44 @@ final class GcpDriver implements ProviderDriver {
 		'gce_dsk_wr_ops'  => ['compute.googleapis.com/instance/disk/write_ops_count', 'ALIGN_RATE', 'REDUCE_SUM', 'value'],
 	];
 
+	/**
+	 * Cached short-lived OAuth2 access token for the active run.
+	 *
+	 * @var Secret|null
+	 */
 	private ?Secret $cachedToken = null;
+
+	/**
+	 * Unix expiration timestamp of cachedToken.
+	 *
+	 * @var int
+	 */
 	private int $tokenExpiresAt  = 0;
 
+	/**
+	 * Construct a Google Cloud driver bound to a guarded HTTP transport and clock.
+	 *
+	 * @param HttpTransport $http  guarded outbound transport
+	 * @param Clock         $clock wall clock for token expiry and metric intervals
+	 */
 	public function __construct(private readonly HttpTransport $http, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Return Provider::GoogleCloud.
+	 *
+	 * @return Provider
+	 */
 	public function provider(): Provider {
 		return Provider::GoogleCloud;
 	}
 
+	/**
+	 * Build the outbound host allowlist for Google OAuth2, Compute, and Monitoring APIs.
+	 *
+	 * @param Account $account target GCP account
+	 * @return OutboundPolicy
+	 */
 	public function endpoints(Account $account): OutboundPolicy {
 		$hosts = [GcpAuth::TOKEN_HOST, self::COMPUTE_HOST, self::MONITORING_HOST];
 		$plain = $account->credentialSource === CredentialSource::Instance ? [GcpAuth::METADATA_HOST] : [];
@@ -73,6 +143,11 @@ final class GcpDriver implements ProviderDriver {
 		return new OutboundPolicy($hosts, [443], $plain);
 	}
 
+	/**
+	 * Return the fixed read-only GCP operations allowed through GuardedTransport.
+	 *
+	 * @return list<Operation>
+	 */
 	public function operations(): array {
 		$project = self::PROJECT_RE;
 
@@ -109,6 +184,13 @@ final class GcpDriver implements ProviderDriver {
 		];
 	}
 
+	/**
+	 * Verify token acquisition and read access to Compute Engine and Cloud Monitoring.
+	 *
+	 * @param Account $account    target GCP account
+	 * @param Secret  $credential service-account JSON or empty for Instance
+	 * @return VerifyStatus
+	 */
 	public function verify(Account $account, Secret $credential): VerifyStatus {
 		try {
 			$project = $this->project($account);
@@ -140,6 +222,14 @@ final class GcpDriver implements ProviderDriver {
 		}
 	}
 
+	/**
+	 * Discover Compute Engine instances across all zones via instances.aggregatedList.
+	 *
+	 * @param Account $account    target GCP account
+	 * @param Secret  $credential service-account JSON or empty for Instance
+	 * @return Inventory
+	 * @throws DriverError
+	 */
 	public function discover(Account $account, Secret $credential): Inventory {
 		$project   = $this->project($account);
 		$token     = $this->accessToken($account, $credential);
@@ -200,6 +290,14 @@ final class GcpDriver implements ProviderDriver {
 		throw new DriverError(ErrorClass::Malformed, 'GCE instances.aggregatedList exceeded max pages');
 	}
 
+	/**
+	 * Collect requested GCE metrics from Cloud Monitoring timeSeries.list.
+	 *
+	 * @param Account             $account    target GCP account
+	 * @param Secret              $credential service-account JSON or empty for Instance
+	 * @param list<MetricRequest> $requests   metric series to collect
+	 * @return CollectResult
+	 */
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
 		if ($requests === []) {
 			return new CollectResult([], 0);
@@ -482,6 +580,12 @@ final class GcpDriver implements ProviderDriver {
 		return $decoded;
 	}
 
+	/**
+	 * Parse Retry-After seconds or HTTP-date header bounded to MAX_WAIT.
+	 *
+	 * @param HttpResponse $response throttled HTTP response
+	 * @return int wait duration in seconds
+	 */
 	private function retryAfter(HttpResponse $response): int {
 		$value = trim($response->header('retry-after'));
 		$wait  = ctype_digit($value)

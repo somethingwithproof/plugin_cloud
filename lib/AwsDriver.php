@@ -25,20 +25,62 @@ namespace Somethingwithproof\Cloud;
  * AssumeRole, and IMDSv2 instance identity strictly gated to Instance accounts.
  */
 final class AwsDriver implements ProviderDriver {
+	/**
+	 * Resource type identifier for Amazon EC2 instances.
+	 */
 	public const TYPE_EC2 = 'ec2_instance';
+
+	/**
+	 * Resource type identifier for Amazon RDS DB instances.
+	 */
 	public const TYPE_RDS = 'rds_instance';
+
+	/**
+	 * Resource type identifier for AWS Elastic Load Balancers (ALB/NLB/GWLB).
+	 */
 	public const TYPE_ELB = 'aws_elb';
 
 	/** CloudWatch GetMetricData accepts at most 500 MetricDataQueries per call. */
 	public const MAX_BATCH = 500;
 
+	/**
+	 * Link-local AWS EC2 Instance Metadata Service (IMDSv2) host.
+	 */
 	private const IMDS_HOST     = '169.254.169.254';
+
+	/**
+	 * Upper bound on paginated requests per discovery or collection call.
+	 */
 	private const MAX_PAGES     = 200;
+
+	/**
+	 * Maximum bounded Retry-After wait duration in seconds.
+	 */
 	private const MAX_WAIT      = 3600;
+
+	/**
+	 * Nominal 30-day month in seconds for CloudWatch usage estimates.
+	 */
 	private const MONTH         = 2592000;
+
+	/**
+	 * CloudWatch GetMetricData list price in USD per requested metric.
+	 */
 	private const PRICE_PER_GMD = 0.00001;
+
+	/**
+	 * Public Amazon CloudWatch pricing reference URL.
+	 */
 	private const PRICE_SOURCE  = 'https://aws.amazon.com/cloudwatch/pricing/';
+
+	/**
+	 * Date the referenced AWS list pricing was last checked.
+	 */
 	private const PRICE_CHECKED = '2026-11-14';
+
+	/**
+	 * Regular expression fragment matching valid AWS region codes.
+	 */
 	private const REGION_RE     = '[a-z]{2}(?:-gov|-iso[a-z]?)?-[a-z]+-\d{1,2}';
 
 	/**
@@ -80,19 +122,39 @@ final class AwsDriver implements ProviderDriver {
 		'nlb_tgt_rst_ps'  => [self::TYPE_ELB, 'AWS/NetworkELB', 'TCP_Target_Reset_Count', 'LoadBalancer', 'Sum', 'rate'],
 	];
 
+	/**
+	 * Strict validation patterns for AWS resource identifiers by type.
+	 */
 	private const ID_PATTERNS = [
 		self::TYPE_EC2 => '/^i-[0-9a-f]{8,17}$/',
 		self::TYPE_RDS => '/^[a-zA-Z][a-zA-Z0-9-]{0,62}$/',
 		self::TYPE_ELB => '/^(?:app|net|gwy)\/[A-Za-z0-9-]{1,64}\/[0-9a-f]{16}$/',
 	];
 
+	/**
+	 * Construct an AWS driver bound to a guarded HTTP transport and clock.
+	 *
+	 * @param HttpTransport $http  guarded outbound transport
+	 * @param Clock         $clock wall clock for SigV4 signing and metric windows
+	 */
 	public function __construct(private readonly HttpTransport $http, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Return Provider::Aws.
+	 *
+	 * @return Provider
+	 */
 	public function provider(): Provider {
 		return Provider::Aws;
 	}
 
+	/**
+	 * Build the outbound host allowlist for an AWS account's configured regions.
+	 *
+	 * @param Account $account target AWS account
+	 * @return OutboundPolicy
+	 */
 	public function endpoints(Account $account): OutboundPolicy {
 		$hosts = ['sts.amazonaws.com'];
 
@@ -109,6 +171,11 @@ final class AwsDriver implements ProviderDriver {
 		return new OutboundPolicy(array_values(array_unique($hosts)), [443], $plain);
 	}
 
+	/**
+	 * Return the fixed read-only AWS operations allowed through GuardedTransport.
+	 *
+	 * @return list<Operation>
+	 */
 	public function operations(): array {
 		$region = self::REGION_RE;
 
@@ -177,6 +244,13 @@ final class AwsDriver implements ProviderDriver {
 		];
 	}
 
+	/**
+	 * Verify AWS credentials via STS GetCallerIdentity and EC2 DescribeInstances.
+	 *
+	 * @param Account $account    target AWS account
+	 * @param Secret  $credential IAM JSON credentials or empty for Instance
+	 * @return VerifyStatus
+	 */
 	public function verify(Account $account, Secret $credential): VerifyStatus {
 		try {
 			$regions = $this->regions($account);
@@ -215,6 +289,14 @@ final class AwsDriver implements ProviderDriver {
 		}
 	}
 
+	/**
+	 * Discover EC2, RDS, and ELB resources across all configured AWS regions.
+	 *
+	 * @param Account $account    target AWS account
+	 * @param Secret  $credential IAM JSON credentials or empty for Instance
+	 * @return Inventory
+	 * @throws DriverError
+	 */
 	public function discover(Account $account, Secret $credential): Inventory {
 		$regions = $this->regions($account);
 
@@ -243,6 +325,14 @@ final class AwsDriver implements ProviderDriver {
 		return new Inventory($resources, $requests);
 	}
 
+	/**
+	 * Collect CloudWatch metrics in batches of up to MAX_BATCH queries per region.
+	 *
+	 * @param Account             $account    target AWS account
+	 * @param Secret              $credential IAM JSON credentials or empty for Instance
+	 * @param list<MetricRequest> $requests   metric series to collect
+	 * @return CollectResult
+	 */
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
 		if ($requests === []) {
 			return new CollectResult([], 0);
@@ -856,6 +946,12 @@ final class AwsDriver implements ProviderDriver {
 		return self::parseXml($response->body);
 	}
 
+	/**
+	 * Map a non-200 AWS XML error response to a classified DriverError.
+	 *
+	 * @param HttpResponse $response non-200 HTTP response
+	 * @return DriverError
+	 */
 	private function mapError(HttpResponse $response): DriverError {
 		$code = '';
 
@@ -892,6 +988,12 @@ final class AwsDriver implements ProviderDriver {
 		);
 	}
 
+	/**
+	 * Parse Retry-After seconds or HTTP-date header bounded to MAX_WAIT.
+	 *
+	 * @param HttpResponse $response throttled HTTP response
+	 * @return int wait duration in seconds
+	 */
 	private function retryAfter(HttpResponse $response): int {
 		$value = trim($response->header('retry-after'));
 		$wait  = ctype_digit($value)
@@ -902,6 +1004,10 @@ final class AwsDriver implements ProviderDriver {
 	}
 
 	/**
+	 * Parse an AWS XML response body with network entity loading disabled.
+	 *
+	 * @param string $body raw XML response body
+	 * @return \SimpleXMLElement
 	 * @throws DriverError
 	 */
 	private static function parseXml(string $body): \SimpleXMLElement {
@@ -921,6 +1027,14 @@ final class AwsDriver implements ProviderDriver {
 		}
 	}
 
+	/**
+	 * Extract trimmed text content from a two-level XML child path.
+	 *
+	 * @param \SimpleXMLElement $xml   root XML element
+	 * @param string            $child parent child element name
+	 * @param string            $leaf  leaf element name
+	 * @return string trimmed element text, or empty string when missing
+	 */
 	private static function xmlText(\SimpleXMLElement $xml, string $child, string $leaf): string {
 		$node = $xml->{$child} ?? null;
 

@@ -26,6 +26,11 @@
  * down the whole Cacti UI.
  */
 
+/**
+ * Report whether the running PHP runtime meets the plugin's 8.2 floor.
+ *
+ * @return bool true when PHP_VERSION is 8.2.0 or newer
+ */
 function cloud_php_supported(): bool {
 	return version_compare(PHP_VERSION, '8.2.0', '>=');
 }
@@ -43,6 +48,8 @@ function cloud_required_extensions(): array {
 }
 
 /**
+ * List required PHP extensions that are not loaded in this runtime.
+ *
  * @return list<string>
  */
 function cloud_missing_extensions(): array {
@@ -57,6 +64,11 @@ function cloud_missing_extensions(): array {
 	return $missing;
 }
 
+/**
+ * Guard and load the plugin autoloader once PHP 8.2+ and required extensions are confirmed.
+ *
+ * @return bool true when plugin classes are ready to use
+ */
 function cloud_boot(): bool {
 	if (!cloud_php_supported() || cloud_missing_extensions() !== array()) {
 		return false;
@@ -121,6 +133,11 @@ function plugin_cloud_version(): array {
 	return $version;
 }
 
+/**
+ * Install the Cloud plugin schema, hooks, realms, and shipped templates.
+ *
+ * @return void
+ */
 function plugin_cloud_install(): void {
 	if (cloud_refuse_unsupported()) {
 		return;
@@ -129,6 +146,11 @@ function plugin_cloud_install(): void {
 	plugin_cloud_upgrade(true);
 }
 
+/**
+ * Verify runtime support and run any pending upgrade steps before enabling.
+ *
+ * @return bool true when the plugin is ready to be enabled
+ */
 function plugin_cloud_check_config(): bool {
 	if (cloud_refuse_unsupported()) {
 		return false;
@@ -184,6 +206,11 @@ function cloud_require_post(string $page, array $actions): void {
 	}
 }
 
+/**
+ * Construct the encrypted credential store from active plugin settings.
+ *
+ * @return \Somethingwithproof\Cloud\CredentialStore
+ */
 function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
 	return new \Somethingwithproof\Cloud\CredentialStore(
 		new \Somethingwithproof\Cloud\SecretRepository(false, new \Somethingwithproof\Cloud\SystemClock()),
@@ -192,6 +219,11 @@ function cloud_credentials(): \Somethingwithproof\Cloud\CredentialStore {
 	);
 }
 
+/**
+ * Construct the account repository on Cacti's default database connection.
+ *
+ * @return \Somethingwithproof\Cloud\AccountRepository
+ */
 function cloud_accounts(): \Somethingwithproof\Cloud\AccountRepository {
 	return new \Somethingwithproof\Cloud\AccountRepository(false, new \Somethingwithproof\Cloud\SystemClock());
 }
@@ -218,6 +250,11 @@ function cloud_device_allowed_accounts(): array {
 	return $accounts;
 }
 
+/**
+ * Load plugin-wide settings from Cacti's settings table with defaults applied.
+ *
+ * @return \Somethingwithproof\Cloud\Settings
+ */
 function cloud_settings(): \Somethingwithproof\Cloud\Settings {
 	return (new \Somethingwithproof\Cloud\SettingsRepository(false))->load();
 }
@@ -317,6 +354,11 @@ function cloud_setup_templates(int $lockTimeout = 10): bool {
 	return cloud_templates()->install($lockTimeout);
 }
 
+/**
+ * Construct the shipped template installer for this plugin checkout.
+ *
+ * @return \Somethingwithproof\Cloud\Templates
+ */
 function cloud_templates(): \Somethingwithproof\Cloud\Templates {
 	global $config;
 
@@ -386,6 +428,11 @@ function plugin_cloud_uninstall(): void {
 	}
 }
 
+/**
+ * config_arrays hook: register Console menu entries and trigger deferred upgrades.
+ *
+ * @return void
+ */
 function cloud_config_arrays(): void {
 	global $menu;
 
@@ -402,6 +449,11 @@ function cloud_config_arrays(): void {
 	}
 }
 
+/**
+ * config_settings hook: expose the Cloud settings tab to Cloud Admin users.
+ *
+ * @return void
+ */
 function cloud_config_settings(): void {
 	global $tabs, $settings;
 
@@ -436,10 +488,6 @@ function cloud_draw_navigation_text($nav) {
 	return array_merge($nav, \Somethingwithproof\Cloud\Pages::navigation());
 }
 
-/**
- * poller_bottom hook: start this poller's collector in the background
- * (REQ-COLL-001). The collector itself skips accounts of other pollers.
- */
 /**
  * Cacti is deleting devices: forget any that were scope devices. Runs
  * before the rows go, and receives the ids as an array.
@@ -518,6 +566,11 @@ function cloud_scope_reindex(): \Somethingwithproof\Cloud\ScopeReindex {
 	return $keeper;
 }
 
+/**
+ * Construct the request and cost estimate presenter for cached inventory.
+ *
+ * @return \Somethingwithproof\Cloud\EstimateView
+ */
 function cloud_estimate_view(): \Somethingwithproof\Cloud\EstimateView {
 	return new \Somethingwithproof\Cloud\EstimateView(
 		new \Somethingwithproof\Cloud\CostPreview(
@@ -566,6 +619,12 @@ function cloud_graphs_new_top_links(): void {
 	}
 }
 
+/**
+ * poller_bottom hook: start this poller's collector in the background
+ * (REQ-COLL-001). The collector itself skips accounts of other pollers.
+ *
+ * @return void
+ */
 function cloud_poller_bottom(): void {
 	global $config;
 
@@ -598,6 +657,12 @@ function cloud_poller_bottom(): void {
 	exec_background($php, array('-q', __DIR__ . '/poller_cloud.php', '--poller=' . (int) $config['poller_id']));
 }
 
+/**
+ * Construct the scope device manager with Cacti device and data query callbacks.
+ *
+ * @param int $lockTimeout lock acquisition timeout in seconds
+ * @return \Somethingwithproof\Cloud\ScopeDevices
+ */
 function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\ScopeDevices {
 	global $config;
 
@@ -639,6 +704,11 @@ function cloud_scope_devices(int $lockTimeout = 10): \Somethingwithproof\Cloud\S
 	);
 }
 
+/**
+ * Construct the script server handler for Cloud data queries.
+ *
+ * @return \Somethingwithproof\Cloud\ScriptServer
+ */
 function cloud_script_server(): \Somethingwithproof\Cloud\ScriptServer {
 	$clock = new \Somethingwithproof\Cloud\SystemClock();
 
@@ -652,6 +722,12 @@ function cloud_script_server(): \Somethingwithproof\Cloud\ScriptServer {
 	);
 }
 
+/**
+ * Construct a collector instance bound to the specified poller ID.
+ *
+ * @param int $pollerId Cacti poller identifier running this collector
+ * @return \Somethingwithproof\Cloud\Collector
+ */
 function cloud_collector(int $pollerId): \Somethingwithproof\Cloud\Collector {
 	$clock = new \Somethingwithproof\Cloud\SystemClock();
 
@@ -732,6 +808,11 @@ function cloud_page_allowed(): bool {
 		&& api_plugin_user_realm_auth(get_current_page());
 }
 
+/**
+ * Construct the remote poller replication coordinator.
+ *
+ * @return \Somethingwithproof\Cloud\Replication
+ */
 function cloud_replication(): \Somethingwithproof\Cloud\Replication {
 	$clock = new \Somethingwithproof\Cloud\SystemClock();
 
@@ -744,6 +825,11 @@ function cloud_replication(): \Somethingwithproof\Cloud\Replication {
 	);
 }
 
+/**
+ * Construct the Configuration-as-Code provider for Cloud accounts.
+ *
+ * @return \Somethingwithproof\Cloud\CascProvider
+ */
 function cloud_casc_provider(): \Somethingwithproof\Cloud\CascProvider {
 	return new \Somethingwithproof\Cloud\CascProvider(
 		cloud_accounts(),
@@ -860,20 +946,14 @@ function cloud_abilities_register($abilities) {
 }
 
 /**
- * doctor_register_checks hook: register diagnostic health checks for the Cloud
- * plugin.
+ * Build the Doctor diagnostic runner bound to Cacti repositories and settings.
  *
- * @param mixed $checks
- * @return mixed
+ * @return \Somethingwithproof\Cloud\DoctorChecks
  */
-function cloud_doctor_register_checks($checks) {
-	if (!cloud_boot()) {
-		return $checks;
-	}
-
-	$list           = is_array($checks) ? $checks : array();
+function cloud_doctor(): \Somethingwithproof\Cloud\DoctorChecks {
 	$pollerInterval = (int) read_config_option('poller_interval');
-	$doctor         = new \Somethingwithproof\Cloud\DoctorChecks(
+
+	return new \Somethingwithproof\Cloud\DoctorChecks(
 		new \Somethingwithproof\Cloud\Schema(false),
 		cloud_settings(),
 		cloud_accounts(),
@@ -885,8 +965,76 @@ function cloud_doctor_register_checks($checks) {
 			\Somethingwithproof\Cloud\VaultKey::fromFile($path);
 		}
 	);
+}
 
-	return array_merge($list, $doctor->checks());
+/**
+ * doctor_register_checks hook: register diagnostic health checks for the Cloud
+ * plugin.
+ *
+ * @param mixed $checks
+ * @return mixed
+ */
+function cloud_doctor_register_checks($checks) {
+	if (!cloud_boot()) {
+		return $checks;
+	}
+
+	$list = is_array($checks) ? $checks : array();
+
+	return array_merge($list, cloud_doctor()->checks());
+}
+
+/**
+ * doctor_register_debug_info hook: register a redacted diagnostic snapshot
+ * section for the Cloud plugin using plain arrays and zero cross-plugin imports.
+ *
+ * @param mixed $sections
+ * @return mixed
+ */
+function cloud_doctor_register_debug_info($sections) {
+	if (!cloud_boot()) {
+		return $sections;
+	}
+
+	$list          = is_array($sections) ? $sections : array();
+	$info          = plugin_cloud_version();
+	$version       = isset($info['version']) ? $info['version'] : '';
+	$list['cloud'] = cloud_doctor()->debugInfo($version);
+
+	return $list;
+}
+
+/**
+ * api_register_resources hook: register read-only Google AIP resource
+ * descriptors for Cloud accounts, resources, and health using plain arrays.
+ *
+ * @param mixed $resources
+ * @return mixed
+ */
+function cloud_api_register_resources($resources) {
+	if (!cloud_boot()) {
+		return $resources;
+	}
+
+	$list  = is_array($resources) ? $resources : array();
+	$clock = new \Somethingwithproof\Cloud\SystemClock();
+	$api   = new \Somethingwithproof\Cloud\ApiResources(
+		function (): bool {
+			return function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_health.php');
+		},
+		function (): array {
+			if (function_exists('api_user_realm_auth') && (bool) api_user_realm_auth('cloud_accounts.php')) {
+				return cloud_accounts()->all();
+			}
+
+			return cloud_device_allowed_accounts();
+		},
+		new \Somethingwithproof\Cloud\ResourceRepository(false, $clock),
+		new \Somethingwithproof\Cloud\HealthRepository(false),
+		$clock
+	);
+
+	return array_merge($list, $api->descriptors());
 }
 
 /**

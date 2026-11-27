@@ -32,30 +32,58 @@ final class Secret {
 	/** @var \WeakMap<self, string>|null */
 	private static ?\WeakMap $values = null;
 
+	/**
+	 * Wrap a sensitive string value inside the WeakMap-backed Secret container.
+	 *
+	 * @param string $value sensitive secret value
+	 */
 	public function __construct(#[\SensitiveParameter] string $value) {
 		self::$values ??= new \WeakMap();
 		self::$values[$this] = $value;
 	}
 
+	/**
+	 * Return the raw secret value for explicit, greppable consumption.
+	 *
+	 * @return string underlying secret value
+	 */
 	public function reveal(): string {
 		return self::$values[$this] ?? '';
 	}
 
+	/**
+	 * Report whether the wrapped secret value is empty.
+	 *
+	 * @return bool true when the secret is empty
+	 */
 	public function isEmpty(): bool {
 		return $this->reveal() === '';
 	}
 
+	/**
+	 * Compare this secret with another in constant time.
+	 *
+	 * @param self $other other secret to compare
+	 * @return bool true when both values match
+	 */
 	public function equals(self $other): bool {
 		return hash_equals($this->reveal(), $other->reveal());
 	}
 
 	/**
+	 * Redact the secret from debug dumps.
+	 *
 	 * @return array<string, string>
 	 */
 	public function __debugInfo(): array {
 		return ['value' => '[redacted]'];
 	}
 
+	/**
+	 * Refuse cloning to avoid duplicating secret references.
+	 *
+	 * @throws \LogicException always
+	 */
 	public function __clone() {
 		throw new \LogicException('A secret cannot be cloned');
 	}

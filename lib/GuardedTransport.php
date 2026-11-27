@@ -30,6 +30,12 @@ final class GuardedTransport implements HttpTransport {
 	public function __construct(private readonly HttpTransport $inner, private readonly array $operations) {
 	}
 
+	/**
+	 * Find the first allowlisted operation matching the request, or null if disallowed.
+	 *
+	 * @param HttpRequest $request outbound HTTP request
+	 * @return Operation|null matched operation, or null when refused
+	 */
 	public function allows(HttpRequest $request): ?Operation {
 		foreach ($this->operations as $operation) {
 			if ($operation->matches($request)) {
@@ -40,6 +46,13 @@ final class GuardedTransport implements HttpTransport {
 		return null;
 	}
 
+	/**
+	 * Send an outbound request only after verifying it matches an allowlisted operation.
+	 *
+	 * @param HttpRequest $request outbound HTTP request
+	 * @return HttpResponse provider HTTP response
+	 * @throws TransportError when the operation is not allowlisted or the inner transport fails
+	 */
 	public function send(HttpRequest $request): HttpResponse {
 		if ($this->allows($request) === null) {
 			throw new TransportError(

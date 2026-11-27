@@ -33,6 +33,12 @@ enum VerifyStatus: string {
 	case Malformed   = 'malformed';
 	case Config      = 'config';
 
+	/**
+	 * Map a normalized provider or transport ErrorClass to a VerifyStatus.
+	 *
+	 * @param ErrorClass $error classified failure reason
+	 * @return self
+	 */
 	public static function fromError(ErrorClass $error): self {
 		return match ($error) {
 			ErrorClass::Auth       => self::Invalid,
@@ -44,6 +50,11 @@ enum VerifyStatus: string {
 		};
 	}
 
+	/**
+	 * Return the fixed, translated status message safe to render in the UI.
+	 *
+	 * @return string translated status description
+	 */
 	public function message(): string {
 		return match ($this) {
 			self::Never       => __('Not verified yet.', 'cloud'),

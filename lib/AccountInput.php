@@ -24,11 +24,34 @@ namespace Somethingwithproof\Cloud;
  * message per field, each naming the field it is about.
  */
 final readonly class AccountInput {
+	/**
+	 * Minimum allowed collection interval in seconds.
+	 */
 	public const MIN_COLLECT      = 60;
+
+	/**
+	 * Default collection interval in seconds.
+	 */
 	public const DEFAULT_COLLECT  = 300;
+
+	/**
+	 * Minimum allowed resource discovery interval in seconds.
+	 */
 	public const MIN_DISCOVER     = 300;
+
+	/**
+	 * Default resource discovery interval in seconds.
+	 */
 	public const DEFAULT_DISCOVER = 3600;
+
+	/**
+	 * Default percentage share of a provider's token rate limit.
+	 */
 	public const DEFAULT_SHARE    = 50;
+
+	/**
+	 * Maximum allowed collection or discovery interval in seconds.
+	 */
 	public const MAX_INTERVAL     = 86400;
 
 	/**
@@ -173,6 +196,12 @@ final readonly class AccountInput {
 		return true;
 	}
 
+	/**
+	 * Return the translated UI label for a provider scope field key.
+	 *
+	 * @param string $field scope field key
+	 * @return string translated field label
+	 */
 	public static function scopeLabel(string $field): string {
 		return match ($field) {
 			'account_id'   => __('AWS Account ID', 'cloud'),

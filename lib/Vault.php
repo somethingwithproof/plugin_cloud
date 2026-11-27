@@ -28,14 +28,39 @@ namespace Somethingwithproof\Cloud;
  * decrypt instead of being used.
  */
 final class Vault {
+	/**
+	 * AES-256-GCM random nonce length in bytes (96 bits).
+	 */
 	public const NONCE_BYTES = 12;
+
+	/**
+	 * AES-256-GCM authentication tag length in bytes (128 bits).
+	 */
 	public const TAG_BYTES   = 16;
 
+	/**
+	 * OpenSSL AEAD cipher identifier.
+	 */
 	private const CIPHER = 'aes-256-gcm';
 
+	/**
+	 * Construct a vault cipher bound to an immutable 32-byte key.
+	 *
+	 * @param VaultKey $key validated 32-byte encryption key
+	 */
 	public function __construct(private readonly VaultKey $key) {
 	}
 
+	/**
+	 * Encrypt a Secret with AES-256-GCM bound to account ID and purpose AAD.
+	 *
+	 * @param Secret $secret    secret value to encrypt
+	 * @param int    $accountId cloud account ID bound in AAD
+	 * @param string $purpose   entry purpose bound in AAD
+	 * @param int    $expiresAt optional Unix expiry timestamp (0 for none)
+	 * @return VaultEntry encrypted vault record
+	 * @throws CredentialError when encryption fails
+	 */
 	public function encrypt(Secret $secret, int $accountId, string $purpose, int $expiresAt = 0): VaultEntry {
 		$nonce = random_bytes(self::NONCE_BYTES);
 		$tag   = '';
@@ -83,6 +108,13 @@ final class Vault {
 		return new Secret($plain);
 	}
 
+	/**
+	 * Build deterministic additional authenticated data binding account and purpose.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $purpose   vault entry purpose
+	 * @return string AAD string
+	 */
 	private static function additionalData(int $accountId, string $purpose): string {
 		return 'plugin_cloud/vault/v1/account/' . $accountId . '/' . $purpose;
 	}

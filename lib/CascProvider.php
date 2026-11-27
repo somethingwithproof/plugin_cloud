@@ -29,6 +29,9 @@ namespace Somethingwithproof\Cloud;
  * before applying mutations.
  */
 final class CascProvider {
+	/**
+	 * Declarative CasC manifest schema version supported by this provider.
+	 */
 	public const SCHEMA_VERSION = 1;
 
 	/** Field names that must never appear in a declarative CasC document. */
@@ -49,6 +52,13 @@ final class CascProvider {
 		'vault_key',
 	];
 
+	/**
+	 * Construct the Cloud CasC provider backed by account, replication, and credential services.
+	 *
+	 * @param AccountRepository    $accounts    account repository
+	 * @param Replication          $replication replication and health summary service
+	 * @param CredentialStore|null $credentials optional credential store for cleaning up switched vault accounts
+	 */
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly Replication $replication,
@@ -449,6 +459,12 @@ final class CascProvider {
 		return $this->replication->remoteHealth($pollerId, null);
 	}
 
+	/**
+	 * Parse a strict boolean or YAML/XML boolean string for the enabled field.
+	 *
+	 * @param mixed $value raw manifest value
+	 * @return bool|null parsed boolean, or null when invalid
+	 */
 	private static function parseEnabled(mixed $value): ?bool {
 		if (is_bool($value)) {
 			return $value;
@@ -469,6 +485,13 @@ final class CascProvider {
 		return null;
 	}
 
+	/**
+	 * Convert a scalar manifest field to a non-empty string or return a default.
+	 *
+	 * @param mixed  $value   raw manifest value
+	 * @param string $default fallback value when absent or non-scalar
+	 * @return string
+	 */
 	private static function scalarString(mixed $value, string $default): string {
 		if (!is_scalar($value)) {
 			return $default;
@@ -479,6 +502,12 @@ final class CascProvider {
 		return $str === '' ? $default : $str;
 	}
 
+	/**
+	 * Build the redacted non-secret credential reference exported for an account.
+	 *
+	 * @param Account $account cloud account
+	 * @return string opaque reference string
+	 */
 	private static function credentialRef(Account $account): string {
 		return match ($account->credentialSource) {
 			CredentialSource::Vault    => 'vault:account:' . $account->name,
@@ -529,6 +558,12 @@ final class CascProvider {
 		return implode("\n", $lines) . "\n";
 	}
 
+	/**
+	 * Render a scalar value safely for deterministic YAML output.
+	 *
+	 * @param mixed $value value to serialize
+	 * @return string YAML scalar representation
+	 */
 	private static function yamlScalar(mixed $value): string {
 		if (is_bool($value)) {
 			return $value ? 'true' : 'false';
@@ -600,6 +635,12 @@ final class CascProvider {
 		return is_string($raw) ? $raw : '';
 	}
 
+	/**
+	 * Escape XML special characters for SimpleXMLElement child text.
+	 *
+	 * @param string $value raw text value
+	 * @return string XML-escaped string
+	 */
 	private static function xmlEscape(string $value): string {
 		return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
 	}
@@ -816,6 +857,12 @@ final class CascProvider {
 		return ['items' => $items, 'errors' => $errors];
 	}
 
+	/**
+	 * Decode a single YAML scalar token into null, bool, or string.
+	 *
+	 * @param string $raw raw YAML value substring
+	 * @return mixed decoded scalar value
+	 */
 	private static function parseYamlValue(string $raw): mixed {
 		$v = trim($raw);
 

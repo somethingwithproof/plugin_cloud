@@ -26,18 +26,42 @@ namespace Somethingwithproof\Cloud;
  * before it reaches here.
  */
 final class Log {
+	/**
+	 * Write a debug-level log line under the CLOUD tag.
+	 *
+	 * @param string $message secret-free diagnostic text
+	 * @return void
+	 */
 	public static function debug(string $message): void {
 		cacti_log('DEBUG: ' . $message, false, 'CLOUD', POLLER_VERBOSITY_DEBUG);
 	}
 
+	/**
+	 * Write an informational log line under the CLOUD tag.
+	 *
+	 * @param string $message secret-free notice text
+	 * @return void
+	 */
 	public static function info(string $message): void {
 		cacti_log('NOTE: ' . $message, false, 'CLOUD', POLLER_VERBOSITY_MEDIUM);
 	}
 
+	/**
+	 * Write a warning-level log line under the CLOUD tag.
+	 *
+	 * @param string $message secret-free warning text
+	 * @return void
+	 */
 	public static function warning(string $message): void {
 		cacti_log('WARNING: ' . $message, false, 'CLOUD');
 	}
 
+	/**
+	 * Write an error-level log line under the CLOUD tag.
+	 *
+	 * @param string $message secret-free error text
+	 * @return void
+	 */
 	public static function error(string $message): void {
 		cacti_log('ERROR: ' . $message, false, 'CLOUD');
 	}

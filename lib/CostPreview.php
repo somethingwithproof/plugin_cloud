@@ -25,8 +25,17 @@ namespace Somethingwithproof\Cloud;
  * calls a provider.
  */
 final class CostPreview {
+	/**
+	 * Number of seconds in one hour for converting collection frequency to hourly rate.
+	 */
 	private const SECONDS_PER_HOUR = 3600;
 
+	/**
+	 * Construct a cost preview calculator backed by cached inventory and series.
+	 *
+	 * @param ResourceRepository $resources discovered resource repository
+	 * @param SeriesRepository   $series    mapped data source series repository
+	 */
 	public function __construct(
 		private readonly ResourceRepository $resources,
 		private readonly SeriesRepository $series,
@@ -100,10 +109,24 @@ final class CostPreview {
 		return $driver->estimate($fit, $account->collectInterval);
 	}
 
+	/**
+	 * Estimate requests and cost for all enabled series before applying budget caps.
+	 *
+	 * @param Account        $account target cloud account
+	 * @param ProviderDriver $driver  provider driver for pricing and batching
+	 * @return UsageEstimate uncapped request and cost estimate
+	 */
 	public function requested(Account $account, ProviderDriver $driver): UsageEstimate {
 		return $driver->estimate($this->series->enabledFor($account->id), $account->collectInterval);
 	}
 
+	/**
+	 * Convert a per-collection usage estimate into requests per hour.
+	 *
+	 * @param UsageEstimate $estimate        collection usage estimate
+	 * @param int           $collectInterval collection interval in seconds
+	 * @return int estimated requests per hour
+	 */
 	public static function perHour(UsageEstimate $estimate, int $collectInterval): int {
 		return (int) ceil($estimate->requestsPerCollection * self::SECONDS_PER_HOUR / max(1, $collectInterval));
 	}

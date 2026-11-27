@@ -27,11 +27,29 @@ namespace Somethingwithproof\Cloud;
  * between checks cannot overwrite the newer holder's inventory.
  */
 final class ResourceRepository {
+	/**
+	 * Consecutive missed discoveries before a resource transitions to deleted.
+	 */
 	public const DELETE_AFTER = 3;
 
+	/**
+	 * Construct a resource repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for discovery timestamps
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Synchronize discovered resources while verifying the caller's lease on each step.
+	 *
+	 * @param int             $accountId cloud account ID
+	 * @param Inventory       $inventory discovered resources from the provider driver
+	 * @param LeaseRepository $leases    lease store for ownership checks
+	 * @param string          $holder    active lease holder identifier
+	 * @return bool true when all inventory updates completed under the lease
+	 */
 	public function sync(int $accountId, Inventory $inventory, LeaseRepository $leases, string $holder): bool {
 		$now  = $this->clock->now();
 		$seen = [];

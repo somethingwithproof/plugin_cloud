@@ -28,6 +28,9 @@ namespace Somethingwithproof\Cloud;
  * passes a malformed chunk through as data.
  */
 final class SocketTransport implements HttpTransport {
+	/**
+	 * Maximum combined HTTP response header size in bytes (64 KiB).
+	 */
 	private const MAX_HEADER_BYTES = 65536;
 
 	/**
@@ -43,6 +46,13 @@ final class SocketTransport implements HttpTransport {
 	) {
 	}
 
+	/**
+	 * Execute one outbound HTTP/1.1 request over stream sockets under OutboundPolicy.
+	 *
+	 * @param HttpRequest $request outbound HTTP request
+	 * @return HttpResponse validated HTTP response
+	 * @throws TransportError on policy refusal, TLS failure, timeout, framing error, or size cap
+	 */
 	public function send(HttpRequest $request): HttpResponse {
 		// The policy is checked before anything resolves or connects.
 		$url      = $this->policy->check($request->url);
@@ -303,6 +313,12 @@ final class SocketTransport implements HttpTransport {
 		}
 	}
 
+	/**
+	 * Map a PHP socket/TLS warning message into a fixed transport error kind.
+	 *
+	 * @param string $message raw stream error message
+	 * @return string fixed TransportError kind
+	 */
 	private static function classify(string $message): string {
 		return match (true) {
 			str_contains($message, 'certificate verify failed') => 'tls_verify',
@@ -313,6 +329,12 @@ final class SocketTransport implements HttpTransport {
 		};
 	}
 
+	/**
+	 * Strip control characters and truncate local socket error text.
+	 *
+	 * @param string $message raw socket diagnostic string
+	 * @return string sanitized bounded diagnostic detail
+	 */
 	private static function clean(string $message): string {
 		return substr((string) preg_replace('/[\x00-\x1f\x7f]+/', ' ', $message), 0, 400);
 	}

@@ -29,8 +29,21 @@ namespace Somethingwithproof\Cloud;
  * delay.
  */
 final class HealthPage {
+	/**
+	 * Entry-point filename for the Cloud Health page.
+	 */
 	public const FILE = 'cloud_health.php';
 
+	/**
+	 * Construct the Cloud Health page presenter.
+	 *
+	 * @param HealthRepository      $health       account health store
+	 * @param ResourceRepository    $resources    discovered resource store
+	 * @param ObservationRepository $observations cached observation store
+	 * @param FreshnessEvaluator    $freshness    datapoint freshness evaluator
+	 * @param HealthWarnings        $warnings     health warning evaluator
+	 * @param Clock                 $clock        wall clock for age display
+	 */
 	public function __construct(
 		private readonly HealthRepository $health,
 		private readonly ResourceRepository $resources,
@@ -144,6 +157,12 @@ final class HealthPage {
 		];
 	}
 
+	/**
+	 * Format collection state, error class, and active Retry-After wait.
+	 *
+	 * @param AccountHealth $health account health snapshot
+	 * @return string formatted collection status text
+	 */
 	private function collectionLabel(AccountHealth $health): string {
 		$label = $health->error === null
 			? $health->collection->value
@@ -154,6 +173,12 @@ final class HealthPage {
 		return $wait > 0 ? $label . ', ' . __('retry in %d s', $wait, 'cloud') : $label;
 	}
 
+	/**
+	 * Format elapsed time since a Unix timestamp into a human-readable age label.
+	 *
+	 * @param int $time Unix timestamp in seconds
+	 * @return string translated relative age string
+	 */
 	private function age(int $time): string {
 		$seconds = max(0, $this->clock->now() - $time);
 

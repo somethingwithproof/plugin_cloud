@@ -40,7 +40,14 @@ namespace Somethingwithproof\Cloud;
  * Filesystem metrics are left out: they need one index per mount point.
  */
 final class DigitalOceanCatalog {
+	/**
+	 * Resource type identifier for DigitalOcean Droplets.
+	 */
 	public const DROPLET       = 'droplet';
+
+	/**
+	 * Resource type identifier for DigitalOcean Load Balancers.
+	 */
 	public const LOAD_BALANCER = 'load_balancer';
 
 	/**
@@ -125,6 +132,9 @@ final class DigitalOceanCatalog {
 		'dolb_age'         => [self::LOAD_BALANCER, 'Collection Age', 'seconds', null, ['dolb_age']],
 	];
 
+	/**
+	 * Ordered tuple keys mapping positional METRICS entries to associative arrays.
+	 */
 	private const FIELDS = ['type', 'path', 'query', 'convert', 'agent'];
 
 	/**

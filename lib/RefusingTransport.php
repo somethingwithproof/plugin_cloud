@@ -23,6 +23,13 @@ namespace Somethingwithproof\Cloud;
  * A transport that never sends, for drivers that are only being inspected.
  */
 final class RefusingTransport implements HttpTransport {
+	/**
+	 * Always refuse outbound network traffic.
+	 *
+	 * @param HttpRequest $request attempted HTTP request
+	 * @return HttpResponse never returns
+	 * @throws TransportError always thrown with operation_refused
+	 */
 	public function send(HttpRequest $request): HttpResponse {
 		throw new TransportError('operation_refused', 'inspection only');
 	}

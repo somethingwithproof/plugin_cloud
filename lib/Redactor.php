@@ -28,11 +28,20 @@ namespace Somethingwithproof\Cloud;
  * secret that is not itself on the known list.
  */
 final class Redactor {
+	/**
+	 * Replacement placeholder substituted for redacted secret material.
+	 */
 	private const MASK = '[redacted]';
 
 	/** @var list<string> */
 	private array $known = [];
 
+	/**
+	 * Register a secret value and its URL/JSON encodings for exact redaction.
+	 *
+	 * @param Secret $secret sensitive value to mask
+	 * @return void
+	 */
 	public function add(Secret $secret): void {
 		$value = $secret->reveal();
 
@@ -66,6 +75,12 @@ final class Redactor {
 		'/-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/s',
 	];
 
+	/**
+	 * Mask all registered secrets and recognized credential patterns in a string.
+	 *
+	 * @param string $text untrusted log or error text
+	 * @return string redacted text safe for logging
+	 */
 	public function clean(string $text): string {
 		// Every span is found in the original text and masked once at the
 		// end. Applied one after another, a pass could hide material from

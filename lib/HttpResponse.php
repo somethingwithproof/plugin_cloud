@@ -19,9 +19,16 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Immutable HTTP response value object returned by HttpTransport.
+ */
 final readonly class HttpResponse {
 	/**
-	 * @param array<string, string> $headers lower-case names
+	 * Construct an HTTP response snapshot.
+	 *
+	 * @param int                   $status  HTTP status code
+	 * @param array<string, string> $headers lower-case header names mapped to values
+	 * @param string                $body    raw response body
 	 */
 	public function __construct(
 		public int $status,
@@ -30,6 +37,12 @@ final readonly class HttpResponse {
 	) {
 	}
 
+	/**
+	 * Look up a response header value case-insensitively.
+	 *
+	 * @param string $name header name
+	 * @return string header value, or empty string when absent
+	 */
 	public function header(string $name): string {
 		return $this->headers[strtolower($name)] ?? '';
 	}

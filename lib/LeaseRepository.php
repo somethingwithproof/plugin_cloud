@@ -25,9 +25,23 @@ namespace Somethingwithproof\Cloud;
  * cannot both believe they own an account.
  */
 final class LeaseRepository {
+	/**
+	 * Construct a lease repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for lease expiration checks
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Attempt to acquire or renew an account's collector lease.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $holder    unique collector run identifier
+	 * @param int    $seconds   lease duration in seconds
+	 * @return bool true when this holder now owns an active lease
+	 */
 	public function acquire(int $accountId, string $holder, int $seconds): bool {
 		$now = $this->clock->now();
 
@@ -48,6 +62,13 @@ final class LeaseRepository {
 		return $this->holds($accountId, $holder);
 	}
 
+	/**
+	 * Check whether the specified holder currently holds an unexpired lease.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $holder    unique collector run identifier
+	 * @return bool true when the lease is active for this holder
+	 */
 	public function holds(int $accountId, string $holder): bool {
 		return (int) db_fetch_cell_prepared(
 			'SELECT COUNT(*) FROM plugin_cloud_lease WHERE account_id = ? AND holder = ? AND expires_at >= ?',
@@ -91,6 +112,13 @@ final class LeaseRepository {
 		);
 	}
 
+	/**
+	 * Release a lease owned by the given holder by expiring it immediately.
+	 *
+	 * @param int    $accountId cloud account ID
+	 * @param string $holder    unique collector run identifier
+	 * @return void
+	 */
 	public function release(int $accountId, string $holder): void {
 		db_execute_prepared(
 			'UPDATE plugin_cloud_lease SET expires_at = 0 WHERE account_id = ? AND holder = ?',

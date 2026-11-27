@@ -30,6 +30,16 @@ namespace Somethingwithproof\Cloud;
  * could approve one copy while the provider runs the other.
  */
 final readonly class Operation {
+	/**
+	 * Construct an allowlisted read-only provider HTTP operation pattern.
+	 *
+	 * @param string      $name         operation identifier
+	 * @param string      $method       HTTP method (GET or read-only POST)
+	 * @param string      $host         exact hostname or PCRE pattern prefixed with '#'
+	 * @param string      $pathPattern  PCRE pattern for the request path
+	 * @param string|null $bodyPattern  optional PCRE pattern for read-only POST bodies
+	 * @param string|null $queryPattern optional PCRE pattern for query strings
+	 */
 	public function __construct(
 		public string $name,
 		public string $method,
@@ -40,6 +50,12 @@ final readonly class Operation {
 	) {
 	}
 
+	/**
+	 * Return whether the given outbound request satisfies this operation's allowlist rules.
+	 *
+	 * @param HttpRequest $request candidate outbound request
+	 * @return bool true when method, host, path, query, and body match
+	 */
 	public function matches(HttpRequest $request): bool {
 		$parts = parse_url($request->url);
 
@@ -96,6 +112,12 @@ final readonly class Operation {
 		return !($form && self::repeatsName($body)) && preg_match($this->bodyPattern, $body) === 1;
 	}
 
+	/**
+	 * Detect repeated parameter names in a URL-encoded query string or form body.
+	 *
+	 * @param string $encoded query string or form-encoded payload
+	 * @return bool true when any decoded parameter name appears more than once
+	 */
 	private static function repeatsName(string $encoded): bool {
 		$names = [];
 

@@ -105,6 +105,27 @@ switch ($action) {
 		db_execute("DELETE FROM plugin_realms WHERE plugin = 'cloud'");
 
 		break;
+	case 'simulate_main_state':
+		// Simulate the prior main install: only the 9 main hooks, older
+		// version, and optional schema v1/v2/v3 layout with existing data intact.
+		$targetSchema = in_array($argument, array('1', '2', '3'), true) ? $argument : '3';
+		db_execute(
+			"DELETE FROM plugin_hooks WHERE name = 'cloud' AND hook NOT IN ("
+				. "'api_device_new','api_device_save','auth_alternate_realms',"
+				. "'config_arrays','config_settings','device_remove',"
+				. "'draw_navigation_text','graphs_new_top_links','poller_bottom')"
+		);
+		db_execute_prepared("UPDATE plugin_config SET version = ? WHERE directory = 'cloud'", array('0.0.9'));
+		db_execute_prepared("REPLACE INTO settings (name, value) VALUES ('cloud_schema_version', ?)", array($targetSchema));
+
+		if ($targetSchema === '1') {
+			db_execute('ALTER TABLE `plugin_cloud_health` DROP COLUMN `retry_at`');
+			db_execute('DROP TABLE IF EXISTS `plugin_cloud_device`');
+		} elseif ($targetSchema === '2') {
+			db_execute('DROP TABLE IF EXISTS `plugin_cloud_device`');
+		}
+
+		break;
 	case 'drop_column':
 		// A version 1 database: the column a later migration adds is absent.
 		list($table, $column) = explode('.', preg_replace('/[^a-z_.]/', '', $argument), 2);

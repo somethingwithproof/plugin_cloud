@@ -25,6 +25,11 @@ namespace Somethingwithproof\Cloud;
  * characters, optionally followed by one newline.
  */
 final class VaultKey {
+	/**
+	 * Wrap validated raw key bytes inside a Secret container.
+	 *
+	 * @param Secret $key 32-byte raw key wrapped in Secret
+	 */
 	private function __construct(private readonly Secret $key) {
 	}
 
@@ -47,6 +52,13 @@ final class VaultKey {
 		throw CredentialError::because('the key file must hold exactly 32 bytes or 64 hexadecimal characters');
 	}
 
+	/**
+	 * Construct a VaultKey directly from exactly 32 raw bytes.
+	 *
+	 * @param string $bytes raw 32-byte encryption key
+	 * @return self
+	 * @throws CredentialError when the byte length is not 32
+	 */
 	public static function fromBytes(#[\SensitiveParameter] string $bytes): self {
 		if (strlen($bytes) !== 32) {
 			throw CredentialError::because('a vault key is 32 bytes');
@@ -55,6 +67,11 @@ final class VaultKey {
 		return new self(new Secret($bytes));
 	}
 
+	/**
+	 * Return the raw 32-byte key material for AEAD cipher operations.
+	 *
+	 * @return string 32 raw key bytes
+	 */
 	public function bytes(): string {
 		return $this->key->reveal();
 	}

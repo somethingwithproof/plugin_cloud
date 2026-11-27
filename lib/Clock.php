@@ -19,6 +19,14 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Wall-clock abstraction allowing deterministic time in unit tests.
+ */
 interface Clock {
+	/**
+	 * Return the current Unix timestamp in seconds.
+	 *
+	 * @return int Unix epoch seconds
+	 */
 	public function now(): int;
 }

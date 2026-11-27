@@ -1,0 +1,168 @@
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This file is part of plugin_cloud, a plugin for Cacti.
+# https://github.com/somethingwithproof/plugin_cloud
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+
+plugin: cloud
+schema_version: 3
+config_version: 1
+
+# Declarative configuration managed by administrators and CasC export/import.
+# Strictly separated from ephemeral collector state and secret material.
+config:
+  settings:
+    cloud_vault_key_file:
+      type: string
+      default: /etc/cacti/cloud-vault.key
+      sensitive: false
+      description: Absolute path on the poller to the 32-byte AES-256-GCM vault key file.
+    cloud_credential_dir:
+      type: string
+      default: ""
+      sensitive: false
+      description: Absolute path to the directory permitted for file-based credentials.
+    cloud_collector_budget:
+      type: integer
+      default: 240
+      minimum: 10
+      maximum: 3600
+      description: Per-run collector time budget in seconds.
+    cloud_uninstall_keep_tables:
+      type: boolean
+      default: true
+      description: Retain plugin tables and encrypted vault rows when uninstalling.
+
+  accounts:
+    type: list
+    key: name
+    description: Declarative cloud provider account and scope definitions with vault references only.
+    properties:
+      name:
+        type: string
+        required: true
+        max_length: 100
+      provider:
+        type: enum
+        required: true
+        values:
+          - digitalocean
+          - aws
+          - gcp
+          - azure
+      poller_id:
+        type: integer
+        default: 1
+        minimum: 1
+      scope:
+        type: mapping
+        description: Provider-validated non-secret scope fields (account_id, project, tenant, subscription, regions).
+      credential_source:
+        type: enum
+        required: true
+        values:
+          - vault
+          - file
+          - instance
+      credential_file:
+        type: string
+        default: ""
+        max_length: 512
+        description: Absolute path inside cloud_credential_dir when credential_source is file.
+      credential_ref:
+        type: string
+        default: ""
+        description: Opaque vault reference identifier; raw secrets are never serialized or exported.
+      collect_interval:
+        type: integer
+        default: 300
+        minimum: 60
+        maximum: 86400
+      discover_interval:
+        type: integer
+        default: 3600
+        minimum: 300
+        maximum: 86400
+      request_share:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 100
+      monthly_ceiling:
+        type: number
+        nullable: true
+        minimum: 0
+      admin_state:
+        type: enum
+        default: enabled
+        values:
+          - enabled
+          - disabled
+
+# Ephemeral runtime state, derived caches, and encrypted secret material.
+# Excluded from declarative configuration exports and managed strictly at runtime.
+state:
+  tables:
+    plugin_cloud_secret:
+      classification: secret_ciphertext
+      description: AES-256-GCM encrypted credentials bound to account_id and purpose.
+      exportable: false
+    plugin_cloud_resource:
+      classification: ephemeral_inventory
+      description: Cloud resources discovered from provider APIs.
+      exportable: false
+    plugin_cloud_series:
+      classification: derived_mapping
+      description: Cacti data sources mapped to discovered resources and metrics.
+      exportable: false
+    plugin_cloud_observation:
+      classification: ephemeral_timeseries_cache
+      description: Latest complete cloud datapoint per resource and metric.
+      exportable: false
+    plugin_cloud_device:
+      classification: derived_mapping
+      description: Mapping between cloud accounts and Cacti scope devices.
+      exportable: false
+    plugin_cloud_lease:
+      classification: ephemeral_lock
+      description: Per-account collector leases preventing overlapping collection runs.
+      exportable: false
+    plugin_cloud_health:
+      classification: ephemeral_telemetry
+      description: Collector run timing, error class, discovery status, and Retry-After backoff timestamps.
+      exportable: false
+    plugin_cloud_audit:
+      classification: operational_audit_log
+      description: Account mutation history recording field names without secret values.
+      exportable: false
+
+  settings:
+    cloud_schema_version:
+      type: integer
+      description: Highest completed database schema migration version.
+      exportable: false
+    cloud_templates_sha256:
+      type: string
+      description: SHA-256 checksum of the imported template bundle.
+      exportable: false
+
+  secrets:
+    vault_key_material:
+      location: filesystem
+      description: 32-byte key read from cloud_vault_key_file; never stored in database or exported.
+    credential_files:
+      location: filesystem
+      description: Provider tokens or service-account JSON under cloud_credential_dir; never exported.
+    temporary_tokens:
+      location: memory
+      description: Short-lived IMDS, STS, GCP OAuth, and Entra ID tokens; never persisted in cleartext.

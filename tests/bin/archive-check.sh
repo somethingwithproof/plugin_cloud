@@ -27,7 +27,7 @@ listing=$(tar -tf "$archive")
 while IFS= read -r path; do
 	case "$path" in
 		cloud_accounts.php|cloud_health.php|cloud_operator.php|index.php|poller_cloud.php|setup.php|ss_cloud.php|INFO|README.md|LICENSE|SECURITY.md) ;;
-		LICENSES/|LICENSES/*|cli/|cli/*|docs/|docs/*|include/|include/*|lib/|lib/*|locales/|locales/*|templates/|templates/*) ;;
+		LICENSES/|LICENSES/*|cli/|cli/*|docs/|docs/*|include/|include/*|lib/|lib/*|locales/|locales/*|schema/|schema/*|templates/|templates/*) ;;
 		*)
 			printf 'Unexpected file in release archive: %s\n' "$path" >&2
 			exit 1

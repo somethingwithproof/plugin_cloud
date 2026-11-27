@@ -26,19 +26,69 @@ namespace Somethingwithproof\Cloud;
  * handling 429 and 529 throttling responses).
  */
 final class AzureDriver implements ProviderDriver {
+	/**
+	 * Resource type identifier for Azure Virtual Machines.
+	 */
 	public const TYPE_VM   = 'azure_vm';
+
+	/**
+	 * Azure Resource Manager API host.
+	 */
 	public const ARM_HOST  = 'management.azure.com';
+
+	/**
+	 * Maximum resource IDs per Azure Monitor metrics:getBatch request.
+	 */
 	public const MAX_BATCH = 50;
 
+	/**
+	 * Upper bound on Resource Graph pagination requests per discovery run.
+	 */
 	private const MAX_PAGES        = 200;
+
+	/**
+	 * Maximum bounded Retry-After wait duration in seconds.
+	 */
 	private const MAX_WAIT         = 3600;
+
+	/**
+	 * Nominal 30-day month in seconds for usage estimates.
+	 */
 	private const MONTH            = 2592000;
+
+	/**
+	 * List price in USD per Azure Monitor metrics API call.
+	 */
 	private const PRICE_PER_CALL   = 0.00001;
+
+	/**
+	 * Public Azure Monitor pricing reference URL.
+	 */
 	private const PRICE_SOURCE     = 'https://azure.microsoft.com/en-us/pricing/details/monitor/';
+
+	/**
+	 * Date the referenced Azure list pricing was last checked.
+	 */
 	private const PRICE_CHECKED    = '2026-11-14';
+
+	/**
+	 * Lowercase UUID regular expression fragment for tenant and subscription IDs.
+	 */
 	private const UUID_RE          = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+
+	/**
+	 * Lowercase Azure region regular expression fragment.
+	 */
 	private const REGION_RE        = '[a-z][a-z0-9]{1,30}';
+
+	/**
+	 * Strict ARM Virtual Machine resource ID pattern.
+	 */
 	private const RESOURCE_ID_RE   = '#^/subscriptions/[0-9a-f-]{36}/resourceGroups/[^/]+/providers/Microsoft\.Compute/virtualMachines/[^/]+$#i';
+
+	/**
+	 * Azure Monitor metric namespace for Virtual Machines.
+	 */
 	private const METRIC_NAMESPACE = 'Microsoft.Compute/virtualMachines';
 
 	/**
@@ -62,13 +112,30 @@ final class AzureDriver implements ProviderDriver {
 	/** @var array<string, array{token: Secret, expiresAt: int}> */
 	private array $tokens = [];
 
+	/**
+	 * Construct an Azure driver bound to a guarded HTTP transport and clock.
+	 *
+	 * @param HttpTransport $http  guarded outbound transport
+	 * @param Clock         $clock wall clock for token expiry and metric windows
+	 */
 	public function __construct(private readonly HttpTransport $http, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Return Provider::Azure.
+	 *
+	 * @return Provider
+	 */
 	public function provider(): Provider {
 		return Provider::Azure;
 	}
 
+	/**
+	 * Build the outbound host allowlist for an Azure account's configured regions.
+	 *
+	 * @param Account $account target Azure account
+	 * @return OutboundPolicy
+	 */
 	public function endpoints(Account $account): OutboundPolicy {
 		$hosts = [AzureAuth::LOGIN_HOST, self::ARM_HOST];
 
@@ -81,6 +148,11 @@ final class AzureDriver implements ProviderDriver {
 		return new OutboundPolicy(array_values(array_unique($hosts)), [443], $plain);
 	}
 
+	/**
+	 * Return the fixed read-only Azure operations allowed through GuardedTransport.
+	 *
+	 * @return list<Operation>
+	 */
 	public function operations(): array {
 		$uuid   = self::UUID_RE;
 		$region = self::REGION_RE;
@@ -128,6 +200,13 @@ final class AzureDriver implements ProviderDriver {
 		];
 	}
 
+	/**
+	 * Verify ARM and Azure Monitor token acquisition and read permission.
+	 *
+	 * @param Account $account    target Azure account
+	 * @param Secret  $credential service principal JSON or empty for Instance
+	 * @return VerifyStatus
+	 */
 	public function verify(Account $account, Secret $credential): VerifyStatus {
 		try {
 			$subscription = $this->subscription($account);
@@ -148,6 +227,14 @@ final class AzureDriver implements ProviderDriver {
 		}
 	}
 
+	/**
+	 * Discover Azure Virtual Machines across the subscription via ARM Resource Graph.
+	 *
+	 * @param Account $account    target Azure account
+	 * @param Secret  $credential service principal JSON or empty for Instance
+	 * @return Inventory
+	 * @throws DriverError
+	 */
 	public function discover(Account $account, Secret $credential): Inventory {
 		$subscription = $this->subscription($account);
 		$regions      = $this->regions($account);
@@ -230,6 +317,14 @@ final class AzureDriver implements ProviderDriver {
 		throw new DriverError(ErrorClass::Malformed, 'Azure Resource Graph query exceeded max pages');
 	}
 
+	/**
+	 * Collect batched Azure Monitor VM metrics up to MAX_BATCH resources per call.
+	 *
+	 * @param Account             $account    target Azure account
+	 * @param Secret              $credential service principal JSON or empty for Instance
+	 * @param list<MetricRequest> $requests   metric series to collect
+	 * @return CollectResult
+	 */
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
 		if ($requests === []) {
 			return new CollectResult([], 0);
@@ -612,6 +707,12 @@ final class AzureDriver implements ProviderDriver {
 		return $decoded;
 	}
 
+	/**
+	 * Parse Retry-After seconds or HTTP-date header bounded to MAX_WAIT.
+	 *
+	 * @param HttpResponse $response throttled HTTP response
+	 * @return int wait duration in seconds
+	 */
 	private function retryAfter(HttpResponse $response): int {
 		$value = trim($response->header('retry-after'));
 		$wait  = ctype_digit($value)

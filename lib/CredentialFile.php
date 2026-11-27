@@ -23,8 +23,17 @@ namespace Somethingwithproof\Cloud;
  * A credential stored in a file on the poller instead of the vault.
  */
 final class CredentialFile {
+	/**
+	 * Maximum permitted credential file size in bytes.
+	 */
 	public const MAX_BYTES = 16384;
 
+	/**
+	 * Report whether a credential file path satisfies structural safety checks.
+	 *
+	 * @param string $path candidate filesystem path
+	 * @return bool true when absolute, bounded, and free of traversal/control characters
+	 */
 	public static function pathAcceptable(string $path): bool {
 		return SecureFile::pathAcceptable($path);
 	}
