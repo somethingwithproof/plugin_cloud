@@ -30,17 +30,19 @@ namespace Somethingwithproof\Cloud;
  */
 final readonly class OutboundPolicy {
 	/**
-	 * @param list<string> $hosts exact lower-case host names
-	 * @param list<int>    $ports
+	 * @param list<string> $hosts          exact lower-case HTTPS host names
+	 * @param list<int>    $ports          allowed HTTPS ports
+	 * @param list<string> $plainHttpHosts exact lower-case link-local metadata hosts allowed over HTTP port 80
 	 */
 	public function __construct(
 		public array $hosts,
 		public array $ports = [443],
+		public array $plainHttpHosts = [],
 	) {
 	}
 
 	/**
-	 * @return array{host: string, port: int, target: string}
+	 * @return array{host: string, port: int, target: string, tls: bool}
 	 * @throws TransportError
 	 */
 	public function check(string $url): array {
@@ -50,22 +52,37 @@ final readonly class OutboundPolicy {
 			throw new TransportError('url_rejected', 'characters');
 		}
 
-		if (preg_match('#^https://([a-z0-9.-]+)(?::([0-9]{1,5}))?(/[^?\#]*)?(\?[^\#]*)?$#', $url, $m) !== 1) {
+		if (preg_match('#^(https?)://([a-z0-9.-]+)(?::([0-9]{1,5}))?(/[^?\#]*)?(\?[^\#]*)?$#', $url, $m) !== 1) {
 			throw new TransportError('url_rejected', 'form');
 		}
 
-		$host = $m[1];
-		$port = isset($m[2]) && $m[2] !== '' ? (int) $m[2] : 443;
+		$scheme = $m[1];
+		$host   = $m[2];
+		$tls    = $scheme === 'https';
 
-		if (!in_array($host, $this->hosts, true)) {
-			throw new TransportError('host_refused', $host);
+		if ($tls) {
+			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 443;
+
+			if (!in_array($host, $this->hosts, true)) {
+				throw new TransportError('host_refused', $host);
+			}
+
+			if (!in_array($port, $this->ports, true)) {
+				throw new TransportError('url_rejected', 'port');
+			}
+		} else {
+			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 80;
+
+			if (!in_array($host, $this->plainHttpHosts, true)) {
+				throw new TransportError('url_rejected', 'form');
+			}
+
+			if ($port !== 80) {
+				throw new TransportError('url_rejected', 'port');
+			}
 		}
 
-		if (!in_array($port, $this->ports, true)) {
-			throw new TransportError('url_rejected', 'port');
-		}
-
-		$path = isset($m[3]) && $m[3] !== '' ? $m[3] : '/';
+		$path = isset($m[4]) && $m[4] !== '' ? $m[4] : '/';
 
 		// An encoded dot, slash, or backslash lets a server see a different
 		// path from the one checked here and in the operation list.
@@ -77,6 +94,6 @@ final readonly class OutboundPolicy {
 			throw new TransportError('url_rejected', 'dot segment');
 		}
 
-		return ['host' => $host, 'port' => $port, 'target' => $path . ($m[4] ?? '')];
+		return ['host' => $host, 'port' => $port, 'target' => $path . ($m[5] ?? ''), 'tls' => $tls];
 	}
 }

@@ -41,7 +41,9 @@ final class CredentialStore {
 		return match ($account->credentialSource) {
 			CredentialSource::File     => $this->fromFile($account->credentialFile),
 			CredentialSource::Vault    => $this->fromVault($account->id),
-			CredentialSource::Instance => throw CredentialError::because('instance identity is not available for this provider'),
+			CredentialSource::Instance => in_array(CredentialSource::Instance, $account->provider->credentialSources(), true)
+				? new Secret('')
+				: throw CredentialError::because('instance identity is not available for this provider'),
 		};
 	}
 

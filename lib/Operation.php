@@ -43,7 +43,16 @@ final readonly class Operation {
 	public function matches(HttpRequest $request): bool {
 		$parts = parse_url($request->url);
 
-		if (!is_array($parts) || ($parts['host'] ?? '') !== $this->host || $request->method !== $this->method) {
+		if (!is_array($parts) || $request->method !== $this->method) {
+			return false;
+		}
+
+		$host   = $parts['host'] ?? '';
+		$hostOk = str_starts_with($this->host, '#')
+			? preg_match($this->host, $host) === 1
+			: $host === $this->host;
+
+		if (!$hostOk) {
 			return false;
 		}
 
