@@ -24,6 +24,14 @@ namespace Somethingwithproof\Cloud;
  * catalog.
  */
 final readonly class MetricRequest {
+	/**
+	 * Construct an immutable metric collection request for one resource series.
+	 *
+	 * @param int    $resourceId   internal plugin_cloud_resource ID
+	 * @param string $resourceType provider resource type
+	 * @param string $providerId   provider-scoped resource identifier
+	 * @param string $metric       catalog metric name
+	 */
 	public function __construct(
 		public int $resourceId,
 		public string $resourceType,

@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-27 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: el-GR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Όνομα: ένας άλλος λογαριασμός χρησιμοποιεί ήδη αυτό το όνομα."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Ο λογαριασμός αποθηκεύτηκε, αλλά το διαπιστευτήριο δεν αποθηκεύτηκε: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Ο λογαριασμός αποθηκεύτηκε, αλλά δεν ήταν δυνατή η αφαίρεση του αποθηκευμένου διαπιστευτηρίου."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Ο λογαριασμός αποθηκεύτηκε."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Δεν ήταν δυνατή η αποθήκευση του λογαριασμού."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Ο λογαριασμός και τα συλλεγμένα δεδομένα του διαγράφηκαν. Οι συσκευές Cacti και τα γραφήματά του παρέμειναν στη θέση τους."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Η συσκευή Cacti για %s είναι έτοιμη."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Η συσκευή Cacti δεν δημιουργήθηκε. Δείτε το αρχείο καταγραφής του Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Επαλήθευση αποθηκευμένου διαπιστευτηρίου"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Προβολή παρακολούθησης"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Δεν ήταν δυνατή η ανάγνωση των παρατηρήσεων. Ζητήστε από έναν διαχειριστή να ελέγξει το αρχείο καταγραφής του πρόσθετου."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Ελέγξτε τα γραφήματα του λογαριασμού και την επικαιρότητα της συλλογής. Η επαλήθευση δοκιμάζει το αποθηκευμένο διαπιστευτήριο, χωρίς να μπορεί να το αντικαταστήσει ή να αλλάξει τη ρύθμιση του παρόχου."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Πάροχος: επιλέξτε έναν από τους διαθέσιμους παρόχους."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Όνομα: εισαγάγετε 1 έως 100 χαρακτήρες χωρίς χαρακτήρες ελέγχου."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: μόνο ο κύριος poller μπορεί να συλλέγει δεδομένα από λογαριασμούς cloud σε αυτή την έκδοση."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: η τιμή δεν έχει τη μορφή που χρησιμοποιεί αυτός ο πάροχος."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Πηγή διαπιστευτηρίων: επιλέξτε μία που υποστηρίζει αυτός ο πάροχος."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Αρχείο διαπιστευτηρίων: εισαγάγετε μια απόλυτη διαδρομή χωρίς χαρακτήρες ελέγχου, έως 512 χαρακτήρες."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: εισαγάγετε ακέραια δευτερόλεπτα από %d έως %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Διάστημα συλλογής"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Διάστημα ανακάλυψης"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Μερίδιο αιτημάτων: εισαγάγετε ένα ακέραιο ποσοστό από 1 έως 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Μηνιαίο όριο: εισαγάγετε ποσό μηδέν ή μεγαλύτερο, ή αφήστε το κενό για κανένα όριο."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "Αναγνωριστικό λογαριασμού AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Περιοχές"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "Αναγνωριστικό έργου"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "Αναγνωριστικό μισθωτή"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "Αναγνωριστικό συνδρομής"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Λογαριασμοί Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Όνομα"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Πάροχος"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Διαπιστευτήριο"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Κατάσταση"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Επαλήθευση"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Συσκευή"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Ενέργειες"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Δεν υπάρχουν ακόμη λογαριασμοί cloud."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Απενεργοποιημένο"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Ενεργοποιημένο"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Διαγραφή"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Λογαριασμός Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Νέος λογαριασμός Cloud"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Πηγή διαπιστευτηρίων"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Αρχείο διαπιστευτηρίων"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Υπάρχει αποθηκευμένο διαπιστευτήριο. Αφήστε το κενό για να το διατηρήσετε."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Επικολλήστε το διακριτικό ή το κλειδί για αποθήκευση στο θησαυροφυλάκιο."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Μερίδιο αιτημάτων"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Μηνιαίο όριο"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Αποθήκευση"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Διαγραφή του %s; Αυτό αφαιρεί τον λογαριασμό, το αποθηκευμένο διαπιστευτήριό του, τις αντιστοιχίσεις σειρών, τους πόρους και τις παρατηρήσεις, και δεν μπορεί να αναιρεθεί. Οι συσκευές Cacti και τα γραφήματά του παραμένουν στη θέση τους."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Αποθηκευμένο στο θησαυροφυλάκιο"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Κανένα αποθηκευμένο"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Αρχείο στον poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Ταυτότητα παρουσίας"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Συσκευή %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Δημιουργία συσκευής Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Αποθηκευμένο στο θησαυροφυλάκιο του πρόσθετου"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Αρχείο διαπιστευτηρίων στον poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Ταυτότητα παρουσίας του poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Εκτίμηση αιτημάτων Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Λογαριασμός"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Επιλογή"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Πόροι"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Αιτήματα ανά ώρα, ένας πόρος"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Αιτήματα ανά μήνα, ένας πόρος"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Αιτήματα ανά ώρα"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Αιτήματα ανά μήνα"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Κόστος ανά μήνα"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Δεν υπάρχουν λογαριασμοί για εκτίμηση."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Οι εκτιμήσεις χρησιμοποιούν τιμές τιμοκαταλόγου και εξαιρούν εκπτώσεις και κοινόχρηστα δωρεάν επίπεδα."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Τιμές %s από"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "ελέγχθηκε %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Συλλέγονται τώρα"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Κάθε γράφημα σε κάθε πόρο"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Μερίδιο αιτημάτων: %s αιτήματα ανά ώρα, %s τοις εκατό του ορίου διακριτικού. Συλλέγονται τώρα: %s. Κάθε γράφημα: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Η συλλογή έχει περιοριστεί. Οι υπόλοιπες σειρές επιστρέφουν U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Εκτίμηση μετρικών μεταξύ εκτελέσεων ανακάλυψης. Τα αιτήματα ανακάλυψης μειώνουν το διαθέσιμο όριο συλλογής."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Δεν τεκμηριώνεται χρέωση"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Εξισορροπητής φόρτου"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Προειδοποιήσεις Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Δεν υπάρχουν προειδοποιήσεις."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Συλλογή Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Συλλογή"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Τελευταία εκτέλεση"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Σειρές που διαβάστηκαν"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Αιτήματα"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Ανακάλυψη"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Δεδομένα"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Ποτέ"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "επανάληψη σε %d δευτ."
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "πριν από %d δευτερόλεπτα"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "πριν από %d λεπτά"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "πριν από %d ώρες"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "πριν από %d ημέρες"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Δεν είναι δυνατή η χρήση του αρχείου κλειδιού θησαυροφυλακίου: %s. Οι λογαριασμοί που αποθηκεύουν διαπιστευτήρια στο θησαυροφυλάκιο δεν μπορούν να επαληθευτούν ή να συλλεχθούν εδώ."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: δεν είναι δυνατή η χρήση του αρχείου διαπιστευτηρίων: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: το διάστημα συλλογής των %d δευτερολέπτων είναι μικρότερο από το διάστημα του poller των %d δευτερολέπτων, οπότε η συλλογή γίνεται κάθε %d δευτερόλεπτα."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: το διάστημα συλλογής των %d δευτερολέπτων δεν είναι πολλαπλάσιο του διαστήματος του poller των %d δευτερολέπτων, οπότε η συλλογή γίνεται κάθε %d δευτερόλεπτα."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Ελέγξτε τις καταγεγραμμένες παρατηρήσεις παρακάτω. Οι αναγνωρίσεις είναι προσωπικές για αυτή τη συνεδρία, λήγουν όταν αλλάζουν οι παρατηρήσεις και δεν καταστέλλουν ποτέ ειδοποιήσεις ούτε αλλάζουν την κατάσταση υγείας."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Λειτουργίες Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Διερεύνηση"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Αντικείμενο"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Παρατηρήθηκε (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Άγνωστο ή παρωχημένο"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Αναγνωρίστηκε, η κατάσταση υγείας δεν άλλαξε."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Αναγνώριση"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Δεν υπάρχουν διαθέσιμες παρατηρήσεις για τις συσκευές στις οποίες έχετε πρόσβαση."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Χειριστής Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Προβολή Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Διαχειριστής Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Υγεία Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Θησαυροφυλάκιο διαπιστευτηρίων"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Αρχείο κλειδιού θησαυροφυλακίου"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Απόλυτη διαδρομή προς το κλειδί 32 byte που κρυπτογραφεί τα αποθηκευμένα διαπιστευτήρια. Δημιουργήστε το μόνοι σας, εκτός του ριζικού καταλόγου ιστού, αναγνώσιμο μόνο από τον διακομιστή ιστού και τον χρήστη του poller, σε έναν κατάλογο όπου μόνο ο root και αυτός ο χρήστης μπορούν να γράφουν (το ίδιο ισχύει και για τα αρχεία διαπιστευτηρίων). Το πρόσθετο δεν το δημιουργεί ούτε γράφει ποτέ σε αυτό. Δημιουργήστε αντίγραφο ασφαλείας του μαζί με τη βάση δεδομένων: χωρίς αυτό, τα αποθηκευμένα διαπιστευτήρια θα πρέπει να εισαχθούν ξανά."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Κατάλογος αρχείων διαπιστευτηρίων"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Απόλυτη διαδρομή προς τον κατάλογο που περιέχει τα αρχεία διαπιστευτηρίων. Ένας λογαριασμός μπορεί να διαβάσει το διαπιστευτήριό του από αρχείο μόνο μέσα σε αυτόν τον κατάλογο, ποτέ το αρχείο κλειδιού θησαυροφυλακίου. Κενό (προεπιλογή) απορρίπτει τα αρχεία διαπιστευτηρίων. Ο διαχειριστής Cloud επιλέγει το αρχείο, οπότε διατηρήστε εδώ μόνο διαπιστευτήρια cloud."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Συλλέκτης"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Χρονικό όριο συλλέκτη"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Δευτερόλεπτα που μπορεί να δαπανήσει μία εκτέλεση συλλέκτη πριν σταματήσει να ξεκινά νέες εργασίες. Διατηρήστε το κάτω από το διάστημα του poller. Οι ημιτελείς λογαριασμοί συνεχίζουν στην επόμενη εκτέλεση."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Απεγκατάσταση"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Διατήρηση πινάκων πρόσθετου κατά την απεγκατάσταση"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Όταν είναι επιλεγμένο, η απεγκατάσταση του πρόσθετου διατηρεί τους λογαριασμούς, τα κρυπτογραφημένα διαπιστευτήρια και την προσωρινή μνήμη. Αποεπιλέξτε το για να διαγραφούν κατά την απεγκατάσταση. Οι πόροι cloud δεν επηρεάζονται ποτέ σε καμία περίπτωση."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Δεν έχει επαληθευτεί ακόμη."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Το διαπιστευτήριο λειτουργεί και διαθέτει τα δικαιώματα που χρειάζεται αυτός ο λογαριασμός."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Ο πάροχος απέρριψε το διαπιστευτήριο. Ενδέχεται να είναι λανθασμένο, ληγμένο ή ανακλημένο."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Το διαπιστευτήριο λειτουργεί, αλλά του λείπει ένα δικαίωμα που χρειάζεται αυτός ο λογαριασμός."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Δεν ήταν δυνατή η επικοινωνία με τον πάροχο. Ελέγξτε τη διαδρομή δικτύου και την πολιτική εξερχόμενης κίνησης από τον poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Ο πάροχος περιορίζει τον ρυθμό των αιτημάτων. Δοκιμάστε ξανά αργότερα."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Ο πάροχος έστειλε μια απόκριση που το πρόσθετο δεν μπόρεσε να διαβάσει."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Ο λογαριασμός ή το διαπιστευτήριό του δεν έχει ρυθμιστεί σωστά."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Το πρόσθετο Cloud απαιτεί PHP %s ή νεότερη έκδοση. Αυτός ο διακομιστής εκτελεί PHP %s, επομένως το πρόσθετο δεν εγκαταστάθηκε ούτε ενεργοποιήθηκε."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Το πρόσθετο Cloud απαιτεί τις επεκτάσεις PHP %s, τις οποίες δεν φορτώνει αυτός ο διακομιστής, επομένως το πρόσθετο δεν εγκαταστάθηκε ούτε ενεργοποιήθηκε."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Το πρόσθετο Cloud δεν είναι ενεργοποιημένο."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Το πρόσθετο Cloud απαιτεί PHP %s ή νεότερη έκδοση."
+
+#: setup.php
+msgid "Management"
+msgstr "Διαχείριση"

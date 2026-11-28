@@ -24,11 +24,34 @@ namespace Somethingwithproof\Cloud;
  * message per field, each naming the field it is about.
  */
 final readonly class AccountInput {
+	/**
+	 * Minimum allowed collection interval in seconds.
+	 */
 	public const MIN_COLLECT      = 60;
+
+	/**
+	 * Default collection interval in seconds.
+	 */
 	public const DEFAULT_COLLECT  = 300;
+
+	/**
+	 * Minimum allowed resource discovery interval in seconds.
+	 */
 	public const MIN_DISCOVER     = 300;
+
+	/**
+	 * Default resource discovery interval in seconds.
+	 */
 	public const DEFAULT_DISCOVER = 3600;
+
+	/**
+	 * Default percentage share of a provider's token rate limit.
+	 */
 	public const DEFAULT_SHARE    = 50;
+
+	/**
+	 * Maximum allowed collection or discovery interval in seconds.
+	 */
 	public const MAX_INTERVAL     = 86400;
 
 	/**
@@ -38,10 +61,11 @@ final readonly class AccountInput {
 	}
 
 	/**
-	 * @param array<string, mixed> $input form fields as posted
-	 * @param list<Provider>       $offered providers new accounts may use
+	 * @param array<string, mixed> $input          form fields as posted
+	 * @param list<Provider>       $offered        providers new accounts may use
+	 * @param list<int>|null       $allowedPollers optional allowlist of enabled poller IDs; null allows any poller ID >= 1
 	 */
-	public static function parse(array $input, int $id, array $offered): self {
+	public static function parse(array $input, int $id, array $offered, ?array $allowedPollers = null): self {
 		$errors   = [];
 		$provider = Provider::tryFrom(Row::string($input, 'provider'));
 
@@ -55,11 +79,12 @@ final readonly class AccountInput {
 			$errors['name'] = __('Name: enter 1 to 100 characters without control characters.', 'cloud');
 		}
 
-		// Phase 1 collects only on the main poller (REQ-ACCT-003).
 		$poller = Row::int($input, 'poller_id', 0);
 
-		if ($poller !== Account::MAIN_POLLER) {
+		if ($allowedPollers === [Account::MAIN_POLLER] && $poller !== Account::MAIN_POLLER) {
 			$errors['poller_id'] = __('Poller: only the main poller can collect cloud accounts in this release.', 'cloud');
+		} elseif ($poller < 1 || ($allowedPollers !== null && !in_array($poller, $allowedPollers, true))) {
+			$errors['poller_id'] = 'Poller: choose an enabled poller ID.';
 		}
 
 		$scope = [];
@@ -171,6 +196,12 @@ final readonly class AccountInput {
 		return true;
 	}
 
+	/**
+	 * Return the translated UI label for a provider scope field key.
+	 *
+	 * @param string $field scope field key
+	 * @return string translated field label
+	 */
 	public static function scopeLabel(string $field): string {
 		return match ($field) {
 			'account_id'   => __('AWS Account ID', 'cloud'),

@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Result returned by ProviderDriver::collect() for one collection batch.
+ */
 final readonly class CollectResult {
 	/**
 	 * @param list<Observation> $observations

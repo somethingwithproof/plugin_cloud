@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Freshness classification for a cached cloud datapoint.
+ */
 enum Freshness: string {
 	case Current   = 'current';
 	case Delayed   = 'delayed';

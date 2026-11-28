@@ -27,11 +27,29 @@ namespace Somethingwithproof\Cloud;
  * between checks cannot overwrite the newer holder's inventory.
  */
 final class ResourceRepository {
+	/**
+	 * Consecutive missed discoveries before a resource transitions to deleted.
+	 */
 	public const DELETE_AFTER = 3;
 
+	/**
+	 * Construct a resource repository bound to a database connection and clock.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 * @param Clock      $clock      wall clock for discovery timestamps
+	 */
 	public function __construct(private readonly \PDO|false $connection, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Synchronize discovered resources while verifying the caller's lease on each step.
+	 *
+	 * @param int             $accountId cloud account ID
+	 * @param Inventory       $inventory discovered resources from the provider driver
+	 * @param LeaseRepository $leases    lease store for ownership checks
+	 * @param string          $holder    active lease holder identifier
+	 * @return bool true when all inventory updates completed under the lease
+	 */
 	public function sync(int $accountId, Inventory $inventory, LeaseRepository $leases, string $holder): bool {
 		$now  = $this->clock->now();
 		$seen = [];
@@ -51,7 +69,7 @@ final class ResourceRepository {
 				Lifecycle::Active->value, $now, $now, $accountId, $holder, $now,
 			], true, $this->connection);
 
-			$seen[] = $resource->type . "\0" . $resource->providerId;
+			$seen[$resource->type . "\0" . $resource->providerId] = true;
 		}
 
 		if (!$leases->holds($accountId, $holder)) {
@@ -64,7 +82,7 @@ final class ResourceRepository {
 			true,
 			$this->connection
 		)) as $row) {
-			if (in_array(Row::string($row, 'type') . "\0" . Row::string($row, 'provider_id'), $seen, true)) {
+			if (isset($seen[Row::string($row, 'type') . "\0" . Row::string($row, 'provider_id')])) {
 				continue;
 			}
 
@@ -155,5 +173,47 @@ final class ResourceRepository {
 		}
 
 		return $counts;
+	}
+
+	/**
+	 * List non-deleted (or lifecycle-filtered) resources for an account.
+	 *
+	 * @return list<array{id: int, account_id: int, type: string, provider_id: string, name: string, region: string, lifecycle: string, first_seen: int, last_seen: int}>
+	 */
+	public function forAccount(int $accountId, ?string $type = null, ?string $lifecycle = null): array {
+		$sql    = 'SELECT id, account_id, type, provider_id, name, region, lifecycle, first_seen, last_seen FROM plugin_cloud_resource WHERE account_id = ?';
+		$params = [$accountId];
+
+		if ($type !== null && $type !== '') {
+			$sql     .= ' AND type = ?';
+			$params[] = $type;
+		}
+
+		if ($lifecycle !== null && $lifecycle !== '') {
+			$sql     .= ' AND lifecycle = ?';
+			$params[] = $lifecycle;
+		} else {
+			$sql     .= ' AND lifecycle != ?';
+			$params[] = Lifecycle::Deleted->value;
+		}
+
+		$sql .= ' ORDER BY type, provider_id';
+		$out  = [];
+
+		foreach (Row::rows(db_fetch_assoc_prepared($sql, $params, true, $this->connection)) as $row) {
+			$out[] = [
+				'id'          => Row::int($row, 'id'),
+				'account_id'  => Row::int($row, 'account_id'),
+				'type'        => Row::string($row, 'type'),
+				'provider_id' => Row::string($row, 'provider_id'),
+				'name'        => Row::string($row, 'name'),
+				'region'      => Row::string($row, 'region'),
+				'lifecycle'   => Row::string($row, 'lifecycle'),
+				'first_seen'  => Row::int($row, 'first_seen'),
+				'last_seen'   => Row::int($row, 'last_seen'),
+			];
+		}
+
+		return $out;
 	}
 }

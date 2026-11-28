@@ -27,6 +27,11 @@ enum CredentialSource: string {
 	case File     = 'file';
 	case Instance = 'instance';
 
+	/**
+	 * Return the translated UI label for this credential source.
+	 *
+	 * @return string translated label
+	 */
 	public function label(): string {
 		return match ($this) {
 			self::Vault    => __('Stored in the plugin vault', 'cloud'),

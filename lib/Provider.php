@@ -36,9 +36,14 @@ enum Provider: string {
 	 * @return list<self>
 	 */
 	public static function released(): array {
-		return [self::DigitalOcean];
+		return [self::DigitalOcean, self::Aws, self::GoogleCloud, self::Azure];
 	}
 
+	/**
+	 * Return the translated display name for this cloud provider.
+	 *
+	 * @return string translated provider name
+	 */
 	public function label(): string {
 		return match ($this) {
 			self::DigitalOcean => __('DigitalOcean', 'cloud'),

@@ -26,6 +26,11 @@ namespace Somethingwithproof\Cloud;
  * passes provider text on.
  */
 interface ProviderDriver {
+	/**
+	 * Identify the cloud provider implemented by this driver.
+	 *
+	 * @return Provider
+	 */
 	public function provider(): Provider;
 
 	/**

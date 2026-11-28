@@ -25,8 +25,20 @@ namespace Somethingwithproof\Cloud;
  * accounts with credential files work without a key file.
  */
 final class CredentialStore {
+	/**
+	 * Lazily initialized AES-256-GCM vault cipher bound to the configured key file.
+	 *
+	 * @var Vault|null
+	 */
 	private ?Vault $vault = null;
 
+	/**
+	 * Construct a credential resolver and vault store.
+	 *
+	 * @param SecretRepository $secrets       encrypted secret repository
+	 * @param string           $keyFile       configured vault key file path
+	 * @param string           $credentialDir configured allowed directory for file credentials
+	 */
 	public function __construct(
 		private readonly SecretRepository $secrets,
 		private readonly string $keyFile,
@@ -41,10 +53,18 @@ final class CredentialStore {
 		return match ($account->credentialSource) {
 			CredentialSource::File     => $this->fromFile($account->credentialFile),
 			CredentialSource::Vault    => $this->fromVault($account->id),
-			CredentialSource::Instance => throw CredentialError::because('instance identity is not available for this provider'),
+			CredentialSource::Instance => in_array(CredentialSource::Instance, $account->provider->credentialSources(), true)
+				? new Secret('')
+				: throw CredentialError::because('instance identity is not available for this provider'),
 		};
 	}
 
+	/**
+	 * Report whether an encrypted vault credential exists for the account.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return bool true when a vault row is stored
+	 */
 	public function hasVaultCredential(int $accountId): bool {
 		return $this->secrets->has($accountId, SecretRepository::CREDENTIAL);
 	}
@@ -84,9 +104,10 @@ final class CredentialStore {
 	}
 
 	/**
-	 * @throws CredentialError
-	 */
-	/**
+	 * Read a credential file after verifying it is distinct from the vault key file.
+	 *
+	 * @param string $path credential file path
+	 * @return Secret loaded secret
 	 * @throws CredentialError
 	 */
 	private function fromFile(string $path): Secret {
@@ -100,6 +121,13 @@ final class CredentialStore {
 		return CredentialFile::read($path, $this->credentialDir);
 	}
 
+	/**
+	 * Load and decrypt an account's stored vault credential.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return Secret decrypted secret
+	 * @throws CredentialError
+	 */
 	private function fromVault(int $accountId): Secret {
 		$entry = $this->secrets->load($accountId, SecretRepository::CREDENTIAL);
 
@@ -110,6 +138,12 @@ final class CredentialStore {
 		return $this->vault()->decrypt($entry, $accountId, SecretRepository::CREDENTIAL);
 	}
 
+	/**
+	 * Lazily load the AES-256-GCM vault key and return the Vault instance.
+	 *
+	 * @return Vault
+	 * @throws CredentialError
+	 */
 	private function vault(): Vault {
 		return $this->vault ??= new Vault(VaultKey::fromFile($this->keyFile));
 	}

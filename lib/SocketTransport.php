@@ -28,6 +28,9 @@ namespace Somethingwithproof\Cloud;
  * passes a malformed chunk through as data.
  */
 final class SocketTransport implements HttpTransport {
+	/**
+	 * Maximum combined HTTP response header size in bytes (64 KiB).
+	 */
 	private const MAX_HEADER_BYTES = 65536;
 
 	/**
@@ -43,6 +46,13 @@ final class SocketTransport implements HttpTransport {
 	) {
 	}
 
+	/**
+	 * Execute one outbound HTTP/1.1 request over stream sockets under OutboundPolicy.
+	 *
+	 * @param HttpRequest $request outbound HTTP request
+	 * @return HttpResponse validated HTTP response
+	 * @throws TransportError on policy refusal, TLS failure, timeout, framing error, or size cap
+	 */
 	public function send(HttpRequest $request): HttpResponse {
 		// The policy is checked before anything resolves or connects.
 		$url      = $this->policy->check($request->url);
@@ -53,6 +63,7 @@ final class SocketTransport implements HttpTransport {
 		$host     = $url['host'];
 		$port     = $url['port'];
 		$target   = $url['target'];
+		$tls      = $url['tls'];
 
 		if (preg_match('/^[A-Z]{3,7}$/', $method) !== 1) {
 			throw new TransportError('header_rejected', 'method');
@@ -60,7 +71,8 @@ final class SocketTransport implements HttpTransport {
 
 		// A CR or LF in a name or value would let a caller inject headers or a
 		// second request.
-		$request = "$method $target HTTP/1.1\r\nHost: " . $host . ($port === 443 ? '' : ":$port")
+		$defaultPort = $tls ? 443 : 80;
+		$request     = "$method $target HTTP/1.1\r\nHost: " . $host . ($port === $defaultPort ? '' : ":$port")
 			. "\r\nConnection: close\r\n";
 		foreach ($headers as $name => $value) {
 			if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/', $name) !== 1 || preg_match('/[\r\n\x00]/', $value) === 1) {
@@ -73,20 +85,26 @@ final class SocketTransport implements HttpTransport {
 		}
 		$request .= "\r\n" . ($body ?? '');
 
-		$ssl = [
-			'verify_peer'         => true,
-			'verify_peer_name'    => true,
-			'allow_self_signed'   => false,
-			'peer_name'           => $host,
-			'SNI_enabled'         => true,
-			'disable_compression' => true,
-		];
+		if ($tls) {
+			$ssl = [
+				'verify_peer'         => true,
+				'verify_peer_name'    => true,
+				'allow_self_signed'   => false,
+				'peer_name'           => $host,
+				'SNI_enabled'         => true,
+				'disable_compression' => true,
+			];
 
-		if ($this->caFile !== null) {
-			$ssl['cafile'] = $this->caFile;
+			if ($this->caFile !== null) {
+				$ssl['cafile'] = $this->caFile;
+			}
+
+			$ctx    = stream_context_create(['ssl' => $ssl]);
+			$remote = "tls://$host:$port";
+		} else {
+			$ctx    = stream_context_create([]);
+			$remote = "tcp://$host:$port";
 		}
-
-		$ctx = stream_context_create(['ssl' => $ssl]);
 
 		// The connect and TLS handshake share the total budget. Checked before
 		// the warning collector is installed, so a throw cannot leave it behind.
@@ -102,7 +120,7 @@ final class SocketTransport implements HttpTransport {
 			return true;
 		});
 		try {
-			$fp = stream_socket_client("tls://$host:$port", $errno, $errstr, $connectBudget, STREAM_CLIENT_CONNECT, $ctx);
+			$fp = stream_socket_client($remote, $errno, $errstr, $connectBudget, STREAM_CLIENT_CONNECT, $ctx);
 		} finally {
 			restore_error_handler();
 		}
@@ -295,6 +313,12 @@ final class SocketTransport implements HttpTransport {
 		}
 	}
 
+	/**
+	 * Map a PHP socket/TLS warning message into a fixed transport error kind.
+	 *
+	 * @param string $message raw stream error message
+	 * @return string fixed TransportError kind
+	 */
 	private static function classify(string $message): string {
 		return match (true) {
 			str_contains($message, 'certificate verify failed') => 'tls_verify',
@@ -305,6 +329,12 @@ final class SocketTransport implements HttpTransport {
 		};
 	}
 
+	/**
+	 * Strip control characters and truncate local socket error text.
+	 *
+	 * @param string $message raw socket diagnostic string
+	 * @return string sanitized bounded diagnostic detail
+	 */
 	private static function clean(string $message): string {
 		return substr((string) preg_replace('/[\x00-\x1f\x7f]+/', ' ', $message), 0, 400);
 	}

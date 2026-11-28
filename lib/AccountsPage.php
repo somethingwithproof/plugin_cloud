@@ -26,8 +26,18 @@ namespace Somethingwithproof\Cloud;
  * csrf-magic adds its token to each.
  */
 final class AccountsPage {
+	/**
+	 * Entry-point filename for Cloud Accounts actions and links.
+	 */
 	public const FILE = 'cloud_accounts.php';
 
+	/**
+	 * Build the Cloud Accounts page presenter.
+	 *
+	 * @param AccountRepository $accounts    cloud account repository
+	 * @param CredentialStore   $credentials encrypted credential store
+	 * @param DeviceRepository  $devices     scope device repository
+	 */
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly CredentialStore $credentials,
@@ -35,6 +45,11 @@ final class AccountsPage {
 	) {
 	}
 
+	/**
+	 * Render the Cloud Accounts table with verification and delete actions.
+	 *
+	 * @return void
+	 */
 	public function renderList(): void {
 		html_start_box(__('Cloud Accounts', 'cloud'), '100%', '', '3', 'center', self::FILE . '?action=edit');
 
@@ -177,7 +192,7 @@ final class AccountsPage {
 		html_end_box();
 
 		print '<input type="hidden" name="action" value="save">'
-			. '<input type="hidden" name="poller_id" value="' . Account::MAIN_POLLER . '">'
+			. '<input type="hidden" name="poller_id" value="' . (int) $value('poller_id', (string) ($account->pollerId ?? Account::MAIN_POLLER)) . '">'
 			. '<input type="hidden" name="id" value="' . ($account->id ?? 0) . '">'
 			. '<input type="submit" class="ui-button" value="' . html_escape(__('Save', 'cloud')) . '">'
 			. '</form>';
@@ -206,6 +221,12 @@ final class AccountsPage {
 		html_end_box();
 	}
 
+	/**
+	 * Summarize the account's credential storage state without revealing secrets.
+	 *
+	 * @param Account $account target cloud account
+	 * @return string translated credential status label
+	 */
 	private function credentialSummary(Account $account): string {
 		return match ($account->credentialSource) {
 			CredentialSource::Vault    => $this->credentials->hasVaultCredential($account->id)
@@ -230,6 +251,14 @@ final class AccountsPage {
 		return $this->actionForm($account->id, 'create_device', __('Create Cacti Device', 'cloud'));
 	}
 
+	/**
+	 * Build an inline POST form button for a single account action.
+	 *
+	 * @param int    $id     account ID
+	 * @param string $action POST action identifier
+	 * @param string $label  escaped button label
+	 * @return string HTML form markup
+	 */
 	private function actionForm(int $id, string $action, string $label): string {
 		return '<form method="post" action="' . html_escape(self::FILE) . '" style="display:inline">'
 			. '<input type="hidden" name="action" value="' . html_escape($action) . '">'
@@ -238,6 +267,15 @@ final class AccountsPage {
 			. '</form>';
 	}
 
+	/**
+	 * Print a labeled text input table row.
+	 *
+	 * @param string $name   input field name and id
+	 * @param string $label  visible field label
+	 * @param string $value  current field value
+	 * @param int    $length maximum input character length
+	 * @return void
+	 */
 	private function text(string $name, string $label, string $value, int $length): void {
 		print '<tr><td><label for="' . html_escape($name) . '">' . html_escape($label) . '</label></td>'
 			. '<td><input type="text" id="' . html_escape($name) . '" name="' . html_escape($name) . '" value="'

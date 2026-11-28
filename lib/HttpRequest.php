@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Immutable outbound HTTP request value object.
+ */
 final readonly class HttpRequest {
 	/**
 	 * @param array<string, string> $headers

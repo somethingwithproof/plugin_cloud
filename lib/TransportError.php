@@ -25,10 +25,21 @@ namespace Somethingwithproof\Cloud;
  * response body) and still passes through the Redactor before it is logged.
  */
 final class TransportError extends \RuntimeException {
+	/**
+	 * Construct a TransportError with a fixed error kind and optional local detail.
+	 *
+	 * @param string $kind   fixed transport failure code
+	 * @param string $detail optional local diagnostic detail
+	 */
 	public function __construct(public readonly string $kind, string $detail = '') {
 		parent::__construct($kind . ($detail !== '' ? ': ' . $detail : ''));
 	}
 
+	/**
+	 * Map the transport failure kind to a normalized ErrorClass.
+	 *
+	 * @return ErrorClass
+	 */
 	public function errorClass(): ErrorClass {
 		return match ($this->kind) {
 			'url_rejected',

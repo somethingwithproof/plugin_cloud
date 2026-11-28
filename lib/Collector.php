@@ -30,16 +30,38 @@ namespace Somethingwithproof\Cloud;
  * the work it finished, and the next run continues.
  */
 final class Collector {
+	/**
+	 * Maximum scheduling slack in seconds subtracted from the collection interval.
+	 */
 	public const DUE_SLACK = 30;
 
 	/**
 	 * Seconds after a run's start when the account is due again: its
 	 * interval less a slack of a tenth of it, at most DUE_SLACK.
+	 *
+	 * @param int $collectInterval configured collection interval in seconds
+	 * @return int effective due threshold in seconds
 	 */
 	public static function dueAfter(int $collectInterval): int {
 		return $collectInterval - min(self::DUE_SLACK, intdiv($collectInterval, 10));
 	}
 
+	/**
+	 * Construct a poller collector runner with its repositories and services.
+	 *
+	 * @param AccountRepository     $accounts     account repository
+	 * @param Drivers               $drivers      provider driver registry
+	 * @param CredentialStore       $credentials  credential store
+	 * @param LeaseRepository       $leases       per-account lease store
+	 * @param ResourceRepository    $resources    discovered resource store
+	 * @param SeriesRepository      $series       mapped series store
+	 * @param ObservationRepository $observations cached observation store
+	 * @param HealthRepository      $health       per-account health store
+	 * @param Redactor              $redactor     secret redactor for logs
+	 * @param Clock                 $clock        wall clock
+	 * @param string                $holder       unique lease holder identifier
+	 * @param ScopeDevices|null     $scopeDevices optional scope device synchronizer
+	 */
 	public function __construct(
 		private readonly AccountRepository $accounts,
 		private readonly Drivers $drivers,
@@ -104,6 +126,12 @@ final class Collector {
 		return ['accounts' => $done, 'skipped' => $skipped, 'stopped_early' => false];
 	}
 
+	/**
+	 * Execute discovery and metric collection for one leased account.
+	 *
+	 * @param Account $account account currently leased by this collector run
+	 * @return void
+	 */
 	private function runAccount(Account $account): void {
 		$now      = $this->clock->now();
 		$start    = microtime(true);

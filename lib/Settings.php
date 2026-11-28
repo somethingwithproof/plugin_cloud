@@ -26,6 +26,9 @@ namespace Somethingwithproof\Cloud;
  * account row; these are the few that apply to the whole plugin.
  */
 final readonly class Settings {
+	/**
+	 * Cacti settings table keys owned by the Cloud plugin.
+	 */
 	public const NAMES = [
 		'cloud_vault_key_file',
 		'cloud_credential_dir',
@@ -33,9 +36,24 @@ final readonly class Settings {
 		'cloud_uninstall_keep_tables',
 	];
 
+	/**
+	 * Default absolute path to the AES-256-GCM vault key file.
+	 */
 	public const DEFAULT_KEY_FILE = '/etc/cacti/cloud-vault.key';
+
+	/**
+	 * Default per-run collector time budget in seconds.
+	 */
 	public const DEFAULT_BUDGET   = 240;
 
+	/**
+	 * Construct an immutable plugin settings value object.
+	 *
+	 * @param string $vaultKeyFile          absolute path to the 32-byte vault key file
+	 * @param int    $collectorBudget       per-run collector time budget in seconds
+	 * @param bool   $keepTablesOnUninstall whether uninstall preserves plugin tables
+	 * @param string $credentialDir         optional allowed base directory for credential files
+	 */
 	public function __construct(
 		public string $vaultKeyFile,
 		public int $collectorBudget,

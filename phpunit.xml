@@ -17,6 +17,7 @@
     <testsuites>
         <testsuite name="Plugin Cloud">
             <directory>tests/Security</directory>
+            <directory>tests/Quality</directory>
             <directory>tests/Unit</directory>
             <directory>tests/Transport</directory>
         </testsuite>

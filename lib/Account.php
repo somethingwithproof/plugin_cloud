@@ -24,6 +24,9 @@ namespace Somethingwithproof\Cloud;
  * credential lives in plugin_cloud_secret, a file credential on the poller.
  */
 final readonly class Account {
+	/**
+	 * Identifier of Cacti's default main poller.
+	 */
 	public const MAIN_POLLER = 1;
 
 	/**
@@ -146,6 +149,11 @@ final readonly class Account {
 		));
 	}
 
+	/**
+	 * Report whether this account is administratively enabled for collection.
+	 *
+	 * @return bool true when adminState is Enabled
+	 */
 	public function enabled(): bool {
 		return $this->adminState === AdminState::Enabled;
 	}

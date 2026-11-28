@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-27 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: pt-PT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Nome: outra conta já utiliza este nome."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "A conta foi guardada, mas a credencial não foi armazenada: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "A conta foi guardada, mas não foi possível remover a credencial guardada."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "A conta foi guardada."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Não foi possível guardar a conta."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "A conta e os seus dados recolhidos foram eliminados. Os respetivos dispositivos e gráficos Cacti foram mantidos."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "O dispositivo Cacti para %s está pronto."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "O dispositivo Cacti não foi criado; consulte o registo do Cacti."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Verificar credencial guardada"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Vista de monitorização"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Não foi possível ler as observações. Peça a um administrador para verificar o registo do plugin."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Verifique os gráficos da conta e a atualidade da recolha. Verificar testa a credencial guardada; não pode substituí-la nem alterar a configuração do fornecedor."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Fornecedor: escolha um dos fornecedores listados."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Nome: introduza entre 1 e 100 caracteres sem caracteres de controlo."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Poller: apenas o poller principal pode recolher contas Cloud nesta versão."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: o valor não tem o formato utilizado por este fornecedor."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Origem da credencial: escolha uma suportada por este fornecedor."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Ficheiro de credencial: introduza um caminho absoluto sem caracteres de controlo, com no máximo 512 caracteres."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: introduza segundos inteiros de %d a %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Intervalo de recolha"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Intervalo de descoberta"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Quota de pedidos: introduza uma percentagem inteira de 1 a 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Teto mensal: introduza um valor igual ou superior a zero, ou deixe em branco para nenhum."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "ID da conta AWS"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Regiões"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "ID do projeto"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ID do inquilino"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "ID da subscrição"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Contas Cloud"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Nome"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Fornecedor"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Credencial"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Estado"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Verificar"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Dispositivo"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Ações"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Ainda não existem contas Cloud."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Desativado"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Ativado"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Eliminar"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Conta Cloud: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Nova conta Cloud"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Origem da credencial"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Ficheiro de credencial"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Existe uma credencial guardada. Deixe em branco para a manter."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Cole o token ou a chave para guardar no cofre."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Quota de pedidos"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Teto mensal"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Guardar"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Eliminar %s? Esta ação remove a conta, a respetiva credencial guardada, os mapeamentos de séries, os recursos e as observações, e não pode ser anulada. Os dispositivos e gráficos Cacti são mantidos."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Guardada no cofre"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Nenhuma guardada"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Ficheiro no poller"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Identidade da instância"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Dispositivo %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Criar dispositivo Cacti"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Guardada no cofre do plugin"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Ficheiro de credencial no poller"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Identidade da instância do poller"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Estimativa de pedidos Cloud"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Conta"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Seleção"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Recursos"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Pedidos por hora, um recurso"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Pedidos por mês, um recurso"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Pedidos por hora"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Pedidos por mês"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Custo por mês"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Não existem contas para estimar."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "As estimativas utilizam preços de tabela e excluem descontos e níveis gratuitos partilhados."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "Preços de %s em"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "verificado em %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Recolhido agora"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Todos os gráficos em todos os recursos"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Quota de pedidos: %s pedidos por hora, %s por cento do limite do token. Recolhido agora: %s. Todos os gráficos: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "A recolha está limitada; as séries restantes apresentam o valor U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Estimativa de métricas entre execuções de descoberta; os pedidos de descoberta reduzem a margem de recolha."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Sem custo documentado"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Balanceador de carga"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Avisos Cloud"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Sem avisos."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Recolha Cloud"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Recolha"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Última execução"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Séries lidas"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Pedidos"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Descoberta"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Dados"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Nunca"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "tentar novamente em %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "há %d segundos"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "há %d minutos"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "há %d horas"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "há %d dias"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Não é possível utilizar o ficheiro da chave do cofre: %s. As contas que guardam credenciais no cofre não podem ser verificadas nem recolhidas aqui."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: não é possível utilizar o ficheiro de credencial: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: o intervalo de recolha de %d segundos é mais curto do que o intervalo do poller de %d segundos, pelo que a recolha ocorre a cada %d segundos."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: o intervalo de recolha de %d segundos não é um múltiplo do intervalo do poller de %d segundos, pelo que a recolha ocorre a cada %d segundos."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Reveja as observações registadas abaixo. Os reconhecimentos são pessoais para esta sessão, expiram quando as observações mudam e nunca suprimem alertas nem alteram o estado de saúde."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Operações Cloud"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Investigação"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Objeto"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Observado (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Desconhecido ou desatualizado"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Reconhecido; estado de saúde inalterado."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Reconhecer"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Não existem observações disponíveis para os dispositivos a que pode aceder."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Operador Cloud"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Vista Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Administrador Cloud"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Saúde Cloud"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Cofre de credenciais"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Ficheiro da chave do cofre"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Caminho absoluto para a chave de 32 bytes que cifra as credenciais guardadas. Crie-o manualmente, fora da raiz web, legível apenas pelo servidor web e pelo utilizador do poller, num diretório onde apenas root e esse utilizador possam escrever (o mesmo se aplica aos ficheiros de credenciais); o plugin nunca o cria nem escreve nele. Faça cópia de segurança juntamente com a base de dados: sem ele, as credenciais guardadas terão de ser introduzidas novamente."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Diretório de ficheiros de credenciais"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Caminho absoluto para o diretório que contém os ficheiros de credenciais. Uma conta só pode ler a sua credencial a partir de um ficheiro dentro deste diretório, nunca o ficheiro da chave do cofre. Vazio, a predefinição, recusa ficheiros de credenciais. O Administrador Cloud escolhe o ficheiro, pelo que deve manter apenas credenciais Cloud aqui."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Coletor"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Limite de tempo do coletor"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Segundos que uma execução do coletor pode gastar antes de deixar de iniciar novo trabalho. Mantenha-o abaixo do intervalo do poller; as contas inacabadas retomam na próxima execução."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Desinstalação"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Manter tabelas do plugin ao desinstalar"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Quando marcada, a desinstalação do plugin mantém as contas, as credenciais cifradas e a cache. Desmarque para que a desinstalação os elimine. Os recursos na nuvem nunca são alterados em nenhum dos casos."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Ainda não verificado."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "A credencial funciona e tem as permissões de que esta conta necessita."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "O fornecedor rejeitou a credencial. Pode estar incorreta, expirada ou revogada."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "A credencial funciona, mas falta-lhe uma permissão de que esta conta necessita."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Não foi possível contactar o fornecedor. Verifique o trajeto de rede e a política de saída a partir do poller."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "O fornecedor está a limitar os pedidos. Tente novamente mais tarde."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "O fornecedor enviou uma resposta que o plugin não conseguiu ler."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "A conta ou a respetiva credencial não está configurada corretamente."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "O plugin Cloud requer o PHP %s ou posterior. Este servidor executa o PHP %s, pelo que o plugin não foi instalado nem ativado."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "O plugin Cloud requer as extensões PHP %s, que este servidor não carrega, pelo que o plugin não foi instalado nem ativado."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "O plugin Cloud não está ativado."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "O plugin Cloud requer o PHP %s ou posterior."
+
+#: setup.php
+msgid "Management"
+msgstr "Gestão"

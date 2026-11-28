@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Result of ProviderDriver::discover() containing resources and request count.
+ */
 final readonly class Inventory {
 	/**
 	 * @param list<CloudResource> $resources

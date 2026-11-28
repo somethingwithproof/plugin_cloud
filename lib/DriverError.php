@@ -19,9 +19,16 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Structured provider driver error carrying classification and optional Retry-After.
+ */
 final class DriverError extends \RuntimeException {
 	/**
-	 * @param int $retryAfter seconds the provider asked the plugin to wait, 0 when it did not
+	 * Construct a DriverError with classification, optional reason, and retry delay.
+	 *
+	 * @param ErrorClass $errorClass normalized error category
+	 * @param string     $reason     optional redacted error detail
+	 * @param int        $retryAfter seconds the provider asked the plugin to wait, 0 when it did not
 	 */
 	public function __construct(
 		public readonly ErrorClass $errorClass,
@@ -31,6 +38,12 @@ final class DriverError extends \RuntimeException {
 		parent::__construct($errorClass->value . ($reason !== '' ? ': ' . $reason : ''));
 	}
 
+	/**
+	 * Convert a low-level TransportError into a classified DriverError.
+	 *
+	 * @param TransportError $error transport failure
+	 * @return self
+	 */
 	public static function fromTransport(TransportError $error): self {
 		return new self($error->errorClass(), $error->kind);
 	}

@@ -109,3 +109,73 @@ it('defines plugin tables with the plugin prefix, a primary key, and no secret c
 		}
 	}
 });
+
+it('detects missing PR hooks on a prior main 9-hook installation and supports schema upgrades', function () {
+	$mainHooks = [
+		'api_device_new',
+		'api_device_save',
+		'auth_alternate_realms',
+		'config_arrays',
+		'config_settings',
+		'device_remove',
+		'draw_navigation_text',
+		'graphs_new_top_links',
+		'poller_bottom',
+	];
+
+	foreach ($mainHooks as $hook) {
+		expect(Schema::HOOKS)->toHaveKey($hook);
+	}
+
+	expect(Schema::HOOKS)
+		->toHaveKey('doctor_register_debug_info', 'cloud_doctor_register_debug_info')
+		->toHaveKey('api_register_resources', 'cloud_api_register_resources')
+		->and(count(Schema::HOOKS))->toBe(16);
+
+	$schema = new Schema(false);
+
+	// Prior main installation with only 9 hooks registered must trigger re-registration.
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM plugin_hooks'  => [['cnt' => 9]],
+		'FROM plugin_realms' => [['cnt' => count(Pages::realms())]],
+	];
+	expect($schema->hooksRegistered())->toBeFalse();
+
+	// Once all 16 hooks and all realms are registered, hooksRegistered() returns true.
+	$GLOBALS['__cloud_db_rows']['FROM plugin_hooks'] = [['cnt' => count(Schema::HOOKS)]];
+	expect($schema->hooksRegistered())->toBeTrue();
+
+	// Stored schema version newer than code is rejected without running migrations.
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM settings WHERE name = ?' => [['value' => '99']],
+	];
+	expect($schema->isCurrent())->toBeFalse()
+		->and($schema->migrate())->toBeFalse();
+
+	// Current schema version is a clean idempotent no-op.
+	$GLOBALS['__cloud_db_rows'] = [
+		'FROM settings WHERE name = ?'  => [['value' => (string) Schema::VERSION]],
+		'FROM plugin_config WHERE'      => [['version' => '0.1.0-dev']],
+	];
+	expect($schema->isCurrent())->toBeTrue()
+		->and($schema->migrate())->toBeTrue()
+		->and($schema->recordedPluginVersion())->toBe('0.1.0-dev');
+
+	// Tracking, untracking, and forgetting version emit prepared statements.
+	$GLOBALS['__cloud_db_exec'] = [];
+	$GLOBALS['__cloud_db_rows'] = [
+		'information_schema.TABLES' => [['cnt' => 1]],
+	];
+	$schema->trackTables();
+	$schema->untrackTables();
+	$schema->forgetVersion();
+	$schema->recordPluginVersion('0.1.0-dev', 'Thomas Vincent', 'https://example.invalid');
+
+	$sqls = array_column($GLOBALS['__cloud_db_exec'], 'sql');
+	expect($sqls)->toContain("DELETE FROM plugin_db_changes WHERE plugin = ? AND method IN ('create', 'addcolumn')")
+		->and($sqls)->toContain('DELETE FROM settings WHERE name = ?')
+		->and($sqls)->toContain('UPDATE plugin_config SET version = ?, author = ?, webpage = ? WHERE directory = ?');
+
+	$GLOBALS['__cloud_db_rows'] = [];
+	$GLOBALS['__cloud_db_exec'] = [];
+});

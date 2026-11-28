@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Outcome state of a discovery or metric collection run.
+ */
 enum CollectionState: string {
 	case Never     = 'never';
 	case Ok        = 'ok';

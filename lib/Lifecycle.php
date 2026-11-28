@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Discovery lifecycle state for a cloud resource row.
+ */
 enum Lifecycle: string {
 	case Active  = 'active';
 	case Missing = 'missing';

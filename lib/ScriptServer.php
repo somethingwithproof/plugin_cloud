@@ -29,10 +29,26 @@ namespace Somethingwithproof\Cloud;
  * account's data.
  */
 final class ScriptServer {
+	/**
+	 * RRDtool unknown sentinel returned when a value cannot be served.
+	 */
 	public const UNKNOWN = 'U';
 
+	/**
+	 * Supported Cacti script server data query commands.
+	 */
 	private const COMMANDS = ['index', 'num_indexes', 'query', 'get'];
 
+	/**
+	 * Construct the script server handler backed by cached Cloud repositories.
+	 *
+	 * @param DeviceRepository      $devices      scope device lookup store
+	 * @param AccountRepository     $accounts     account lookup store
+	 * @param ResourceRepository    $resources    discovered resource store
+	 * @param ObservationRepository $observations cached observation store
+	 * @param FreshnessEvaluator    $freshness    datapoint freshness evaluator
+	 * @param Clock                 $clock        wall clock for age computation
+	 */
 	public function __construct(
 		private readonly DeviceRepository $devices,
 		private readonly AccountRepository $accounts,
@@ -82,29 +98,55 @@ final class ScriptServer {
 	}
 
 	/**
+	 * Memoized data query fields by resource type.
+	 *
+	 * @var array<string, list<string>>
+	 */
+	private static array $fieldCache = [];
+
+	/**
 	 * The data query fields of a resource type: its index and name, then
 	 * every data source its graphs use. Empty for an unknown type.
 	 *
 	 * @return list<string>
 	 */
 	public static function fields(string $type): array {
+		if (isset(self::$fieldCache[$type])) {
+			return self::$fieldCache[$type];
+		}
+
 		$fields = [];
 
 		foreach (DigitalOceanCatalog::GRAPHS as $graph) {
 			if ($graph[0] === $type) {
-				$fields = array_merge($fields, $graph[4]);
+				array_push($fields, ...$graph[4]);
 			}
 		}
 
-		return $fields === [] ? [] : array_merge(['resourceId', 'resourceName'], $fields);
+		return self::$fieldCache[$type] = $fields === [] ? [] : array_merge(['resourceId', 'resourceName'], $fields);
 	}
 
+	/**
+	 * Resolve the Cloud account linked to a Cacti scope device host ID.
+	 *
+	 * @param int $hostId Cacti host ID
+	 * @return Account|null owning account, or null if unlinked
+	 */
 	private function account(int $hostId): ?Account {
 		$id = $this->devices->accountFor($hostId);
 
 		return $id === null ? null : $this->accounts->find($id);
 	}
 
+	/**
+	 * Retrieve a single field value for one served resource index.
+	 *
+	 * @param Account $account owning account
+	 * @param string  $type    resource type
+	 * @param string  $field   requested output field
+	 * @param string  $index   provider resource identifier
+	 * @return string formatted value or UNKNOWN
+	 */
 	private function get(Account $account, string $type, string $field, string $index): string {
 		foreach ($this->resources->served($account->id, $type) as $resource) {
 			if ($resource['providerId'] === $index) {

@@ -36,6 +36,11 @@ final class Drivers {
 	public function __construct(private readonly \Closure $transport) {
 	}
 
+	/**
+	 * Build the production driver registry with all released cloud providers.
+	 *
+	 * @return self
+	 */
 	public static function production(): self {
 		// CLOUD_OFFLINE=1 refuses every provider request, so CI can drive the
 		// real pages and collector without reaching a provider. It can only
@@ -50,6 +55,18 @@ final class Drivers {
 			Provider::DigitalOcean,
 			static fn (HttpTransport $http): ProviderDriver => new DigitalOceanDriver($http, new SystemClock())
 		);
+		$drivers->register(
+			Provider::Aws,
+			static fn (HttpTransport $http): ProviderDriver => new AwsDriver($http, new SystemClock())
+		);
+		$drivers->register(
+			Provider::GoogleCloud,
+			static fn (HttpTransport $http): ProviderDriver => new GcpDriver($http, new SystemClock())
+		);
+		$drivers->register(
+			Provider::Azure,
+			static fn (HttpTransport $http): ProviderDriver => new AzureDriver($http, new SystemClock())
+		);
 
 		return $drivers;
 	}
@@ -61,6 +78,12 @@ final class Drivers {
 		$this->factories[$provider->value] = $factory;
 	}
 
+	/**
+	 * Construct a guarded provider driver configured for the given account.
+	 *
+	 * @param Account $account target cloud account
+	 * @return ProviderDriver|null configured driver, or null when unregistered
+	 */
 	public function for(Account $account): ?ProviderDriver {
 		$factory = $this->factories[$account->provider->value] ?? null;
 

@@ -24,9 +24,21 @@ namespace Somethingwithproof\Cloud;
  * the fixed hashes tests/bin/generate-templates.php gives them (ADR 0010).
  */
 final class TemplateRepository {
+	/**
+	 * Cacti settings key storing the SHA-256 checksum of the imported template bundle.
+	 */
 	private const SETTING = 'cloud_templates_sha256';
+
+	/**
+	 * MariaDB named lock serializing concurrent template imports.
+	 */
 	private const LOCK    = 'plugin_cloud_templates';
 
+	/**
+	 * Construct a template repository on the given database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
@@ -40,10 +52,20 @@ final class TemplateRepository {
 		return (string) $locked === '1';
 	}
 
+	/**
+	 * Release the template import named lock.
+	 *
+	 * @return void
+	 */
 	public function unlock(): void {
 		db_execute_prepared('DO RELEASE_LOCK(?)', [self::LOCK], true, $this->connection);
 	}
 
+	/**
+	 * Read the SHA-256 checksum of the last successfully imported template package.
+	 *
+	 * @return string hex SHA-256 digest, or empty string when never imported
+	 */
 	public function recordedChecksum(): string {
 		return (string) db_fetch_cell_prepared(
 			'SELECT value FROM settings WHERE name = ?',
@@ -54,6 +76,12 @@ final class TemplateRepository {
 		);
 	}
 
+	/**
+	 * Persist the SHA-256 checksum of the imported template package.
+	 *
+	 * @param string $sha256 hex SHA-256 digest
+	 * @return void
+	 */
 	public function recordChecksum(string $sha256): void {
 		db_execute_prepared(
 			'REPLACE INTO settings (name, value) VALUES (?, ?)',
@@ -63,6 +91,11 @@ final class TemplateRepository {
 		);
 	}
 
+	/**
+	 * Look up Cacti's default data source profile ID for template imports.
+	 *
+	 * @return int default profile ID, or 0 when none is configured
+	 */
 	public function defaultProfile(): int {
 		$id = db_fetch_cell_prepared(
 			"SELECT id FROM data_source_profiles WHERE `default` = 'on'",

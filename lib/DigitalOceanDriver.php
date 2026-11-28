@@ -31,8 +31,14 @@ namespace Somethingwithproof\Cloud;
  * is ever requested.
  */
 final class DigitalOceanDriver implements ProviderDriver {
+	/**
+	 * DigitalOcean v2 API hostname.
+	 */
 	public const HOST = 'api.digitalocean.com';
 
+	/**
+	 * Maximum items requested per DigitalOcean paginated list call.
+	 */
 	private const PER_PAGE = 100;
 
 	/** Discovery fails rather than return a cut-off list, which would retire the rest. */
@@ -41,15 +47,25 @@ final class DigitalOceanDriver implements ProviderDriver {
 	/** Seconds of history asked for per metric: enough for two CPU samples. */
 	private const WINDOW = 900;
 
+	/**
+	 * Nominal 30-day month in seconds for usage estimates.
+	 */
 	private const MONTH = 2592000;
 
 	/** Where the rate limit is documented and no API charge is (provider facts DO10). */
 	private const PRICE_SOURCE  = 'https://docs.digitalocean.com/reference/api/reference/openapi.json';
+
+	/**
+	 * Date the DigitalOcean API pricing reference was last checked.
+	 */
 	private const PRICE_CHECKED = '2026-11-14';
 
 	/** The longest wait a provider may impose through Retry-After or ratelimit-reset. */
 	private const MAX_WAIT = 3600;
 
+	/**
+	 * Validation patterns for DigitalOcean resource identifiers by type.
+	 */
 	private const ID_PATTERNS = [
 		DigitalOceanCatalog::DROPLET       => '/^[1-9][0-9]{0,19}$/',
 		DigitalOceanCatalog::LOAD_BALANCER => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
@@ -65,17 +81,39 @@ final class DigitalOceanDriver implements ProviderDriver {
 	 */
 	private ?int $exhausted = null;
 
+	/**
+	 * Construct a DigitalOcean driver bound to a guarded HTTP transport and clock.
+	 *
+	 * @param HttpTransport $http  guarded outbound transport
+	 * @param Clock         $clock wall clock for metric windows and rate-limit resets
+	 */
 	public function __construct(private readonly HttpTransport $http, private readonly Clock $clock) {
 	}
 
+	/**
+	 * Return Provider::DigitalOcean.
+	 *
+	 * @return Provider
+	 */
 	public function provider(): Provider {
 		return Provider::DigitalOcean;
 	}
 
+	/**
+	 * Build the outbound HTTPS allowlist for api.digitalocean.com.
+	 *
+	 * @param Account $account target DigitalOcean account
+	 * @return OutboundPolicy
+	 */
 	public function endpoints(Account $account): OutboundPolicy {
 		return new OutboundPolicy([self::HOST]);
 	}
 
+	/**
+	 * Return the fixed read-only DigitalOcean operations allowed through GuardedTransport.
+	 *
+	 * @return list<Operation>
+	 */
 	public function operations(): array {
 		$page    = '/^per_page=[0-9]{1,3}&page=[0-9]{1,4}$/';
 		$window  = 'start=[0-9]{1,12}&end=[0-9]{1,12}';
@@ -133,6 +171,14 @@ final class DigitalOceanDriver implements ProviderDriver {
 		}
 	}
 
+	/**
+	 * Discover DigitalOcean Droplets and load balancers using page-counted pagination.
+	 *
+	 * @param Account $account    target DigitalOcean account
+	 * @param Secret  $credential bearer token
+	 * @return Inventory
+	 * @throws DriverError
+	 */
 	public function discover(Account $account, Secret $credential): Inventory {
 		$this->share = $account->requestShare;
 		$resources   = [];
@@ -177,6 +223,14 @@ final class DigitalOceanDriver implements ProviderDriver {
 		return new Inventory($resources, $requests);
 	}
 
+	/**
+	 * Collect requested DigitalOcean monitoring metrics while respecting token share.
+	 *
+	 * @param Account             $account    target DigitalOcean account
+	 * @param Secret              $credential bearer token
+	 * @param list<MetricRequest> $requests   metric series to collect
+	 * @return CollectResult
+	 */
 	public function collect(Account $account, Secret $credential, array $requests): CollectResult {
 		$this->share  = $account->requestShare;
 		$observations = [];
@@ -411,12 +465,14 @@ final class DigitalOceanDriver implements ProviderDriver {
 	 * @return array{int, ?float}|null
 	 */
 	private static function cpu(array $series): ?array {
-		$times = array_keys($series[0]['points']);
+		$common = $series[0]['points'];
+		$count  = count($series);
 
-		foreach ($series as $one) {
-			$times = array_values(array_intersect($times, array_keys($one['points'])));
+		for ($i = 1; $i < $count; $i++) {
+			$common = array_intersect_key($common, $series[$i]['points']);
 		}
 
+		$times = array_keys($common);
 		sort($times);
 
 		if (count($times) < 2) {

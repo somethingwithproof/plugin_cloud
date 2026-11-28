@@ -44,6 +44,12 @@ final class ScopeReindex {
 	public function __construct(private readonly DeviceRepository $devices, private readonly \Closure $change) {
 	}
 
+	/**
+	 * Snapshot a scope device's data query reindex methods prior to api_device_save().
+	 *
+	 * @param int $hostId Cacti host ID
+	 * @return void
+	 */
 	public function remember(int $hostId): void {
 		$methods = $this->devices->reindexMethods($hostId);
 
@@ -52,6 +58,12 @@ final class ScopeReindex {
 		}
 	}
 
+	/**
+	 * Restore any data query reindex methods reset during api_device_save().
+	 *
+	 * @param int $hostId Cacti host ID
+	 * @return void
+	 */
 	public function restore(int $hostId): void {
 		if (!array_key_exists($hostId, $this->saved)) {
 			return;

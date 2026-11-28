@@ -28,9 +28,23 @@ namespace Somethingwithproof\Cloud;
  * run's values. An older datapoint never replaces a newer one.
  */
 final class ObservationRepository {
+	/**
+	 * Construct an observation repository on the given database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
+	/**
+	 * Persist a datapoint while the collector still holds an unexpired lease.
+	 *
+	 * @param int         $accountId   cloud account ID
+	 * @param string      $holder      active lease holder identifier
+	 * @param int         $now         current Unix timestamp
+	 * @param Observation $observation datapoint to store
+	 * @return void
+	 */
 	public function write(int $accountId, string $holder, int $now, Observation $observation): void {
 		db_execute_prepared('INSERT INTO plugin_cloud_observation
 				(resource_id, metric, value, observed_at, fetched_at, status)
@@ -63,6 +77,13 @@ final class ObservationRepository {
 		}
 	}
 
+	/**
+	 * Look up the cached observation for one resource and metric.
+	 *
+	 * @param int    $resourceId internal resource ID
+	 * @param string $metric     metric name
+	 * @return Observation|null cached observation, or null when absent
+	 */
 	public function find(int $resourceId, string $metric): ?Observation {
 		$row = db_fetch_row_prepared(
 			'SELECT * FROM plugin_cloud_observation WHERE resource_id = ? AND metric = ?',

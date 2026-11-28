@@ -19,6 +19,9 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Administrative enablement state for a cloud account.
+ */
 enum AdminState: string {
 	case Enabled  = 'enabled';
 	case Disabled = 'disabled';

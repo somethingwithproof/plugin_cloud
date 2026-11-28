@@ -40,6 +40,11 @@ final class HealthWarnings {
 	) {
 	}
 
+	/**
+	 * Construct the production warning evaluator using VaultKey and CredentialFile checks.
+	 *
+	 * @return self
+	 */
 	public static function production(): self {
 		return new self(
 			static function (string $path): void {

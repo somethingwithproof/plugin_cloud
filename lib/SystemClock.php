@@ -19,7 +19,15 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Production wall-clock implementation backed by PHP time().
+ */
 final class SystemClock implements Clock {
+	/**
+	 * Return the current system Unix timestamp in seconds.
+	 *
+	 * @return int Unix epoch seconds
+	 */
 	public function now(): int {
 		return time();
 	}

@@ -66,7 +66,7 @@ jobs:
       run: |
         set -euo pipefail
         php -v
-        for f in *.php include/*.php locales/*.php tests/bin/*.php; do
+        for f in *.php cli/*.php include/*.php locales/*.php tests/bin/*.php; do
           php -l "$f"
         done
 
@@ -402,6 +402,62 @@ jobs:
           exit 1
         fi
 
+  unit-coverage:
+    name: Unit coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout plugin
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        path: plugin
+
+    - name: Install PHP 8.4 with pcov
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.4'
+        tools: composer:2.10.3
+        extensions: intl, xml, json, mbstring, openssl
+        ini-values: "pcov.enabled=1, pcov.directory=., date.timezone=America/New_York"
+        coverage: pcov
+
+    - name: Checkout shared CI tooling
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        repository: Cacti/cacti
+        ref: f3ff777992875740e4665fedfe2eff8335f5b894
+        persist-credentials: false
+        path: ci-tools
+        sparse-checkout: |
+          tests/tools/plugin-harness
+
+    - name: Install the locked Pest harness
+      run: |
+        set -euo pipefail
+        harness="$RUNNER_TEMP/cacti-plugin-harness"
+        mkdir -p "$harness"
+        cp ci-tools/tests/tools/plugin-harness/composer.json ci-tools/tests/tools/plugin-harness/composer.lock "$harness/"
+        composer --working-dir="$harness" validate --strict
+        composer --working-dir="$harness" install --no-interaction --no-progress --prefer-dist
+        echo "CACTI_PEST_BIN=$harness/vendor/bin/pest" >> "$GITHUB_ENV"
+
+    - name: Run unit tests with coverage and enforce threshold
+      working-directory: plugin
+      run: |
+        set -euo pipefail
+        mkdir -p coverage
+        "$CACTI_PEST_BIN" --configuration=phpunit.xml --coverage-clover=coverage/clover.xml --coverage-text
+        php tests/bin/coverage-gate.php coverage/clover.xml 85
+
+    - name: Upload Clover coverage report
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: clover-coverage
+        path: plugin/coverage/clover.xml
+        if-no-files-found: error
+        retention-days: 14
+
   workflow-lint:
     name: Workflow lint
     runs-on: ubuntu-latest
@@ -437,6 +493,7 @@ jobs:
       - entry-point-lint
       - integration-test
       - php-guard
+      - unit-coverage
       - workflow-lint
       - reuse
     runs-on: ubuntu-latest

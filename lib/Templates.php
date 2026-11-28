@@ -30,6 +30,9 @@ namespace Somethingwithproof\Cloud;
  * on every page would cost more than it could fix.
  */
 final class Templates {
+	/**
+	 * Filename of the shipped Cacti XML template bundle.
+	 */
 	public const PACKAGE = 'cloud_digitalocean.xml';
 
 	/**
@@ -56,6 +59,12 @@ final class Templates {
 		return $xml !== false && $this->repository->recordedChecksum() === hash('sha256', $xml);
 	}
 
+	/**
+	 * Acquire the import lock and install or refresh shipped data queries and templates.
+	 *
+	 * @param int $lockTimeout lock acquisition timeout in seconds
+	 * @return bool true when templates and resources are current after installation
+	 */
 	public function install(int $lockTimeout = 10): bool {
 		if (!is_dir($this->resourcePath)) {
 			Log::error('Templates not installed: the Cacti resource directory is missing');
@@ -80,6 +89,11 @@ final class Templates {
 		}
 	}
 
+	/**
+	 * Perform resource XML copy and template import while holding the import lock.
+	 *
+	 * @return bool true when all resources and template objects are present
+	 */
 	private function installLocked(): bool {
 		foreach (glob($this->source . '/resource/*.xml') ?: [] as $file) {
 			if (!$this->copy($file, $this->resourcePath . '/' . basename($file))) {

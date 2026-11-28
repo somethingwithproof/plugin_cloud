@@ -30,17 +30,65 @@ namespace Somethingwithproof\Cloud;
  */
 final readonly class OutboundPolicy {
 	/**
-	 * @param list<string> $hosts exact lower-case host names
-	 * @param list<int>    $ports
+	 * Fixed link-local metadata endpoints permitted only for Instance credential accounts.
+	 */
+	private const METADATA_HOSTS = ['169.254.169.254', 'metadata.google.internal'];
+
+	/**
+	 * Build a link-local cloud instance metadata URL. Cloud metadata endpoints
+	 * (AWS IMDSv2, Azure IMDS, GCE metadata) are reachable only over plain HTTP
+	 * on port 80 and are strictly gated to CredentialSource::Instance accounts.
+	 *
+	 * @throws TransportError
+	 */
+	public static function metadataUrl(string $host, string $pathAndQuery): string {
+		if (!in_array($host, self::METADATA_HOSTS, true) || !str_starts_with($pathAndQuery, '/')) {
+			throw new TransportError('host_refused', $host);
+		}
+
+		$scheme = 'http';
+
+		return $scheme . '://' . $host . $pathAndQuery;
+	}
+
+	/**
+	 * O(1) lookup set for allowed HTTPS hosts.
+	 *
+	 * @var array<string, int>
+	 */
+	private array $hostSet;
+
+	/**
+	 * O(1) lookup set for allowed HTTPS ports.
+	 *
+	 * @var array<int, int>
+	 */
+	private array $portSet;
+
+	/**
+	 * O(1) lookup set for allowed plain-HTTP metadata hosts.
+	 *
+	 * @var array<string, int>
+	 */
+	private array $plainHostSet;
+
+	/**
+	 * @param list<string> $hosts          exact lower-case HTTPS host names
+	 * @param list<int>    $ports          allowed HTTPS ports
+	 * @param list<string> $plainHttpHosts exact lower-case link-local metadata hosts allowed over HTTP port 80
 	 */
 	public function __construct(
 		public array $hosts,
 		public array $ports = [443],
+		public array $plainHttpHosts = [],
 	) {
+		$this->hostSet      = array_flip($hosts);
+		$this->portSet      = array_flip($ports);
+		$this->plainHostSet = array_flip($plainHttpHosts);
 	}
 
 	/**
-	 * @return array{host: string, port: int, target: string}
+	 * @return array{host: string, port: int, target: string, tls: bool}
 	 * @throws TransportError
 	 */
 	public function check(string $url): array {
@@ -50,22 +98,37 @@ final readonly class OutboundPolicy {
 			throw new TransportError('url_rejected', 'characters');
 		}
 
-		if (preg_match('#^https://([a-z0-9.-]+)(?::([0-9]{1,5}))?(/[^?\#]*)?(\?[^\#]*)?$#', $url, $m) !== 1) {
+		if (preg_match('#^(https?)://([a-z0-9.-]+)(?::([0-9]{1,5}))?(/[^?\#]*)?(\?[^\#]*)?$#', $url, $m) !== 1) {
 			throw new TransportError('url_rejected', 'form');
 		}
 
-		$host = $m[1];
-		$port = isset($m[2]) && $m[2] !== '' ? (int) $m[2] : 443;
+		$scheme = $m[1];
+		$host   = $m[2];
+		$tls    = $scheme === 'https';
 
-		if (!in_array($host, $this->hosts, true)) {
-			throw new TransportError('host_refused', $host);
+		if ($tls) {
+			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 443;
+
+			if (!isset($this->hostSet[$host])) {
+				throw new TransportError('host_refused', $host);
+			}
+
+			if (!isset($this->portSet[$port])) {
+				throw new TransportError('url_rejected', 'port');
+			}
+		} else {
+			$port = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : 80;
+
+			if (!isset($this->plainHostSet[$host])) {
+				throw new TransportError('url_rejected', 'form');
+			}
+
+			if ($port !== 80) {
+				throw new TransportError('url_rejected', 'port');
+			}
 		}
 
-		if (!in_array($port, $this->ports, true)) {
-			throw new TransportError('url_rejected', 'port');
-		}
-
-		$path = isset($m[3]) && $m[3] !== '' ? $m[3] : '/';
+		$path = isset($m[4]) && $m[4] !== '' ? $m[4] : '/';
 
 		// An encoded dot, slash, or backslash lets a server see a different
 		// path from the one checked here and in the operation list.
@@ -77,6 +140,6 @@ final readonly class OutboundPolicy {
 			throw new TransportError('url_rejected', 'dot segment');
 		}
 
-		return ['host' => $host, 'port' => $port, 'target' => $path . ($m[4] ?? '')];
+		return ['host' => $host, 'port' => $port, 'target' => $path . ($m[5] ?? ''), 'tls' => $tls];
 	}
 }

@@ -19,10 +19,24 @@
 
 namespace Somethingwithproof\Cloud;
 
+/**
+ * Persistence layer for per-account collector and discovery health rows.
+ */
 final class HealthRepository {
+	/**
+	 * Construct a health repository on the given database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
+	/**
+	 * Load the latest health record for one account, or an empty default snapshot.
+	 *
+	 * @param int $accountId cloud account ID
+	 * @return AccountHealth stored or default health record
+	 */
 	public function find(int $accountId): AccountHealth {
 		$row = db_fetch_row_prepared(
 			'SELECT * FROM plugin_cloud_health WHERE account_id = ?',

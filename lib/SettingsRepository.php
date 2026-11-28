@@ -29,9 +29,19 @@ namespace Somethingwithproof\Cloud;
  * the same defaults everywhere.
  */
 final class SettingsRepository {
+	/**
+	 * Construct a settings repository on the given database connection.
+	 *
+	 * @param \PDO|false $connection Cacti PDO handle or false for the default connection
+	 */
 	public function __construct(private readonly \PDO|false $connection) {
 	}
 
+	/**
+	 * Load all Cloud plugin settings rows and apply documented defaults.
+	 *
+	 * @return Settings resolved plugin settings
+	 */
 	public function load(): Settings {
 		$placeholders = implode(', ', array_fill(0, count(Settings::NAMES), '?'));
 		$row          = [];
