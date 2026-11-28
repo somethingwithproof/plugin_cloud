@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-27 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: ka-GE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "სახელი: სხვა ანგარიში უკვე იყენებს ამ სახელს."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "ანგარიში შეინახა, მაგრამ ავტორიზაციის მონაცემი ვერ ჩაიწერა: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "ანგარიში შეინახა, მაგრამ შენახული ავტორიზაციის მონაცემის წაშლა ვერ მოხერხდა."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "ანგარიში შენახულია."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "ანგარიშის შენახვა ვერ მოხერხდა."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "ანგარიში და მისი შეგროვებული მონაცემები წაიშალა. მისი Cacti მოწყობილობები და გრაფიკები ხელუხლებელი დარჩა."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Cacti მოწყობილობა %s-სთვის მზადაა."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Cacti მოწყობილობა ვერ შეიქმნა; იხილეთ Cacti-ის ჟურნალი."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "შენახული ავტორიზაციის მონაცემის შემოწმება"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "მონიტორინგის ხედი"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "დაკვირვებების წაკითხვა ვერ მოხერხდა. სთხოვეთ ადმინისტრატორს პლაგინის ჟურნალის შემოწმება."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "შეამოწმეთ ანგარიშის გრაფიკები და შეგროვების აქტუალურობა. შემოწმება ტესტავს შენახულ ავტორიზაციის მონაცემს; მას არ შეუძლია მისი შეცვლა ან პროვაიდერის კონფიგურაციის რედაქტირება."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "პროვაიდერი: აირჩიეთ ჩამოთვლილი პროვაიდერებიდან ერთ-ერთი."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "სახელი: შეიყვანეთ 1-დან 100-მდე სიმბოლო მართვის სიმბოლოების გარეშე."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "პოლერი: ამ ვერსიაში ღრუბლოვანი ანგარიშების შეგროვება მხოლოდ მთავარ პოლერს შეუძლია."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: მნიშვნელობას არ აქვს ამ პროვაიდერისთვის მისაღები ფორმატი."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "ავტორიზაციის მონაცემის წყარო: აირჩიეთ ამ პროვაიდერის მიერ მხარდაჭერილი წყარო."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "ავტორიზაციის მონაცემის ფაილი: შეიყვანეთ აბსოლუტური გზა მართვის სიმბოლოების გარეშე, მაქსიმუმ 512 სიმბოლო."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: შეიყვანეთ მთელი წამების რაოდენობა %d-დან %d-მდე."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "შეგროვების ინტერვალი"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "აღმოჩენის ინტერვალი"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "მოთხოვნების წილი: შეიყვანეთ მთელი პროცენტული მნიშვნელობა 1-დან 100-მდე."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "ყოველთვიური ლიმიტი: შეიყვანეთ ნული ან მეტი ოდენობა, ან დატოვეთ ცარიელი შეზღუდვის გარეშე."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS ანგარიშის ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "რეგიონები"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "პროექტის ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "ტენანტის ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "გამოწერის ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Cloud ანგარიშები"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "სახელი"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "პროვაიდერი"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "ავტორიზაციის მონაცემი"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "მდგომარეობა"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "შემოწმება"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "მოწყობილობა"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "მოქმედებები"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "ღრუბლოვანი ანგარიშები ჯერ არ არის."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "გათიშულია"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "ჩართულია"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "წაშლა"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Cloud ანგარიში: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "ახალი Cloud ანგარიში"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "ავტორიზაციის მონაცემის წყარო"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "ავტორიზაციის მონაცემის ფაილი"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "ავტორიზაციის მონაცემი შენახულია. დატოვეთ ცარიელი მის შესანარჩუნებლად."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "ჩასვით ტოკენი ან გასაღები საცავში შესანახად."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "მოთხოვნების წილი"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "ყოველთვიური ლიმიტი"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "შენახვა"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "წავშალოთ %s? ეს წაშლის ანგარიშს, მის შენახულ ავტორიზაციის მონაცემს, სერიების მიბმებს, რესურსებსა და დაკვირვებებს; მოქმედების გაუქმება შეუძლებელია. მისი Cacti მოწყობილობები და გრაფიკები ხელუხლებელი დარჩება."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "გაუქმება"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "შენახულია საცავში"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "შენახული არ არის"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "ფაილი პოლერზე"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "ინსტანსის იდენტობა"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "მოწყობილობა %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Cacti მოწყობილობის შექმნა"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "შენახულია პლაგინის საცავში"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "ავტორიზაციის მონაცემის ფაილი პოლერზე"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "პოლერის ინსტანსის იდენტობა"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Cloud მოთხოვნების შეფასება"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "ანგარიში"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "არჩევანი"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "რესურსები"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "მოთხოვნები საათში, ერთი რესურსი"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "მოთხოვნები თვეში, ერთი რესურსი"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "მოთხოვნები საათში"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "მოთხოვნები თვეში"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "ღირებულება თვეში"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "შესაფასებელი ანგარიშები არ არის."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "შეფასებები ეყრდნობა საბაზისო ფასებს და არ ითვალისწინებს ფასდაკლებებსა და საერთო უფასო ლიმიტებს."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s ფასები წყაროდან:"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "შემოწმებულია %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "ამჟამად გროვდება"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "ყველა გრაფიკი ყველა რესურსზე"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "მოთხოვნების წილი: %s მოთხოვნა საათში, ტოკენის ლიმიტის %s პროცენტი. ამჟამად გროვდება: %s. ყველა გრაფიკი: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "შეგროვება შეზღუდულია; დარჩენილი სერიები იკითხება როგორც U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "მეტრიკების შეფასება აღმოჩენის გაშვებებს შორის; აღმოჩენის მოთხოვნები ამცირებს შეგროვების ლიმიტს."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "საფასური დოკუმენტირებული არ არის"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "დატვირთვის გამანაწილებელი"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Cloud გაფრთხილებები"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "გაფრთხილებები არ არის."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Cloud შეგროვება"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "შეგროვება"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "ბოლო გაშვება"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "წაკითხული სერიები"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "მოთხოვნები"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "აღმოჩენა"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "მონაცემები"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "არასდროს"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "ხელახალი ცდა %d წმ-ში"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "%d წამის წინ"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "%d წუთის წინ"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "%d საათის წინ"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "%d დღის წინ"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "საცავის გასაღების ფაილის გამოყენება შეუძლებელია: %s. ანგარიშები, რომლებიც ავტორიზაციის მონაცემებს საცავში ინახავენ, აქ ვერ შემოწმდება და ვერ შეგროვდება."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: ავტორიზაციის მონაცემის ფაილის გამოყენება შეუძლებელია: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: შეგროვების %d-წამიანი ინტერვალი უფრო მოკლეა, ვიდრე პოლერის %d-წამიანი ინტერვალი, ამიტომ მონაცემები გროვდება ყოველ %d წამში."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: შეგროვების %d-წამიანი ინტერვალი არ არის პოლერის %d-წამიანი ინტერვალის ჯერადი, ამიტომ მონაცემები გროვდება ყოველ %d წამში."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "გადახედეთ ქვემოთ ჩაწერილ დაკვირვებებს. აღიარებები პერსონალურია ამ სესიისთვის, ძალას კარგავს დაკვირვებების შეცვლისას და არასდროს ახშობს განგაშებს ან ცვლის გამართულობას."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Cloud ოპერაციები"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "გამოკვლევა"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "ობიექტი"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "დაფიქსირებულია (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "უცნობი ან მოძველებული"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "აღიარებულია; გამართულობა უცვლელია."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "აღიარება"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "თქვენთვის ხელმისაწვდომი მოწყობილობებისთვის დაკვირვებები არ არის."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Cloud ოპერატორი"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Cloud ნახვა"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Cloud ადმინისტრატორი"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Cloud გამართულობა"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "ავტორიზაციის მონაცემების საცავი"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "საცავის გასაღების ფაილი"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "აბსოლუტური გზა 32-ბაიტიანი გასაღებისკენ, რომელიც შიფრავს შენახულ ავტორიზაციის მონაცემებს. შექმენით იგი თავად, ვებ-ძირის გარეთ, მხოლოდ ვებ-სერვერისა და პოლერის მომხმარებლისთვის წასაკითხი უფლებებით, ისეთ დირექტორიაში, სადაც ჩაწერა მხოლოდ root-ს და ამ მომხმარებელს შეუძლია (იგივე ეხება ავტორიზაციის ფაილებსაც); პლაგინი მას არასდროს ქმნის და არ წერს. შეინახეთ სარეზერვო ასლი მონაცემთა ბაზასთან ერთად: მის გარეშე შენახული მონაცემების ხელახლა შეყვანა მოგიწევთ."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "ავტორიზაციის ფაილების დირექტორია"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "აბსოლუტური გზა დირექტორიისკენ, სადაც ავტორიზაციის ფაილები ინახება. ანგარიშს მონაცემის წაკითხვა შეუძლია მხოლოდ ამ დირექტორიაში არსებული ფაილიდან და არასდროს საცავის გასაღების ფაილიდან. ცარიელი მნიშვნელობა (ნაგულისხმევი) უარყოფს ავტორიზაციის ფაილებს. ფაილს ირჩევს Cloud ადმინისტრატორი, ამიტომ აქ მხოლოდ ღრუბლოვანი ავტორიზაციის მონაცემები შეინახეთ."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "კოლექტორი"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "კოლექტორის დროის ლიმიტი"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "წამების რაოდენობა, რომელიც კოლექტორის ერთ გაშვებას შეუძლია დახარჯოს ახალი დავალებების დაწყების შეწყვეტამდე. შეინარჩუნეთ პოლერის ინტერვალზე ნაკლები; დაუსრულებელი ანგარიშები შემდეგ გაშვებაზე გაგრძელდება."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "დეინსტალაცია"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "პლაგინის ცხრილების შენახვა დეინსტალაციისას"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "მონიშვნის შემთხვევაში, პლაგინის წაშლისას შენარჩუნდება მისი ანგარიშები, დაშიფრული ავტორიზაციის მონაცემები და ქეში. მოხსენით მონიშვნა მათ წასაშლელად. ღრუბლოვან რესურსებს დეინსტალაცია არცერთ შემთხვევაში არ ეხება."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "ჯერ არ არის შემოწმებული."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "ავტორიზაციის მონაცემი მუშაობს და აქვს ამ ანგარიშისთვის საჭირო უფლებები."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "პროვაიდერმა უარყო ავტორიზაციის მონაცემი. ის შეიძლება იყოს არასწორი, ვადაგასული ან გაუქმებული."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "ავტორიზაციის მონაცემი მუშაობს, მაგრამ აკლია ამ ანგარიშისთვის საჭირო უფლება."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "პროვაიდერთან დაკავშირება ვერ მოხერხდა. შეამოწმეთ ქსელური გზა და გამავალი ტრაფიკის პოლიტიკა პოლერიდან."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "პროვაიდერი ზღუდავს მოთხოვნების სიხშირეს. სცადეთ მოგვიანებით."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "პროვაიდერმა გამოგზავნა პასუხი, რომლის წაკითხვაც პლაგინმა ვერ შეძლო."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "ანგარიში ან მისი ავტორიზაციის მონაცემი არასწორად არის კონფიგურირებული."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Cloud პლაგინი საჭიროებს PHP %s ან უფრო ახალ ვერსიას. ამ სერვერზე გაშვებულია PHP %s, ამიტომ პლაგინი არ დაყენდა და არ ჩაირთო."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Cloud პლაგინი საჭიროებს PHP გაფართოებებს %s, რომლებიც ამ სერვერზე არ არის ჩატვირთული, ამიტომ პლაგინი არ დაყენდა და არ ჩაირთო."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Cloud"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Cloud პლაგინი არ არის ჩართული."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Cloud პლაგინი საჭიროებს PHP %s ან უფრო ახალ ვერსიას."
+
+#: setup.php
+msgid "Management"
+msgstr "მართვა"

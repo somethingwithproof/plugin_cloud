@@ -1,0 +1,605 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-FileCopyrightText: 2026 Thomas Vincent <thomasvincent@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cloud 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/somethingwithproof/plugin_cloud/issues\n"
+"PO-Revision-Date: 2026-11-27 00:00+0000\n"
+"Last-Translator: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language-Team: Thomas Vincent <thomasvincent@gmail.com>\n"
+"Language: lv-LV\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n % 10 == 0 || n % 100 >= 11 && n % 100 <= 19) ? 0 : ((n % 10 == 1 && n % 100 != 11) ? 1 : 2);\n"
+
+#: cloud_accounts.php
+msgid "Name: another account already uses this name."
+msgstr "Nosaukums: šo nosaukumu jau izmanto cits konts."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The account was saved, but the credential was not stored: %s"
+msgstr "Konts tika saglabāts, bet akreditācijas dati netika saglabāti: %s"
+
+#: cloud_accounts.php
+msgid "The account was saved, but the stored credential could not be removed."
+msgstr "Konts tika saglabāts, bet saglabātos akreditācijas datus nevarēja noņemt."
+
+#: cloud_accounts.php
+msgid "The account was saved."
+msgstr "Konts tika saglabāts."
+
+#: cloud_accounts.php
+msgid "The account could not be saved."
+msgstr "Kontu nevarēja saglabāt."
+
+#: cloud_accounts.php
+msgid "The account and its collected data were deleted. Its Cacti devices and graphs were left in place."
+msgstr "Konts un tā savāktie dati tika dzēsti. Tā Cacti ierīces un grafiki tika saglabāti."
+
+#: cloud_accounts.php
+#, php-format
+msgid "The Cacti device for %s is ready."
+msgstr "Cacti ierīce priekš %s ir gatava."
+
+#: cloud_accounts.php
+msgid "The Cacti device was not created; see the Cacti log."
+msgstr "Cacti ierīce netika izveidota; skatiet Cacti žurnālu."
+
+#: cloud_operator.php
+msgid "Verify stored credential"
+msgstr "Pārbaudīt saglabātos akreditācijas datus"
+
+#: cloud_operator.php
+msgid "Monitoring view"
+msgstr "Uzraudzības skats"
+
+#: cloud_operator.php
+msgid "Observations could not be read. Ask an administrator to check the plugin log."
+msgstr "Novērojumus nevarēja nolasīt. Lūdziet administratoram pārbaudīt spraudņa žurnālu."
+
+#: include/operator.php
+msgid "Check the account graphs and collection freshness. Verify tests the stored credential; it cannot replace it or change the provider configuration."
+msgstr "Pārbaudiet konta grafikus un datu vākšanas aktualitāti. Pārbaude testē saglabātos akreditācijas datus; tā nevar tos nomainīt vai mainīt pakalpojumu sniedzēja konfigurāciju."
+
+#: lib/AccountInput.php
+msgid "Provider: choose one of the listed providers."
+msgstr "Pakalpojumu sniedzējs: izvēlieties vienu no norādītajiem pakalpojumu sniedzējiem."
+
+#: lib/AccountInput.php
+msgid "Name: enter 1 to 100 characters without control characters."
+msgstr "Nosaukums: ievadiet no 1 līdz 100 rakstzīmēm bez vadības rakstzīmēm."
+
+#: lib/AccountInput.php
+msgid "Poller: only the main poller can collect cloud accounts in this release."
+msgstr "Aptaujātājs: šajā laidienā mākoņkontu datus var vākt tikai galvenais aptaujātājs."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: the value does not have the form this provider uses."
+msgstr "%s: vērtībai nav šī pakalpojumu sniedzēja izmantotais formāts."
+
+#: lib/AccountInput.php
+msgid "Credential Source: choose one this provider supports."
+msgstr "Akreditācijas datu avots: izvēlieties avotu, ko atbalsta šis pakalpojumu sniedzējs."
+
+#: lib/AccountInput.php
+msgid "Credential File: enter an absolute path without control characters, at most 512 characters."
+msgstr "Akreditācijas datu fails: ievadiet absolūtu ceļu bez vadības rakstzīmēm, ne garāku par 512 rakstzīmēm."
+
+#: lib/AccountInput.php
+#, php-format
+msgid "%s: enter whole seconds from %d to %d."
+msgstr "%s: ievadiet veselu sekunžu skaitu no %d līdz %d."
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Collection Interval"
+msgstr "Datu vākšanas intervāls"
+
+#: lib/AccountInput.php lib/AccountsPage.php
+msgid "Discovery Interval"
+msgstr "Atklāšanas intervāls"
+
+#: lib/AccountInput.php
+msgid "Request Share: enter a whole percentage from 1 to 100."
+msgstr "Pieprasījumu daļa: ievadiet veselu procentu skaitu no 1 līdz 100."
+
+#: lib/AccountInput.php
+msgid "Monthly Ceiling: enter an amount of zero or more, or leave it blank for none."
+msgstr "Mēneša limits: ievadiet summu, kas ir nulle vai lielāka, vai atstājiet tukšu bez limita."
+
+#: lib/AccountInput.php
+msgid "AWS Account ID"
+msgstr "AWS konta ID"
+
+#: lib/AccountInput.php
+msgid "Regions"
+msgstr "Reģioni"
+
+#: lib/AccountInput.php
+msgid "Project ID"
+msgstr "Projekta ID"
+
+#: lib/AccountInput.php
+msgid "Tenant ID"
+msgstr "Nomnieka ID"
+
+#: lib/AccountInput.php
+msgid "Subscription ID"
+msgstr "Abonementa ID"
+
+#: lib/AccountsPage.php lib/Pages.php
+msgid "Cloud Accounts"
+msgstr "Mākoņkonti"
+
+#: lib/AccountsPage.php
+msgid "Name"
+msgstr "Nosaukums"
+
+#: lib/AccountsPage.php
+msgid "Provider"
+msgstr "Pakalpojumu sniedzējs"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Credential"
+msgstr "Akreditācijas dati"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "State"
+msgstr "Stāvoklis"
+
+#: lib/AccountsPage.php
+msgid "Verify"
+msgstr "Pārbaudīt"
+
+#: lib/AccountsPage.php
+msgid "Device"
+msgstr "Ierīce"
+
+#: lib/AccountsPage.php lib/OperatorPage.php
+msgid "Actions"
+msgstr "Darbības"
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "No cloud accounts yet."
+msgstr "Vēl nav neviena mākoņkonta."
+
+#: lib/AccountsPage.php lib/HealthPage.php
+msgid "Disabled"
+msgstr "Atspējots"
+
+#: lib/AccountsPage.php
+msgid "Enabled"
+msgstr "Iespējots"
+
+#: lib/AccountsPage.php
+msgid "Delete"
+msgstr "Dzēst"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Cloud Account: %s"
+msgstr "Mākoņkonts: %s"
+
+#: lib/AccountsPage.php
+msgid "New Cloud Account"
+msgstr "Jauns mākoņkonts"
+
+#: lib/AccountsPage.php
+msgid "Credential Source"
+msgstr "Akreditācijas datu avots"
+
+#: lib/AccountsPage.php
+msgid "Credential File"
+msgstr "Akreditācijas datu fails"
+
+#: lib/AccountsPage.php
+msgid "A credential is stored. Leave blank to keep it."
+msgstr "Akreditācijas dati ir saglabāti. Atstājiet tukšu, lai tos nemainītu."
+
+#: lib/AccountsPage.php
+msgid "Paste the token or key to store in the vault."
+msgstr "Ielīmējiet marķieri vai atslēgu saglabāšanai glabātuvē."
+
+#: lib/AccountsPage.php
+msgid "Request Share"
+msgstr "Pieprasījumu daļa"
+
+#: lib/AccountsPage.php
+msgid "Monthly Ceiling"
+msgstr "Mēneša limits"
+
+#: lib/AccountsPage.php
+msgid "Save"
+msgstr "Saglabāt"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Delete %s? This removes the account, its stored credential, series mappings, resources and observations, and cannot be undone. Its Cacti devices and graphs are left in place."
+msgstr "Vai dzēst %s? Tas neatgriezeniski noņems kontu, tā saglabātos akreditācijas datus, datu rindu sasaistes, resursus un novērojumus. Tā Cacti ierīces un grafiki tiks saglabāti."
+
+#: lib/AccountsPage.php
+msgid "Cancel"
+msgstr "Atcelt"
+
+#: lib/AccountsPage.php
+msgid "Stored in the vault"
+msgstr "Saglabāts glabātuvē"
+
+#: lib/AccountsPage.php
+msgid "None stored"
+msgstr "Nav saglabāts"
+
+#: lib/AccountsPage.php
+msgid "File on the poller"
+msgstr "Fails aptaujātājā"
+
+#: lib/AccountsPage.php
+msgid "Instance identity"
+msgstr "Instances identitāte"
+
+#: lib/AccountsPage.php
+#, php-format
+msgid "Device %d"
+msgstr "Ierīce %d"
+
+#: lib/AccountsPage.php
+msgid "Create Cacti Device"
+msgstr "Izveidot Cacti ierīci"
+
+#: lib/CredentialSource.php
+msgid "Stored in the plugin vault"
+msgstr "Saglabāts spraudņa glabātuvē"
+
+#: lib/CredentialSource.php
+msgid "Credential file on the poller"
+msgstr "Akreditācijas datu fails aptaujātājā"
+
+#: lib/CredentialSource.php
+msgid "Instance identity of the poller"
+msgstr "Aptaujātāja instances identitāte"
+
+#: lib/EstimateView.php setup.php
+msgid "Cloud Request Estimate"
+msgstr "Mākoņa pieprasījumu aprēķins"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Account"
+msgstr "Konts"
+
+#: lib/EstimateView.php
+msgid "Selection"
+msgstr "Atlase"
+
+#: lib/EstimateView.php lib/HealthPage.php
+msgid "Resources"
+msgstr "Resursi"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour, One Resource"
+msgstr "Pieprasījumi stundā, viens resurss"
+
+#: lib/EstimateView.php
+msgid "Requests per Month, One Resource"
+msgstr "Pieprasījumi mēnesī, viens resurss"
+
+#: lib/EstimateView.php
+msgid "Requests per Hour"
+msgstr "Pieprasījumi stundā"
+
+#: lib/EstimateView.php
+msgid "Requests per Month"
+msgstr "Pieprasījumi mēnesī"
+
+#: lib/EstimateView.php
+msgid "Cost per Month"
+msgstr "Izmaksas mēnesī"
+
+#: lib/EstimateView.php
+msgid "No accounts to estimate."
+msgstr "Nav kontu aprēķina veikšanai."
+
+#: lib/EstimateView.php
+msgid "Estimates use list prices and exclude discounts and shared free tiers."
+msgstr "Aprēķinos izmantotas standarta cenrāža cenas, neietverot atlaides un koplietojamos bezmaksas līmeņus."
+
+#: lib/EstimateView.php
+#, php-format
+msgid "%s prices from"
+msgstr "%s cenas no"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "checked %s."
+msgstr "pārbaudīts %s."
+
+#: lib/EstimateView.php
+msgid "Collected now"
+msgstr "Pašlaik vākts"
+
+#: lib/EstimateView.php
+msgid "Every graph on every resource"
+msgstr "Katrs grafiks katram resursam"
+
+#: lib/EstimateView.php
+#, php-format
+msgid "Request share: %s requests per hour, %s percent of the token limit. Collected now: %s. Every graph: %s."
+msgstr "Pieprasījumu daļa: %s pieprasījumi stundā, %s procenti no marķiera limita. Pašlaik vākts: %s. Katrs grafiks: %s."
+
+#: lib/EstimateView.php
+msgid "Collection is capped; the remaining series read U."
+msgstr "Datu vākšana ir ierobežota; atlikušās datu rindas atgriež U."
+
+#: lib/EstimateView.php
+msgid "Metric estimate between discovery runs; discovery requests reduce the collection allowance."
+msgstr "Metriku aprēķins starp atklāšanas izpildēm; atklāšanas pieprasījumi samazina datu vākšanas kvotu."
+
+#: lib/EstimateView.php
+msgid "No charge documented"
+msgstr "Maksa nav dokumentēta"
+
+#: lib/EstimateView.php
+msgid "Droplet"
+msgstr "Droplet"
+
+#: lib/EstimateView.php
+msgid "Load Balancer"
+msgstr "Slodzes balansētājs"
+
+#: lib/HealthPage.php
+msgid "Cloud Warnings"
+msgstr "Mākoņa brīdinājumi"
+
+#: lib/HealthPage.php
+msgid "No warnings."
+msgstr "Nav brīdinājumu."
+
+#: lib/HealthPage.php
+msgid "Cloud Collection"
+msgstr "Mākoņa datu vākšana"
+
+#: lib/HealthPage.php
+msgid "Collection"
+msgstr "Datu vākšana"
+
+#: lib/HealthPage.php
+msgid "Last Run"
+msgstr "Pēdējā izpilde"
+
+#: lib/HealthPage.php
+msgid "Series Read"
+msgstr "Nolasītās datu rindas"
+
+#: lib/HealthPage.php
+msgid "Requests"
+msgstr "Pieprasījumi"
+
+#: lib/HealthPage.php
+msgid "Discovery"
+msgstr "Atklāšana"
+
+#: lib/HealthPage.php
+msgid "Data"
+msgstr "Dati"
+
+#: lib/HealthPage.php lib/OperatorPage.php
+msgid "Never"
+msgstr "Nekad"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "retry in %d s"
+msgstr "atkārtot pēc %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d seconds ago"
+msgstr "pirms %d s"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d minutes ago"
+msgstr "pirms %d min"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d hours ago"
+msgstr "pirms %d h"
+
+#: lib/HealthPage.php
+#, php-format
+msgid "%d days ago"
+msgstr "pirms %d d"
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "The vault key file cannot be used: %s. Accounts that store credentials in the vault cannot be verified or collected here."
+msgstr "Glabātuves atslēgas failu nevar izmantot: %s. Kontus, kuru akreditācijas dati glabājas glabātuvē, šeit nevar pārbaudīt vai no tiem vākt datus."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the credential file cannot be used: %s."
+msgstr "%s: akreditācijas datu failu nevar izmantot: %s."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is shorter than the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: datu vākšanas intervāls (%d sekundes) ir īsāks par aptaujātāja intervālu (%d sekundes), tāpēc dati tiek vākti ik pēc %d sekundēm."
+
+#: lib/HealthWarnings.php
+#, php-format
+msgid "%s: the collection interval of %d seconds is not a multiple of the poller interval of %d seconds, so it is collected every %d seconds."
+msgstr "%s: datu vākšanas intervāls (%d sekundes) nav aptaujātāja intervāla (%d sekundes) daudzkārtnis, tāpēc dati tiek vākti ik pēc %d sekundēm."
+
+#: lib/OperatorPage.php
+msgid "Review the recorded observations below. Acknowledgments are personal to this session, expire when observations change, and never suppress alerts or change health."
+msgstr "Pārskatiet tālāk reģistrētos novērojumus. Pieņemšana zināšanai attiecas tikai uz šo sesiju, zaudē spēku, mainoties novērojumiem, un nekad neapslāpē trauksmes vai nemaina darbspēju."
+
+#: lib/OperatorPage.php lib/Pages.php
+msgid "Cloud Operations"
+msgstr "Mākoņa operācijas"
+
+#: lib/OperatorPage.php
+msgid "Investigation"
+msgstr "Izmeklēšana"
+
+#: lib/OperatorPage.php
+msgid "Object"
+msgstr "Objekts"
+
+#: lib/OperatorPage.php
+msgid "Observed (UTC)"
+msgstr "Novērots (UTC)"
+
+#: lib/OperatorPage.php
+msgid "Unknown or stale"
+msgstr "Nezināms vai novecojis"
+
+#: lib/OperatorPage.php
+msgid "Acknowledged; health unchanged."
+msgstr "Pieņemts zināšanai; darbspēja nemainījās."
+
+#: lib/OperatorPage.php
+msgid "Acknowledge"
+msgstr "Pieņemt zināšanai"
+
+#: lib/OperatorPage.php
+msgid "No observations are available for devices you may access."
+msgstr "Ierīcēm, kurām jums ir piekļuve, nav pieejamu novērojumu."
+
+#: lib/Pages.php
+msgid "Cloud Operator"
+msgstr "Mākoņa operators"
+
+#: lib/Pages.php
+msgid "Cloud View"
+msgstr "Mākoņa skatīšana"
+
+#: lib/Pages.php
+msgid "Cloud Admin"
+msgstr "Mākoņa administrators"
+
+#: lib/Pages.php
+msgid "Cloud Health"
+msgstr "Mākoņa darbspēja"
+
+#: lib/Provider.php
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: lib/Provider.php
+msgid "Amazon Web Services"
+msgstr "Amazon Web Services"
+
+#: lib/Provider.php
+msgid "Google Cloud"
+msgstr "Google Cloud"
+
+#: lib/Provider.php
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+#: lib/Settings.php
+msgid "Credential Vault"
+msgstr "Akreditācijas datu glabātuve"
+
+#: lib/Settings.php
+msgid "Vault Key File"
+msgstr "Glabātuves atslēgas fails"
+
+#: lib/Settings.php
+msgid "Absolute path to the 32-byte key that encrypts stored credentials. Create it yourself, outside the web root, readable only by the web server and poller user, in a directory that only root and that user can write (the same applies to credential files); the plugin never creates or writes it. Back it up with the database: without it, stored credentials must be entered again."
+msgstr "Absolūts ceļš uz 32 baitu atslēgu, kas šifrē saglabātos akreditācijas datus. Izveidojiet to patstāvīgi ārpus tīmekļa saknes direktorija tā, lai tā būtu lasāma tikai tīmekļa servera un aptaujātāja lietotājam, direktorijā, kurā var rakstīt tikai root un šis lietotājs (tas pats attiecas uz akreditācijas datu failiem); spraudnis to nekad neveido un neieraksta. Veidojiet tās rezerves kopiju kopā ar datubāzi: bez tās saglabātie akreditācijas dati būs jāievada no jauna."
+
+#: lib/Settings.php
+msgid "Credential File Directory"
+msgstr "Akreditācijas datu failu direktorijs"
+
+#: lib/Settings.php
+msgid "Absolute path to the directory that holds credential files. An account can read its credential from a file only inside it, never the vault key file. Empty, the default, refuses credential files. Cloud Admin chooses the file, so keep only cloud credentials here."
+msgstr "Absolūts ceļš uz direktoriju, kurā glabājas akreditācijas datu faili. Konts var nolasīt akreditācijas datus no faila tikai šajā direktorijā, nekad no glabātuves atslēgas faila. Tukša vērtība (noklusējums) noraida akreditācijas datu failus. Failu izvēlas mākoņa administrators, tāpēc šeit glabājiet tikai mākoņpakalpojumu akreditācijas datus."
+
+#: lib/Settings.php
+msgid "Collector"
+msgstr "Datu vācējs"
+
+#: lib/Settings.php
+msgid "Collector Time Budget"
+msgstr "Datu vācēja laika limits"
+
+#: lib/Settings.php
+msgid "Seconds one collector run may spend before it stops starting new work. Keep it below the poller interval; unfinished accounts resume on the next run."
+msgstr "Sekundes, ko viena datu vācēja izpilde drīkst patērēt, pirms pārtrauc sākt jaunu darbu. Turiet šo vērtību mazāku par aptaujātāja intervālu; nepabeigtie konti tiks apstrādāti nākamajā izpildē."
+
+#: lib/Settings.php
+msgid "Uninstall"
+msgstr "Atinstalēšana"
+
+#: lib/Settings.php
+msgid "Keep Plugin Tables on Uninstall"
+msgstr "Atinstalējot saglabāt spraudņa tabulas"
+
+#: lib/Settings.php
+msgid "When checked, uninstalling the plugin keeps its accounts, encrypted credentials, and cache. Clear it to have the uninstall drop them. Cloud resources are never touched either way."
+msgstr "Ja atzīmēts, atinstalējot spraudni tiek saglabāti tā konti, šifrētie akreditācijas dati un kešatmiņa. Noņemiet atzīmi, lai atinstalēšanas laikā tos dzēstu. Mākoņresursi nevienā gadījumā netiek skarti."
+
+#: lib/VerifyStatus.php
+msgid "Not verified yet."
+msgstr "Vēl nav pārbaudīts."
+
+#: lib/VerifyStatus.php
+msgid "The credential works and has the permissions this account needs."
+msgstr "Akreditācijas dati darbojas, un tiem ir šim kontam nepieciešamās atļaujas."
+
+#: lib/VerifyStatus.php
+msgid "The provider rejected the credential. It may be wrong, expired, or revoked."
+msgstr "Pakalpojumu sniedzējs noraidīja akreditācijas datus. Tie var būt nepareizi, beigušies vai atsaukti."
+
+#: lib/VerifyStatus.php
+msgid "The credential works but lacks a permission this account needs."
+msgstr "Akreditācijas dati darbojas, taču trūkst šim kontam nepieciešamas atļaujas."
+
+#: lib/VerifyStatus.php
+msgid "The provider could not be reached. Check the network path and outbound policy from the poller."
+msgstr "Pakalpojumu sniedzēju nevarēja sasniegt. Pārbaudiet tīkla ceļu un izejošā trafika politiku no aptaujātāja."
+
+#: lib/VerifyStatus.php
+msgid "The provider is throttling requests. Try again later."
+msgstr "Pakalpojumu sniedzējs ierobežo pieprasījumu intensitāti. Mēģiniet vēlreiz vēlāk."
+
+#: lib/VerifyStatus.php
+msgid "The provider sent a response the plugin could not read."
+msgstr "Pakalpojumu sniedzējs nosūtīja atbildi, ko spraudnis nevarēja nolasīt."
+
+#: lib/VerifyStatus.php
+msgid "The account or its credential is not configured correctly."
+msgstr "Konts vai tā akreditācijas dati nav pareizi konfigurēti."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later. This server runs PHP %s, so the plugin was not installed or enabled."
+msgstr "Spraudnim Cloud ir nepieciešama PHP %s vai jaunāka versija. Šajā serverī darbojas PHP %s, tāpēc spraudnis netika instalēts vai iespējots."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires the PHP extensions %s, which this server does not load, so the plugin was not installed or enabled."
+msgstr "Spraudnim Cloud ir nepieciešami PHP paplašinājumi %s, kurus šis serveris neielādē, tāpēc spraudnis netika instalēts vai iespējots."
+
+#: setup.php
+msgid "Cloud"
+msgstr "Mākonis"
+
+#: setup.php
+msgid "The Cloud plugin is not enabled."
+msgstr "Spraudnis Cloud nav iespējots."
+
+#: setup.php
+#, php-format
+msgid "The Cloud plugin requires PHP %s or later."
+msgstr "Spraudnim Cloud ir nepieciešama PHP %s vai jaunāka versija."
+
+#: setup.php
+msgid "Management"
+msgstr "Pārvaldība"
